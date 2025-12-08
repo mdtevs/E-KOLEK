@@ -326,14 +326,12 @@ def send_otp(phone_number, message=None):
         'api_token': SMS_API_TOKEN,
         'phone_number': phone_formatted,
         'message': otp_message,
-        'sms_provider': SMS_PROVIDER,  # Multi-network provider
-        'sender_name': 'Ka Prets'  # Temporary sender name (works across all networks)
+        'sms_provider': SMS_PROVIDER  # Multi-network provider
     }
 
     print(f"\n[REQUEST] Endpoint: {SMS_API_URL}")
     print(f"[REQUEST] Phone: {phone_formatted}")
     print(f"[REQUEST] SMS Provider: {SMS_PROVIDER}")
-    print(f"[REQUEST] Sender Name: Ka Prets")
     
     result = _post_json(SMS_API_URL, payload)
     

@@ -105,18 +105,17 @@ class SMSService:
                 'api_token': self.api_token,
                 'phone_number': formatted_phone,
                 'message': message,
-                'sms_provider': self.sms_provider,  # Multi-network provider for all networks
-                'sender_name': 'Ka Prets'  # Temporary sender name (works across all networks)
+                'sms_provider': self.sms_provider  # Multi-network provider for all networks
             }
             
             # Log the request (without exposing full token)
             masked_token = self.api_token[:4] + '****' if len(self.api_token) > 4 else '****'
-            logger.info(f"Sending SMS to {formatted_phone} via iProg Tech API (token: {masked_token}, provider: {self.sms_provider}, sender: Ka Prets)")
+            logger.info(f"Sending SMS to {formatted_phone} via iProg Tech API (token: {masked_token}, provider: {self.sms_provider})")
             logger.debug(f"SMS content: {message}")
             
             # Send POST request
             logger.info(f"[DEBUG] Making request to {self.api_url}")
-            logger.debug(f"[DEBUG] Request payload: {{'api_token': '***', 'phone_number': '{formatted_phone}', 'message': '...', 'sms_provider': {self.sms_provider}, 'sender_name': 'Ka Prets'}}")
+            logger.debug(f"[DEBUG] Request payload: {{'api_token': '***', 'phone_number': '{formatted_phone}', 'message': '...', 'sms_provider': {self.sms_provider}}}")
             
             response = requests.post(
                 self.api_url,
