@@ -64,14 +64,15 @@ class ResilientSMTPBackend(DjangoSMTPBackend):
         password = self.password
         
         # Port configurations to try (in order of preference)
+        # Port 2525 is often allowed as alternative SMTP port
         port_configs = [
             # Try configured port first
             {'port': self.port, 'use_ssl': self.use_ssl, 'use_tls': self.use_tls},
             
             # Alternative configurations for Railway
+            {'port': 2525, 'use_ssl': False, 'use_tls': True},  # Alternative SMTP port (often works!)
             {'port': 587, 'use_ssl': False, 'use_tls': True},   # Standard STARTTLS
             {'port': 465, 'use_ssl': True, 'use_tls': False},   # SSL
-            {'port': 2525, 'use_ssl': False, 'use_tls': True},  # Alternative port
             {'port': 8025, 'use_ssl': False, 'use_tls': True},  # Alternative port
             {'port': 25, 'use_ssl': False, 'use_tls': False},   # Plain SMTP
         ]
