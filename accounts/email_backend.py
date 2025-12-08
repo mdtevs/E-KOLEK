@@ -126,26 +126,19 @@ class ResilientSMTPBackend(DjangoSMTPBackend):
                     except:
                         pass
         
-        # All attempts failed - log detailed error
+        # All attempts failed - this shouldn't happen if Railway allows SMTP
         logger.error("="*70)
         logger.error("❌ ALL SMTP CONNECTION ATTEMPTS FAILED")
         logger.error(f"   Tried {len(unique_configs)} different configurations")
         logger.error(f"   Host: {host}")
-        logger.error("   Railway blocks SMTP ports for web services")
+        logger.error("   Ports tried: 2525, 587, 465, 8025, 25")
         logger.error("")
-        logger.error("   WORKAROUND: Use SendGrid free tier (100 emails/day)")
-        logger.error("   1. Sign up: https://signup.sendgrid.com")
-        logger.error("   2. Get API key: Settings → API Keys")
-        logger.error("   3. Update Railway variables:")
-        logger.error("      EMAIL_HOST = smtp.sendgrid.net")
-        logger.error("      EMAIL_PORT = 587")
-        logger.error("      EMAIL_HOST_USER = apikey")
-        logger.error("      EMAIL_HOST_PASSWORD = <your_sendgrid_api_key>")
+        logger.error("   NEXT STEPS TO DEBUG:")
+        logger.error("   1. Check Railway network settings")
+        logger.error("   2. Verify EMAIL_HOST_PASSWORD is correct")
+        logger.error("   3. Check if Gmail requires 'Less secure apps' enabled")
+        logger.error("   4. Contact Railway support for SMTP port access")
         logger.error("="*70)
         
-        # Raise exception to make failure visible
-        raise smtplib.SMTPConnectError(
-            421,
-            "Railway blocks SMTP ports for web services. "
-            "Please use SendGrid (free) or contact Railway support to enable SMTP."
-        )
+        # Return False to indicate connection failed
+        return False

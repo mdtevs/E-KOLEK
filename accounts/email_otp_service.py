@@ -230,12 +230,10 @@ E-KOLEK Team
     try:
         from_email = f"E-KOLEK System <{settings.DEFAULT_FROM_EMAIL}>"
         
-        # IMPORTANT: Railway Celery workers cannot reach external SMTP servers
-        # Always use direct SMTP sending for reliability
         # Check if we should try Celery
-        use_celery = False  # Disabled: Railway network limitation prevents Celery from reaching Gmail SMTP
+        use_celery = CELERY_AVAILABLE and check_celery_worker_running()
         
-        if use_celery and CELERY_AVAILABLE and check_celery_worker_running():
+        if use_celery:
             # Production: Use Celery task queue (recommended)
             logger.info(f"📧 Queuing email task via Celery for: {email}")
             
@@ -258,7 +256,7 @@ E-KOLEK Team
                 logger.warning(f"⚠️ Celery task failed: {str(celery_error)}")
                 logger.info("🔄 Falling back to direct email sending...")
         else:
-            logger.info("📧 Using direct SMTP email sending (Railway compatible)")
+            logger.info("⚠️ Celery worker not running - using direct email sending")
         
         # Send email directly (synchronous) - fallback or when Celery unavailable
         try:
