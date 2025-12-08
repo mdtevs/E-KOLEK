@@ -374,7 +374,9 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'
 
 # Production-only security settings
 if not DEBUG:
-    SECURE_SSL_REDIRECT = True
+    # Railway handles SSL at proxy level, so don't redirect
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    # SECURE_SSL_REDIRECT = True  # Disabled for Railway - causes redirect loop
     SECURE_HSTS_SECONDS = 31536000  # 1 year
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
