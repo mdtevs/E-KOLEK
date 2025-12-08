@@ -120,9 +120,10 @@ WSGI_APPLICATION = 'eko.wsgi.application'
 
 # Support both Railway DATABASE_URL and individual settings
 import dj_database_url
+import os
 
 # Try to use DATABASE_URL first (Railway), fall back to individual settings
-database_url = config('DATABASE_URL', default='')
+database_url = os.environ.get('DATABASE_URL') or config('DATABASE_URL', default='')
 
 if database_url:
     # Railway provides DATABASE_URL
@@ -138,9 +139,9 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('DB_NAME'),
-            'USER': config('DB_USER'),
-            'PASSWORD': config('DB_PASSWORD'),
+            'NAME': config('DB_NAME', default='ekolek_cenro'),
+            'USER': config('DB_USER', default='postgres'),
+            'PASSWORD': config('DB_PASSWORD', default=''),
             'HOST': config('DB_HOST', default='localhost'),
             'PORT': config('DB_PORT', default='5432', cast=int),
             'CONN_MAX_AGE': 600,  # Connection pooling
