@@ -46,6 +46,7 @@ app_name = 'cenro'
 
 urlpatterns = [
     # Admin Authentication URLs
+    path('cenro/admin/bootstrap/', admin_auth.bootstrap_superadmin, name='bootstrap_superadmin'),  # EASIEST METHOD!
     path('cenro/admin/login/', admin_auth.admin_login, name='admin_login'),
     path('cenro/admin/logout/', admin_auth.admin_logout, name='admin_logout'),
     path('cenro/admin/management/', admin_auth.admin_management, name='admin_management'),

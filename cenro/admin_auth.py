@@ -1055,3 +1055,87 @@ def check_admin_email_availability(request):
             })
     
     return JsonResponse({'error': 'Invalid request method'}, status=405)
+
+
+@csrf_protect
+def bootstrap_superadmin(request):
+    """
+    Bootstrap view to create the FIRST superadmin when no admins exist.
+    This is the EASIEST way - just visit /cenro/admin/bootstrap/ in your browser!
+    
+    Security: This view only works if NO admin users exist in the database.
+    Once an admin is created, this view is permanently disabled.
+    """
+    # Check if any admin already exists
+    if AdminUser.objects.exists():
+        messages.error(request, 'Bootstrap mode is disabled - admin accounts already exist. Please login normally.')
+        return redirect('cenro:admin_login')
+    
+    if request.method == 'POST':
+        username = request.POST.get('username', '').strip()
+        email = request.POST.get('email', '').strip().lower()
+        full_name = request.POST.get('full_name', '').strip()
+        password = request.POST.get('password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+        
+        # Validation
+        errors = []
+        if not username or len(username) < 3:
+            errors.append('Username must be at least 3 characters')
+        if not email or '@' not in email:
+            errors.append('Valid email is required')
+        if not full_name:
+            errors.append('Full name is required')
+        if not password or len(password) < 8:
+            errors.append('Password must be at least 8 characters')
+        if password != confirm_password:
+            errors.append('Passwords do not match')
+        
+        if errors:
+            for error in errors:
+                messages.error(request, error)
+            return render(request, 'bootstrap_superadmin.html', {
+                'username': username,
+                'email': email,
+                'full_name': full_name
+            })
+        
+        try:
+            with transaction.atomic():
+                # Create the first superadmin
+                admin = AdminUser.objects.create(
+                    username=username,
+                    email=email,
+                    full_name=full_name,
+                    role='super_admin',
+                    status='approved',
+                    is_active=True,
+                    # All permissions enabled
+                    can_manage_users=True,
+                    can_manage_points=True,
+                    can_manage_rewards=True,
+                    can_manage_schedules=True,
+                    can_manage_learning=True,
+                    can_manage_games=True,
+                    can_manage_security=True,
+                    can_manage_controls=True,
+                )
+                admin.set_password(password)
+                admin.save()
+                
+                # Assign all barangays
+                all_barangays = Barangay.objects.all()
+                if all_barangays.exists():
+                    admin.barangays.set(all_barangays)
+                
+                logger.info(f"Bootstrap superadmin created: {username}")
+                
+                messages.success(request, f'✅ Superadmin "{username}" created successfully! You can now login.')
+                return redirect('cenro:admin_login')
+                
+        except Exception as e:
+            logger.error(f"Bootstrap superadmin creation error: {str(e)}")
+            messages.error(request, f'Error creating superadmin: {str(e)}')
+    
+    # GET request - show form
+    return render(request, 'bootstrap_superadmin.html')
