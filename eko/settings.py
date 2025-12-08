@@ -240,13 +240,20 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # EMAIL CONFIGURATION
 # ==============================================================================
 
-EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+# Smart email backend that auto-tries multiple ports/configs for Railway compatibility
+# Falls back through: configured port → 587 (TLS) → 465 (SSL) → 2525 → 8025 → 25
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='accounts.email_backend.ResilientSMTPBackend')
 EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
+
+# Primary configuration (will auto-fallback if blocked)
 EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_USE_SSL = config('EMAIL_USE_SSL', default=False, cast=bool)
+
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default=EMAIL_HOST_USER)
+EMAIL_TIMEOUT = config('EMAIL_TIMEOUT', default=30, cast=int)  # 30 second timeout
 
 
 # ==============================================================================
