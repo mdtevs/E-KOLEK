@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+  .tab-button.active {
+    background-color: rgb(52, 254, 6);
+    font-weight: bold;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Tab Content Styling */
+.tab-content {
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 1rem;
+    border-radius: 0.75rem; /* rounded-xl */
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1); /* stronger shadow */
+}
+
+/* Heading */
+.tab-content h2 {
+    color: #1e3a8a; /* Tailwind blue-700 */
+    font-size: 1.5rem; /* equivalent to Tailwind text-2xl */
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+/* Table */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem; /* text-sm */
+    border: 1px solid #d1d5db;
+    border-radius: 0.75rem;
+    overflow: hidden;
+}
+
+/* Table Head */
+.table thead {
+    background-color: #dbeafe; /* blue-100 */
+    color: #1e40af; /* blue-800 */
+}
+
+/* Table Cells */
+.table th,
+.table td {
+    padding: 0.75rem 1rem; /* px-4 py-2 in rem */
+    border: 1px solid #d1d5db;
+    text-align: center;
+}
+
+/* QR Code image size */
+.table img {
+    height: 2.25rem; /* 36px */
+    width: 2.25rem;
+}
+
+/* Font color (gray-800) */
+.table tbody {
+    color: #1f2937;
+}
+
+/* Row hover */
+.table tbody tr:hover {
+    background-color: #f9fafb; /* gray-50 */
+}
+
+
+
+
+</style>
+
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
+  <!-- Header -->
+  <header class="bg-white/80 backdrop-blur shadow p-4 rounded-xl flex justify-between items-center">
+    <div>
+      <h1 class="text-2xl font-bold text-blue-700">Admin Dashboard</h1>
+      <p class="text-gray-600">EcoRewards Management System</p>
+    </div>
+    <button class="border border-blue-600 text-blue-600 px-4 py-2 rounded flex items-center gap-2 hover:bg-blue-100">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7"></path></svg>
+      Logout
+    </button>
+  </header>
+
+  <!-- Stats Cards -->
+  <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 my-6">
+    <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 rounded-xl">
+      <div class="flex items-center gap-3">
+        <svg class="w-12 h-12 text-blue-200" fill="currentColor" viewBox="0 0 24 24"><path d="M17 20h5v-2a3 3 0 00-5.356-1.857M9 20H4v-2a3 3 0 015.356-1.857M12 4a4 4 0 11-4 4 4 4 0 014-4z" /></svg>
+        <div>
+          <div class="text-3xl font-bold">1,250</div>
+          <div class="text-blue-200">Total Users</div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-gradient-to-br from-green-500 to-green-600 text-white p-4 rounded-xl">
+      <div class="flex items-center gap-3">
+        <svg class="w-12 h-12 text-green-200" fill="currentColor" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7" /></svg>
+        <div>
+          <div class="text-3xl font-bold">85</div>
+          <div class="text-green-200">Active Today</div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-gradient-to-br from-yellow-500 to-orange-500 text-white p-4 rounded-xl">
+      <div class="flex items-center gap-3">
+        <svg class="w-12 h-12 text-yellow-100" fill="currentColor" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21 16.54 13.97 22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+        <div>
+          <div class="text-3xl font-bold">156,780</div>
+          <div class="text-yellow-100">Total Points</div>
+        </div>
+      </div>
+    </div>
+    <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white p-4 rounded-xl">
+      <div class="flex items-center gap-3">
+        <svg class="w-12 h-12 text-purple-200" fill="currentColor" viewBox="0 0 24 24"><path d="M20 12v1.79a2 2 0 01-.89 1.68l-6.11 4.07a2 2 0 01-2 0L4.89 15.47A2 2 0 014 13.79V12z"/></svg>
+        <div>
+          <div class="text-3xl font-bold">342</div>
+          <div class="text-purple-200">Rewards Redeemed</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Navigation Tabs -->
+<nav class="grid grid-cols-5 gap-2 bg-white/70 backdrop-blur p-2 rounded-xl text-sm font-medium text-gray-700 mb-4">
+  <button onclick="switchTab('tab-users')" class="tab-button active">Users</button>
+  <button onclick="switchTab('tab-scanner')" class="tab-button">Scanner</button>
+  <button onclick="switchTab('tab-products')" class="tab-button">Products</button>
+  <button onclick="switchTab('tab-schedule')" class="tab-button">Schedule</button>
+  <button onclick="switchTab('tab-analytics')" class="tab-button">Analytics</button>
+</nav>
+
+<!-- Tabs Content -->
+<section id="tabs-container">
+  <div id="tab-users" class="tab-content">
+    <h2>Family Management</h2>
+
+    <div class="table-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Full Name</th>
+            <th>Family Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Barangay</th>
+            <th>Family Code</th>
+            <th>QR Code</th>
+            <th>Total Points</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for users in users %}
+          <tr>
+            <td>{{ users.id }}</td>
+            <td>{{ users.username }}</td>
+            <td>{{ users.full_name }}</td>
+            <td>{{ users.family_name }}</td>
+            <td>{{ users.email }}</td>
+            <td>{{ users.phone }}</td>
+            <td>{{ users.barangay }}</td>
+            <td>{{ users.family_code }}</td>
+            <td><img src="{{ users.qr_code.url }}" alt="QR"></td>
+            <td>{{ users.total_points }}</td>
+            <td>
+              <button class="action-btn view-btn">👁</button>
+              <button class="action-btn edit-btn">✎</button>
+              <button class="action-btn delete-btn">🗑</button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+
+  <div id="tab-scanner" class="tab-content hidden">
+    <!-- Scanner Content Here -->
+    <div class='grid md:grid-cols-2 gap-4'>
+      <div class='bg-white/70 p-4 rounded-xl shadow'>
+        <h3 class='text-green-700 font-semibold mb-2'>QR Code Scanner</h3>
+        <div class='bg-gray-100 h-40 flex justify-center items-center rounded'>📷</div>
+        <button class='w-full mt-2 border border-green-600 text-green-600 py-1 rounded hover:bg-green-100'>Start Scanner</button>
+      </div>
+      <div class='bg-white/70 p-4 rounded-xl shadow'>
+        <h3 class='text-green-700 font-semibold mb-2'>Manual Entry</h3>
+        <form class='space-y-2'>
+          <input type='text' placeholder='Family Code' class='w-full border p-2 rounded'/>
+          <input type='number' placeholder='Points' class='w-full border p-2 rounded'/>
+          <select class='w-full border p-2 rounded'>
+            <option>Add Points</option>
+            <option>Deduct Points</option>
+            <option>Process Redemption</option>
+          </select>
+          <button class='w-full bg-green-600 text-white py-2 rounded'>Process Transaction</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-products" class="tab-content hidden">
+  <!-- Products Content -->
+  <div class="bg-white/70 p-4 rounded-xl shadow">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-purple-700 font-semibold text-lg">Product Management</h3>
+      <button class="border px-3 py-1 rounded bg-purple-100 hover:bg-purple-200">+ Add Product</button>
+    </div>
+
+    <!-- Product Table -->
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm text-left border-collapse">
+        <thead class="bg-purple-100 text-purple-700">
+          <tr>
+            <th class="p-2 border-b">ID</th>
+            <th class="p-2 border-b">Name</th>
+            <th class="p-2 border-b">Category</th>
+            <th class="p-2 border-b">Points Required</th>
+            <th class="p-2 border-b">Description</th>
+            <th class="p-2 border-b">Image URL</th>
+            <th class="p-2 border-b text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white/50">
+          <tr class="hover:bg-purple-50 transition">
+            <td class="p-2 border-b">1</td>
+            <td class="p-2 border-b font-semibold">Rice 5kg</td>
+            <td class="p-2 border-b">Goods</td>
+            <td class="p-2 border-b">500</td>
+            <td class="p-2 border-b">High-quality long grain rice</td>
+            <td class="p-2 border-b text-blue-600 underline break-all">https://example.com/image1.jpg</td>
+            <td class="p-2 border-b text-center">
+              <div class="flex gap-2 justify-center">
+                <button class="border px-2 py-1 rounded hover:bg-purple-100">✎</button>
+                <button class="border px-2 py-1 rounded hover:bg-red-100">🗑</button>
+              </div>
+            </td>
+          </tr>
+          <!-- Add more rows here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+  <div id="tab-schedule" class="tab-content hidden">
+    <!-- Schedule Content -->
+    <div class='bg-white/70 p-4 rounded-xl shadow'>
+      <div class='flex justify-between items-center mb-4'>
+        <h3 class='text-blue-700 font-semibold'>Collection Schedule</h3>
+        <button class='border px-3 py-1 rounded'>+ Add Schedule</button>
+      </div>
+      <div class='space-y-2'>
+        <div class='flex items-center gap-3 bg-white/50 p-3 rounded'>
+          <div class='bg-blue-500 p-2 rounded-full text-white'>📅</div>
+          <div>
+            <div class='font-bold'>San Miguel</div>
+            <div class='text-sm text-gray-600'>May 25, 8:00 AM - 12:00 PM</div>
+          </div>
+          <span class='ml-auto border px-2 rounded'>Regular</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tab-analytics" class="tab-content hidden">
+    <!-- Analytics Content -->
+    <div class='grid md:grid-cols-2 gap-4'>
+      <div class='bg-white/70 p-4 rounded-xl shadow'>
+        <h3 class='text-blue-700 font-semibold'>Participation Metrics</h3>
+        <ul class='text-sm mt-2 space-y-1'>
+          <li class='text-green-700'>Active This Week: 428</li>
+          <li class='text-blue-700'>Total Submissions: 1,234</li>
+          <li class='text-purple-700'>Avg Points/Family: 125</li>
+        </ul>
+      </div>
+      <div class='bg-white/70 p-4 rounded-xl shadow col-span-2'>
+        <h3 class='text-gray-800 font-semibold mb-2'>Recent Activity</h3>
+        <ul class='text-sm space-y-1'>
+          <li>🟢 Santos Family redeemed Rice - 2 hrs ago</li>
+          <li>🔵 Garcia Family earned 300 pts - 5 hrs ago</li>
+          <li>🟣 New Family Registered - 1 day ago</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Tab Switching Script -->
+<script>
+  function switchTab(tabId) {
+    // Hide all tab contents
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+
+    // Show selected tab
+    document.getElementById(tabId).classList.remove('hidden');
+
+    // Update active button styling
+    document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active', 'bg-white', 'shadow'));
+    const activeBtn = Array.from(document.querySelectorAll('.tab-button')).find(btn => btn.getAttribute('onclick').includes(tabId));
+    if (activeBtn) {
+      activeBtn.classList.add('active', 'bg-white', 'shadow');
+    }
+  }
+
+  // Optional: Set default active tab on load
+  document.addEventListener("DOMContentLoaded", () => {
+    switchTab('tab-users');
+  });
+</script>
+
+
+</body>
+</html>
+
+
+

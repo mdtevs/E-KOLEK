@@ -1,0 +1,981 @@
+{% load static %}
+{% load phone_filters %}
+{% load points_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>User Dashboard Preview - Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/userdashboard_v3.css' %}?v=18">
+  <style>
+    /* Admin Preview Banner */
+    .admin-preview-banner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      height: 52px;
+    }
+    .admin-preview-banner-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+    .admin-preview-banner-left i {
+      font-size: 24px;
+    }
+    .admin-preview-banner-text h4 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .admin-preview-banner-text p {
+      margin: 0;
+      font-size: 12px;
+      opacity: 0.9;
+    }
+    .admin-preview-banner-btn {
+      background: white;
+      color: #667eea;
+      padding: 8px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s;
+    }
+    .admin-preview-banner-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(255,255,255,0.3);
+    }
+    
+    /* Adjust header to sit below banner */
+    header {
+      top: 52px !important;
+      z-index: 9999 !important;
+    }
+    
+    /* Adjust body padding to account for banner + header */
+    body {
+      padding-top: 130px !important;
+      position: relative;
+    }
+    
+    /* Preview Mode Watermark */
+    body::before {
+      content: 'PREVIEW MODE';
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-45deg);
+      font-size: 120px;
+      font-weight: 900;
+      color: rgba(102, 126, 234, 0.05);
+      z-index: -1;
+      pointer-events: none;
+      white-space: nowrap;
+      letter-spacing: 20px;
+    }
+    
+    /* Admin Identity Header Enhancement */
+    header .user-info-card {
+      border: 2px solid rgba(102, 126, 234, 0.3) !important;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%) !important;
+    }
+  </style>
+</head>
+<body>
+  <!-- Admin Preview Banner -->
+  <div class="admin-preview-banner">
+    <div class="admin-preview-banner-left">
+      <i class='bx bx-show'></i>
+      <div class="admin-preview-banner-text">
+        <h4>Admin Preview Mode</h4>
+        <p>Previewing dashboard for: {{ user.full_name }} ({{ user.family.family_name }})</p>
+      </div>
+    </div>
+    <a href="{% url 'cenro:dashboard' %}" class="admin-preview-banner-btn">
+      <i class='bx bx-arrow-back'></i>
+      Back to Admin Dashboard
+    </a>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="brand-section">
+      <img src="{% static 'image/clogo.png' %}" alt="E-KOLEK Logo" class="header-logo">
+      <span class="system-name">E-KOLEK</span>
+    </div>
+    <div class="header-right">
+      <div class="user-info-container">
+        <div class="user-info-card">
+          <div class="user-avatar">
+            <i class='bx bx-shield-alt-2'></i>
+          </div>
+          <div class="user-details">
+            <span class="user-name-text">{{ admin_user.full_name }}</span>
+            <span class="user-role-text">{{ admin_user.get_role_display }}</span>
+          </div>
+        </div>
+      </div>
+      <span style="background: #667eea; color: white; padding: 10px 20px; border-radius: 10px; font-weight: 600; font-size: 14px; box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);">
+        <i class='bx bx-show'></i> Preview Mode
+      </span>
+    </div>
+  </header>
+
+  <!-- Hero Section: Points Balance + Stats Overview -->
+  <div class="hero-section">
+    <div class="hero-content-wrapper">
+      <div class="points-balance-card">
+        <div class="decorative-icons">
+          <i class='bx bx-recycle'></i>
+          <i class='bx bx-leaf'></i>
+          <i class='bx bx-trash'></i>
+          <i class='bx bx-wind'></i>
+        </div>
+        <div class="balance-icon">
+          <i class='bx bx-coin-stack'></i>
+        </div>
+        <div class="balance-content">
+          <h3>Your Points Balance</h3>
+          <p class="points-number">{{ user.total_points|smart_points }}<span class="points-label">points</span></p>
+          <p class="balance-desc">Keep up the great work!</p>
+        </div>
+      </div>
+      
+      <!-- Compact Stats Overview -->
+      <div class="stats-overview-compact">
+        <div class="stats-compact-header">
+          <i class='bx bx-bar-chart-alt-2'></i>
+          <span>Stats Overview</span>
+        </div>
+        <div class="stats-compact-grid">
+          <div class="stat-card-compact">
+            <div class="stat-icon-compact stat-icon-primary">
+              <i class='bx bx-gift'></i>
+            </div>
+            <div class="stat-content-compact">
+              <p class="stat-value-compact">{{ rewards|length }}</p>
+              <span class="stat-label-compact">REWARDS</span>
+            </div>
+          </div>
+          <div class="stat-card-compact">
+            <div class="stat-icon-compact stat-icon-info">
+              <i class='bx bx-calendar-check'></i>
+            </div>
+            <div class="stat-content-compact">
+              <p class="stat-value-compact">{% if schedules.0.is_today %}Today{% elif schedules.0.is_tomorrow %}Tomorrow{% else %}{{ schedules.0.day|slice:":3" }}{% endif %}</p>
+              <span class="stat-label-compact">COLLECTION</span>
+            </div>
+          </div>
+          <div class="stat-card-compact">
+            <div class="stat-icon-compact stat-icon-warning">
+              <i class='bx bx-trophy'></i>
+            </div>
+            <div class="stat-content-compact">
+              <p class="stat-value-compact">{% for entry in user_leaderboard %}{% if entry.is_current_user %}#{{ entry.rank }}{% endif %}{% endfor %}{% if not user_leaderboard %}-{% endif %}</p>
+              <span class="stat-label-compact">RANK</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Tabs Navigation -->
+  <div class="tabs-container">
+    <div class="tabs-nav">
+      <button class="tab-button active-tab" onclick="showTab('rewards', event)">
+        <div class="tab-icon-text">
+          <i class="bx bx-gift"></i>
+          Rewards
+        </div>
+      </button>
+      <button class="tab-button" onclick="showTab('schedule', event)">
+        <div class="tab-icon-text">
+          <i class="bx bx-calendar"></i>
+          Collection
+        </div>
+      </button>
+      <button class="tab-button" onclick="showTab('leaderboard', event)">
+        <div class="tab-icon-text">
+          <i class="bx bx-trophy"></i>
+          Leaderboard
+        </div>
+      </button>
+      <button class="tab-button" onclick="showTab('referral', event)">
+        <div class="tab-icon-text">
+          <i class="bx bx-share-alt"></i>
+          Referral
+        </div>
+      </button>
+      <button class="tab-button" onclick="showTab('profile', event)">
+        <div class="tab-icon-text">
+          <i class="bx bx-user-circle"></i>
+          Profile
+        </div>
+      </button>
+      <button class="tab-button" onclick="showTab('notifications', event)">
+        <div class="tab-icon-text">
+          <i class="bx bx-bell"></i>
+          Notifications
+        </div>
+      </button>
+    </div>
+  </div>
+
+  <!-- Content Section -->
+  <section>
+    <!-- Rewards Tab -->
+    <div id="rewards" class="tab-content">
+      <div class="section-header">
+        <div class="section-title-wrapper">
+          <div class="section-icon">
+            <i class='bx bx-gift'></i>
+          </div>
+          <div>
+            <h2 class="section-title">Available Rewards</h2>
+            <p class="section-subtitle">Redeem your points for amazing rewards</p>
+          </div>
+        </div>
+        <div class="section-badge">
+          <i class='bx bx-package'></i>
+          <span>{{ rewards|length }} Items</span>
+        </div>
+      </div>
+      <div class="rewards-grid">
+      {% for reward in rewards %}
+        <div class="reward-card-new">
+          <div class="reward-image-container">
+            {% if reward.image %}
+              <img src="{{ reward.image_url }}" alt="{{ reward.name }}" class="reward-image" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+              <div class="reward-fallback-icon" style="display:none;">
+                <i class='bx bx-gift'></i>
+              </div>
+            {% else %}
+              <div class="reward-fallback-icon">
+                <i class='bx bx-gift'></i>
+              </div>
+            {% endif %}
+            <span class="category-badge category-{{ reward.category|slugify }}">{{ reward.category }}</span>
+          </div>
+          <div class="reward-details">
+            <h3 class="reward-name">{{ reward.name }}</h3>
+            <p class="reward-description">{{ reward.description|truncatechars:80 }}</p>
+            <div class="reward-footer">
+              <div class="reward-points">
+                <i class='bx bx-coin-stack'></i>
+                <span>{{ reward.points_required|smart_points }} pts</span>
+              </div>
+              <button class="reward-redeem-btn" 
+                      data-reward-name="{{ reward.name }}" 
+                      data-reward-points="{{ reward.points_required }}"
+                      onclick="openRedeemModal(this.getAttribute('data-reward-name'), this.getAttribute('data-reward-points'))"
+                      title="Preview Mode - Shows redemption instructions only">
+                <i class='bx bx-show'></i> View
+              </button>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="empty-state">
+          <i class='bx bx-package'></i>
+          <p>No rewards available at the moment.</p>
+        </div>
+      {% endfor %}
+      </div>
+    </div>
+
+    <!-- Schedule Tab -->
+    <div id="schedule" class="tab-content">
+      <div class="section-header">
+        <div class="section-title-wrapper">
+          <div class="section-icon" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);">
+            <i class='bx bx-calendar-check'></i>
+          </div>
+          <div>
+            <h2 class="section-title">Collection Schedule</h2>
+            <p class="section-subtitle">Your weekly garbage collection times</p>
+          </div>
+        </div>
+        <div class="section-badge" style="background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.2); color: #2563eb;">
+          <i class='bx bx-time-five'></i>
+          <span>{% if schedules %}{{ schedules|length }} Days{% else %}No Schedule{% endif %}</span>
+        </div>
+      </div>
+      <div class="card garbage-card">
+        <div class="card-header">
+          <div class="collection-icon">
+            <i class='bx bx-calendar'></i>
+          </div>
+          <h3>Garbage Collection Schedule</h3>
+        </div>
+        {% if schedules %}
+          {% for sched in schedules %}
+            <div class="collection-box {% if sched.is_today %}today{% elif sched.is_tomorrow %}reminder{% endif %}">
+              <span class="label {% if sched.is_today %}today-label{% elif sched.is_tomorrow %}reminder-label{% endif %}">
+                {% if sched.is_today %}Today{% elif sched.is_tomorrow %}Tomorrow{% else %}{{ sched.day }}{% endif %}
+              </span>
+              <p class="collection-time">
+                {{ sched.day }}: {{ sched.start_time|time:"g:i A" }} - {{ sched.end_time|time:"g:i A" }}
+              </p>
+              <p class="collection-desc">{{ sched.waste_types }}</p>
+              {% if sched.notes %}
+                <div class="collection-note">{{ sched.notes }}</div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="collection-box">
+            <span class="label">No Schedule</span>
+            <p class="collection-desc">No garbage collection schedule found for your barangay.</p>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Leaderboard Tab -->
+    <div id="leaderboard" class="tab-content">
+      <div class="section-header">
+        <div class="section-title-wrapper">
+          <div class="section-icon" style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);">
+            <i class='bx bx-trophy'></i>
+          </div>
+          <div>
+            <h2 class="section-title">Leaderboard Rankings</h2>
+            <p class="section-subtitle">Top performers in your community</p>
+          </div>
+        </div>
+        <div class="section-badge" style="background: rgba(139, 92, 246, 0.1); border-color: rgba(139, 92, 246, 0.2); color: #7c3aed;">
+          <i class='bx bx-medal'></i>
+          <span>Top 10</span>
+        </div>
+      </div>
+      <div class="leaderboard-card" style="background:linear-gradient(135deg,rgba(255,255,255,0.95) 0%,rgba(240, 253, 250, 0.9) 100%);border:1px solid rgba(16, 185, 129, 0.2);padding:2rem 1.5rem 1.5rem 1.5rem;box-shadow:0 12px 40px rgba(0,0,0,0.08);border-radius:2rem;max-width:600px;margin:0 auto;position:relative;overflow:hidden;">
+        <div class="leaderboard-header">
+          <button class="tab-button leaderboard-tab-button" id="userLeaderboardTab" style="position: relative; z-index: 1;">Users</button>
+          <button class="tab-button leaderboard-tab-button" id="barangayLeaderboardTab" style="position: relative; z-index: 1;">Barangay</button>
+        </div>
+        <!-- User Leaderboard -->
+        <div id="userLeaderboard" class="leaderboard-tab-content">
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:1.5rem;">
+            <span style="display:flex;align-items:center;justify-content:center;width:3rem;height:3rem;background:linear-gradient(135deg,#fef3c7,#fde68a);border-radius:50%;box-shadow:0 4px 16px rgba(245,158,66,0.3);margin-bottom:0.75rem;">
+              <i class='bx bxs-medal' style="font-size:1.5rem;color:#f59e42;"></i>
+            </span>
+            <span style="font-weight:700;letter-spacing:0.02em;color:#f59e42;font-size:1.25em;">Top 10 User Leaderboard</span>
+            <span style="font-size:0.85rem;color:#6b7280;margin-top:0.25rem;font-weight:500;">Compete with other users to climb the leaderboard!</span>
+          </div>
+          {% if user_leaderboard %}
+            {% for entry in user_leaderboard %}
+              <div class="leaderboard-row{% if forloop.counter == 1 %} top-rank-1{% elif forloop.counter == 2 %} top-rank-2{% elif forloop.counter == 3 %} top-rank-3{% endif %}{% if entry.is_current_user %} current-user{% endif %}{% if forloop.last %}" style="border-bottom:none;"{% endif %}">
+                <span>
+                  <span class="rank-badge{% if forloop.counter == 1 %} gold{% elif forloop.counter == 2 %} silver{% elif forloop.counter == 3 %} bronze{% else %} normal{% endif %}">
+                    {% if forloop.counter == 1 %}
+                      <i class='bx bxs-crown' style="color:#fff;font-size:1em;vertical-align:middle;"></i>
+                    {% endif %}
+                    {{ entry.rank }}
+                  </span>
+                </span>
+                <div style="display:flex;flex-direction:column;">
+                  <span class="leaderboard-name{% if forloop.counter == 1 %} name-gold{% elif forloop.counter == 2 %} name-silver{% elif forloop.counter == 3 %} name-bronze{% endif %}">
+                    {{ entry.full_name }}{% if entry.is_current_user %} (You){% endif %}
+                  </span>
+                  <span style="font-size:0.8rem;color:#6b7280;">{{ entry.family_name }}</span>
+                </div>
+                <span class="score">{{ entry.points|smart_points }} pts</span>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="leaderboard-row">
+              <span style="color:#6b7280;font-style:italic;text-align:center;width:100%;display:block;padding:1rem;">
+                No users with points yet. Start earning points to appear on the leaderboard!
+              </span>
+            </div>
+          {% endif %}
+        </div>
+        <!-- Barangay Leaderboard -->
+        <div id="barangayLeaderboard" class="leaderboard-tab-content" style="display:none;">
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;margin-bottom:1.5rem;">
+            <span style="display:flex;align-items:center;justify-content:center;width:3rem;height:3rem;background:linear-gradient(135deg,#dbeafe,#93c5fd);border-radius:50%;box-shadow:0 4px 16px rgba(59,130,246,0.3);margin-bottom:0.75rem;">
+              <i class='bx bxs-medal' style="font-size:1.5rem;color:#3b82f6;"></i>
+            </span>
+            <span style="font-weight:700;letter-spacing:0.02em;color:#3b82f6;font-size:1.25em;">Top 10 Barangay Leaderboard</span>
+            <span style="font-size:0.85rem;color:#6b7280;margin-top:0.25rem;font-weight:500;">Keep on collecting points to climb the leaderboard!</span>
+          </div>
+          {% if barangay_leaderboard %}
+            {% for entry in barangay_leaderboard %}
+              <div class="leaderboard-row{% if forloop.counter == 1 %} top-rank-1{% elif forloop.counter == 2 %} top-rank-2{% elif forloop.counter == 3 %} top-rank-3{% endif %}{% if forloop.last %}" style="border-bottom:none;"{% endif %}">
+                <span>
+                  <span class="rank-badge{% if forloop.counter == 1 %} blue{% elif forloop.counter == 2 %} silver{% elif forloop.counter == 3 %} bronze-alt{% else %} normal{% endif %}">
+                    {% if forloop.counter == 1 %}
+                      <i class='bx bxs-crown' style="color:#fff;font-size:1em;vertical-align:middle;"></i>
+                    {% endif %}
+                    {{ entry.rank }}
+                  </span>
+                </span>
+
+                <span class="leaderboard-name{% if forloop.counter == 1 %} name-blue{% elif forloop.counter == 2 %} name-silver{% elif forloop.counter == 3 %} name-bronze-alt{% endif %}">
+                  {{ entry.barangay_name }}
+                </span>
+                <span class="score">{{ entry.points|smart_points }} pts</span>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="leaderboard-row">
+              <span style="color:#6b7280;font-style:italic;text-align:center;width:100%;display:block;padding:1rem;">
+                No barangays with points yet. Start earning points to appear on the leaderboard!
+              </span>
+            </div>
+          {% endif %}
+
+        </div>
+      </div>
+    </div>
+
+    <!-- Referral Tab -->
+    <div id="referral" class="tab-content">
+      <div class="section-header">
+        <div class="section-title-wrapper">
+          <div class="section-icon" style="background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);">
+            <i class='bx bx-share-alt'></i>
+          </div>
+          <div>
+            <h2 class="section-title">Referral Program</h2>
+            <p class="section-subtitle">Invite friends and earn bonus points together</p>
+          </div>
+        </div>
+        <div class="section-badge" style="background: rgba(236, 72, 153, 0.1); border-color: rgba(236, 72, 153, 0.2); color: #be185d;">
+          <i class='bx bx-user-plus'></i>
+          <span>{{ referred_users_count|default:0 }} Referred</span>
+        </div>
+      </div>
+      <div class="referral-card">
+        <div class="referral-header">
+          <div class="referral-icon">
+            <i class='bx bx-share'></i>
+          </div>
+          <h3>Share & Earn</h3>
+          <p>Invite friends and family to join E-KOLEK and earn bonus points!</p>
+        </div>
+
+        <div class="referral-code-section">
+          <div class="code-display">
+            <label>Your Referral Code</label>
+            <div class="code-input-group">
+              <input type="text" id="referralCodeDisplay" value="{{ user.referral_code }}" readonly>
+              <button class="copy-btn" onclick="copyReferralCode()">
+                <i class='bx bx-copy'></i>
+                Copy
+              </button>
+            </div>
+            <small class="help-text">Share this code with friends to give them 10 bonus points when they sign up!</small>
+          </div>
+        </div>
+
+        <div class="referral-stats">
+          <div class="stat-item">
+            <div class="stat-number">{{ user.total_points|smart_points }}</div>
+            <div class="stat-label">Your Total Points</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">{{ referred_users_count|default:0 }}</div>
+            <div class="stat-label">Friends Referred</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-number">{{ referral_points_earned|default:0 }}</div>
+            <div class="stat-label">Referral Points Earned</div>
+          </div>
+        </div>
+
+        <div class="how-it-works">
+          <h4>How it works:</h4>
+          <ol>
+            <li>Share your referral code with friends and family</li>
+            <li>They enter your code during registration</li>
+            <li>Both of you get 10 bonus points!</li>
+            <li>Start earning more points together</li>
+          </ol>
+        </div>
+
+        <div class="share-buttons">
+          <button class="share-btn whatsapp" onclick="shareOnWhatsApp()">
+            <i class='bx bxl-whatsapp'></i>
+            Share on WhatsApp
+          </button>
+          <button class="share-btn facebook" onclick="shareOnFacebook()">
+            <i class='bx bxl-facebook'></i>
+            Share on Facebook
+          </button>
+          <button class="share-btn general" onclick="shareGeneral()">
+            <i class='bx bx-share-alt'></i>
+            Share Link
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Tab -->
+    <div id="profile" class="tab-content">
+      <div class="section-header">
+        <div class="section-title-wrapper">
+          <div class="section-icon" style="background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);">
+            <i class='bx bx-user-circle'></i>
+          </div>
+          <div>
+            <h2 class="section-title">My Profile</h2>
+            <p class="section-subtitle">Your personal and family information</p>
+          </div>
+        </div>
+        <div class="section-badge" style="background: rgba(245, 158, 11, 0.1); border-color: rgba(245, 158, 11, 0.2); color: #f97316;">
+          <i class='bx bx-check-circle'></i>
+          <span>{{ user.status|capfirst }}</span>
+        </div>
+      </div>
+      <div class="profile-container">
+        
+        <!-- Personal Information Card -->
+        <div class="profile-card">
+          <div class="profile-card-header">
+            <div class="profile-icon">
+              <i class='bx bx-user-circle'></i>
+            </div>
+            <h3>Personal Information</h3>
+          </div>
+          <div class="profile-card-body">
+            <div class="profile-info-grid">
+              <div class="profile-info-item">
+                <span class="profile-label">
+                  <i class='bx bx-id-card'></i>
+                  Full Name
+                </span>
+                <span class="profile-value">{{ user.full_name }}</span>
+              </div>
+              <div class="profile-info-item">
+                <span class="profile-label">
+                  <i class='bx bx-user'></i>
+                  Username
+                </span>
+                <span class="profile-value">{{ user.username }}</span>
+              </div>
+              <div class="profile-info-item">
+                <span class="profile-label">
+                  <i class='bx bx-phone'></i>
+                  Phone Number
+                </span>
+                <span class="profile-value">{{ user.phone|mask_phone }}</span>
+              </div>
+              <div class="profile-info-item">
+                <span class="profile-label">
+                  <i class='bx bx-envelope'></i>
+                  Email Address
+                </span>
+                <span class="profile-value">{{ user.email|default:"Not provided" }}</span>
+              </div>
+              {% if user.date_of_birth %}
+              <div class="profile-info-item">
+                <span class="profile-label">
+                  <i class='bx bx-cake'></i>
+                  Date of Birth
+                </span>
+                <span class="profile-value">{{ user.date_of_birth|date:"F d, Y" }} ({{ user_age }} years old)</span>
+              </div>
+              {% endif %}
+              {% if user.gender %}
+              <div class="profile-info-item">
+                <span class="profile-label">
+                  <i class='bx bx-intersect'></i>
+                  Gender
+                </span>
+                <span class="profile-value">{{ user.gender|capfirst }}</span>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <!-- Family Information Card -->
+        <div class="profile-card">
+          <div class="profile-card-header">
+            <div class="profile-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+              <i class='bx bx-home-heart'></i>
+            </div>
+            <h3>Family Information</h3>
+          </div>
+          <div class="profile-card-body">
+            <div class="profile-info-grid">
+              <div class="profile-info-item">
+                <span class="profile-label">
+                  <i class='bx bx-group'></i>
+                  Family Name
+                </span>
+                <span class="profile-value">{{ user.family.family_name }}</span>
+              </div>
+              <div class="profile-info-item">
+                <span class="profile-label">
+                  <i class='bx bx-barcode'></i>
+                  Family Code
+                </span>
+                <span class="profile-value family-code">{{ user.family.family_code }}</span>
+              </div>
+              <div class="profile-info-item">
+                <span class="profile-label">
+                  <i class='bx bx-map-pin'></i>
+                  Barangay
+                </span>
+                <span class="profile-value">{{ user.family.barangay.name }}</span>
+              </div>
+              <div class="profile-info-item">
+                <span class="profile-label">
+                  <i class='bx bx-home'></i>
+                  Address
+                </span>
+                <span class="profile-value">{{ user.family.address }}, {{ user.family.city }}</span>
+              </div>
+              <div class="profile-info-item">
+                <span class="profile-label">
+                  <i class='bx bx-user-check'></i>
+                  Your Role
+                </span>
+                <span class="profile-value">
+                  {% if user.is_family_representative %}
+                    <span class="role-badge representative">Family Representative</span>
+                  {% else %}
+                    <span class="role-badge member">Family Member</span>
+                  {% endif %}
+                </span>
+              </div>
+              <div class="profile-info-item">
+                <span class="profile-label">
+                  <i class='bx bx-group'></i>
+                  Total Members
+                </span>
+                <span class="profile-value">{{ user.family.total_members }} member{{ user.family.total_members|pluralize }}</span>
+              </div>
+              <div class="profile-info-item">
+                <span class="profile-label">
+                  <i class='bx bx-coin-stack'></i>
+                  Family Points
+                </span>
+                <span class="profile-value">
+                  <span style="font-weight: 700; color: #10b981;">{{ user.family.total_family_points }}</span> points
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Account Statistics Card -->
+        <div class="profile-card">
+          <div class="profile-card-header">
+            <div class="profile-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+              <i class='bx bx-bar-chart-alt-2'></i>
+            </div>
+            <h3>Account Statistics</h3>
+          </div>
+          <div class="profile-card-body">
+            <div class="profile-stats-grid">
+              <div class="stat-box">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #ffd89b 0%, #19547b 100%);">
+                  <i class='bx bx-coin'></i>
+                </div>
+                <div class="stat-info">
+                  <span class="stat-value">{{ user.total_points|smart_points }}</span>
+                  <span class="stat-label">Total Points</span>
+                </div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                  <i class='bx bx-trophy'></i>
+                </div>
+                <div class="stat-info">
+                  <span class="stat-value">#{{ user_family_rank }}</span>
+                  <span class="stat-label">Family Rank</span>
+                </div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                  <i class='bx bx-calendar-check'></i>
+                </div>
+                <div class="stat-info">
+                  <span class="stat-value">{{ member_since_days }}</span>
+                  <span class="stat-label">Days Active</span>
+                </div>
+              </div>
+              <div class="stat-box">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #13547a 0%, #80d0c7 100%);">
+                  <i class='bx bx-user-plus'></i>
+                </div>
+                <div class="stat-info">
+                  <span class="stat-value">{{ referred_users_count|default:0 }}</span>
+                  <span class="stat-label">Referrals</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Account Status Card -->
+        <div class="profile-card">
+          <div class="profile-card-header">
+            <div class="profile-icon" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);">
+              <i class='bx bx-shield-alt-2'></i>
+            </div>
+            <h3>Account Status</h3>
+          </div>
+          <div class="profile-card-body">
+            <div class="profile-info-grid">
+              <div class="profile-info-item">
+                <span class="profile-label">
+                  <i class='bx bx-check-circle'></i>
+                  Account Status
+                </span>
+                <span class="profile-value">
+                  {% if user.status == 'approved' %}
+                    <span class="status-badge approved">✓ Approved</span>
+                  {% elif user.status == 'pending' %}
+                    <span class="status-badge pending">⏳ Pending</span>
+                  {% else %}
+                    <span class="status-badge rejected">✗ {{ user.status|capfirst }}</span>
+                  {% endif %}
+                </span>
+              </div>
+              <div class="profile-info-item">
+                <span class="profile-label">
+                  <i class='bx bx-calendar-plus'></i>
+                  Member Since
+                </span>
+                <span class="profile-value">{{ user.created_at|date:"F d, Y" }}</span>
+              </div>
+              {% if user.last_login %}
+              <div class="profile-info-item">
+                <span class="profile-label">
+                  <i class='bx bx-time'></i>
+                  Last Login
+                </span>
+                <span class="profile-value">{{ user.last_login|date:"F d, Y - g:i A" }}</span>
+              </div>
+              {% endif %}
+              {% if user.approval_date %}
+              <div class="profile-info-item">
+                <span class="profile-label">
+                  <i class='bx bx-calendar-check'></i>
+                  Approved On
+                </span>
+                <span class="profile-value">{{ user.approval_date|date:"F d, Y" }}</span>
+              </div>
+              {% endif %}
+              <div class="profile-info-item">
+                <span class="profile-label">
+                  <i class='bx bx-qr'></i>
+                  Referral Code
+                </span>
+                <span class="profile-value">
+                  <span class="referral-code-badge">{{ user.referral_code }}</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Notifications Tab -->
+    <div id="notifications" class="tab-content">
+      <div class="section-header">
+        <div class="section-title-wrapper">
+          <div class="section-icon" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+            <i class='bx bx-bell'></i>
+          </div>
+          <div>
+            <h2 class="section-title">Notifications</h2>
+            <p class="section-subtitle">Stay updated with your latest activities</p>
+          </div>
+        </div>
+        <div class="section-badge" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); color: #dc2626;">
+          <i class='bx bx-time-five'></i>
+          <span>{% if notifications %}{{ notifications|length }} New{% else %}No New{% endif %}</span>
+        </div>
+      </div>
+      {% if notifications %}
+        {% for notif in notifications %}
+          <div class="notification-card">
+            <div class="info">
+              <p class="font-semibold">
+                {% if notif.type == 'waste' %}Points Earned
+                {% elif notif.type == 'redeem' %}Reward Redeemed
+                {% elif notif.type == 'learning' %}Learning Reward
+                {% elif notif.type == 'game' %}Game Reward
+                {% else %}Notification{% endif %}
+              </p>
+              <p class="text-sm">
+                {% if notif.type == 'waste' %}
+                  You earned {{ notif.points }} points for your waste collection.
+                {% elif notif.type == 'redeem' %}
+                  You redeemed <b>{{ notif.reward_name }}</b> for {{ notif.points }} points.
+                {% elif notif.type == 'learning' %}
+                  You earned {{ notif.points }} points for watching "{{ notif.video_title }}".
+                {% elif notif.type == 'game' %}
+                  You earned {{ notif.points }} points from playing the waste sorting game! (Score: {{ notif.game_score }})
+                {% else %}
+                  {{ notif.message }}
+                {% endif %}
+              </p>
+            </div>
+            <span class="time">{{ notif.time_since }}</span>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="notification-card">
+          <div class="info">
+            <p class="font-semibold">No Notifications</p>
+            <p class="text-sm">You have no notifications yet.</p>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- Redemption Modal -->
+  <div id="redeemModal" class="modal-overlay">
+    <div class="modal-container">
+      <div class="modal-content">
+        <button class="modal-close" onclick="closeRedeemModal()">
+          <i class='bx bx-x'></i>
+        </button>
+        <div class="modal-header">
+          <div class="modal-icon">
+            <i class='bx bx-gift'></i>
+          </div>
+          <h2>How to Redeem Rewards</h2>
+          <p class="modal-subtitle">Follow these simple steps to claim your reward</p>
+        </div>
+        <div class="modal-body">
+          <div class="reward-info-card">
+            <div class="reward-info-item">
+              <i class='bx bx-package'></i>
+              <div>
+                <strong id="modalRewardName">Reward Name</strong>
+                <span id="modalRewardPoints" class="points-text">0 points</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="redemption-steps">
+            <h3>Redemption Process</h3>
+            <div class="step-card">
+              <div class="step-number">1</div>
+              <div class="step-content">
+                <h4><i class='bx bx-calendar-check'></i> Visit on Collection Day</h4>
+                <p>Go to your Barangay Hall on your scheduled garbage collection day. Check the <strong>Collection Schedule</strong> tab for your specific days.</p>
+              </div>
+            </div>
+
+            <div class="step-card">
+              <div class="step-number">2</div>
+              <div class="step-content">
+                <h4><i class='bx bx-id-card'></i> Bring Your Valid ID</h4>
+                <p>Bring any valid government-issued ID for verification. This ensures the security of your account and rewards.</p>
+              </div>
+            </div>
+
+            <div class="step-card">
+              <div class="step-number">3</div>
+              <div class="step-content">
+                <h4><i class='bx bx-qr-scan'></i> Show Your QR Code</h4>
+                <p>The CENRO admin will scan your unique QR code to verify your identity and process the redemption.</p>
+              </div>
+            </div>
+
+            <div class="step-card">
+              <div class="step-number">4</div>
+              <div class="step-content">
+                <h4><i class='bx bx-check-circle'></i> Claim Your Reward</h4>
+                <p>Once verified, your points will be deducted and you'll receive your reward immediately!</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="important-notes">
+            <div class="note-header">
+              <i class='bx bx-info-circle'></i>
+              <strong>Important Notes</strong>
+            </div>
+            <ul>
+              <li><i class='bx bx-check'></i> Redemption is only available during garbage collection days</li>
+              <li><i class='bx bx-check'></i> Visit your registered Barangay Hall: <strong>{{ user.family.barangay.name }}</strong></li>
+              <li><i class='bx bx-check'></i> Make sure you have enough points before visiting</li>
+              <li><i class='bx bx-check'></i> Rewards are subject to availability</li>
+            </ul>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn-secondary" onclick="closeRedeemModal()">
+            <i class='bx bx-x'></i>
+            Close
+          </button>
+          <button class="btn-primary" onclick="closeRedeemModal()">
+            <i class='bx bx-check'></i>
+            Got It!
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript Configuration and scripts moved to end for DOM safety -->
+</body>
+<script>
+  window.CSRF_TOKEN = '{{ csrf_token }}';
+  window.DJANGO_URLS = {
+    // Add any URLs that might be needed for AJAX requests
+    logout: '{% url "logout" %}',
+  };
+  
+  // ADMIN PREVIEW MODE - Disable all transaction actions
+  window.ADMIN_PREVIEW_MODE = true;
+  
+  // Override any functions that could modify data
+  if (typeof window !== 'undefined') {
+    // Store original console methods
+    const originalWarn = console.warn;
+    
+    // Intercept any potential redemption or transaction attempts
+    window.addEventListener('DOMContentLoaded', function() {
+      // Find all forms and disable submit
+      const forms = document.querySelectorAll('form');
+      forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          alert('⚠️ Preview Mode: Actions are disabled in admin preview mode.');
+          return false;
+        });
+      });
+      
+      // Add visual indicators
+      console.log('%c🔒 ADMIN PREVIEW MODE ACTIVE', 'background: #667eea; color: white; padding: 8px 16px; border-radius: 4px; font-weight: bold;');
+      console.log('%cThis is a read-only preview. No user actions can be performed.', 'color: #667eea; font-weight: 500;');
+    });
+  }
+</script>
+<!-- Common utilities for CSRF handling -->
+<script src="{% static 'js/app_common.js' %}"></script>
+<script src="{% static 'js/userdashboard.js' %}?v=2"></script>
+</html>
+

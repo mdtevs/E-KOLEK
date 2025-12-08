@@ -1,0 +1,620 @@
+
+ .user-container {
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 1rem;
+}
+
+.user-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.user-header h3 {
+  color: #000000;
+  font-weight: 600;
+  font-size: 1.25rem;
+}
+
+.user-icons i {
+  font-size: 1.25rem;
+  color: #6b7280; 
+  margin-left: 0.75rem;
+  cursor: pointer;
+}
+
+.user-icons i:hover {
+  color: #4b5563; 
+}
+
+.user-table-wrapper {
+  overflow-x: auto;
+}
+
+.user-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: 0.5rem;
+  overflow: hidden;
+  font-size: 0.95rem;
+}
+
+.user-table th,
+.user-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.user-table thead {
+  background-color: #f3f4f6;
+}
+
+.user-table th {
+  color: #374151;
+  font-weight: 600;
+}
+
+.user-table td {
+  color: #4b5563;
+}
+
+.qr-img {
+  height: 2rem;
+  width: 2rem;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Status badges */
+.user-status {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: white;
+}
+
+.user-status.completed {
+  background-color: #10b981; /* Tailwind green-500 */
+}
+
+.qr-img {
+  height: 2.25rem; /* 36px */
+  width: 2.25rem;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Modal overlay */
+.user-modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: center;
+}
+
+/* Modal content box */
+.user-modal-content {
+  background: white;
+  border-radius: 12px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: modalSlideIn 0.3s ease-out;
+}
+
+/* Large modal variant for barangay editing */
+.user-modal-content.large {
+  max-width: 700px;
+  width: 95%;
+}
+
+@keyframes modalSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Modal header */
+.user-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.user-modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #4c1d95; /* Indigo */
+}
+
+/* Close button */
+.user-close {
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #888;
+  transition: color 0.2s ease-in-out;
+}
+
+.user-close:hover {
+  color: #4c1d95;
+}
+
+/* Labels */
+.user-modal-content label {
+  display: block;
+  font-weight: 500;
+  margin-top: 1rem;
+  color: #1a202c;
+}
+
+/* Inputs and textareas */
+.user-modal-content input,
+.user-modal-content textarea {
+  width: 100%;
+  padding: 12px;
+  margin-top: 5px;
+  border: 2px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.user-modal-content input:focus,
+.user-modal-content textarea:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.user-modal-content textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Button actions container */
+.user-modal-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Buttons */
+.cancel-btn,
+.save-btn,
+.delete-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s ease-in-out;
+}
+
+/* Cancel button */
+.cancel-btn {
+  background: #e2e8f0;
+  color: #1a202c;
+}
+
+.cancel-btn:hover {
+  background: #cbd5e1;
+}
+
+/* Save button */
+.save-btn {
+  background: #4c1d95;
+  color: white;
+}
+
+.save-btn:hover {
+  background: #5b21b6;
+}
+
+/* Delete button (optional) */
+.delete-btn {
+  background: #e53e3e;
+  color: white;
+}
+
+.delete-btn:hover {
+  background: #c53030;
+}
+
+select {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #ffffff;
+  font-size: 16px;
+  color: #333;
+  cursor: pointer;
+}
+
+select:focus {
+  border-color: #4A90E2;
+  box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
+  outline: none;
+}
+
+/* Tab styling */
+.tab-container {
+  margin-top: 1rem;
+}
+
+.tab-buttons {
+  display: flex;
+  border-bottom: 2px solid #e5e7eb;
+  margin-bottom: 1rem;
+}
+
+.tab-button {
+  padding: 0.75rem 1.5rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-weight: 500;
+  color: #6b7280;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease-in-out;
+}
+
+.tab-button.active {
+  color: #7e22ce;
+  border-bottom-color: #7e22ce;
+}
+
+.tab-button:hover {
+  color: #4b5563;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.pending-badge {
+  background-color: #f59e0b;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-left: 0.5rem;
+}
+
+/* Barangay Grid Styles */
+.barangay-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  border: 2px solid #e2e8f0;
+  padding: 20px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.barangay-grid label {
+  display: flex;
+  align-items: center;
+  padding: 12px 15px;
+  cursor: pointer;
+  border-radius: 8px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.barangay-grid label:hover {
+  background: #f0f4ff;
+  border-color: #667eea;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+  transform: translateY(-1px);
+}
+
+.barangay-grid label input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin-right: 12px;
+  accent-color: #667eea;
+  cursor: pointer;
+}
+
+.barangay-grid label input[type="checkbox"]:checked {
+  background-color: #667eea;
+}
+
+.barangay-grid label span {
+  font-weight: 500;
+  color: #374151;
+  font-size: 14px;
+}
+
+.barangay-grid label input[type="checkbox"]:checked + span {
+  color: #667eea;
+  font-weight: 600;
+}
+
+/* Modal Header Improvements */
+.user-modal-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  margin: 0;
+  padding: 20px 25px;
+  border-radius: 12px 12px 0 0;
+  position: relative;
+}
+
+.user-modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: white;
+}
+
+.user-modal-header .user-close {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s ease;
+}
+
+.user-modal-header .user-close:hover {
+  opacity: 1;
+}
+
+/* Modal Body Improvements */
+.user-modal-body {
+  padding: 25px;
+  background: white;
+}
+
+.user-modal-body p {
+  margin-bottom: 20px;
+  color: #4b5563;
+  font-size: 15px;
+}
+
+.user-modal-body strong {
+  color: #667eea;
+  font-weight: 600;
+}
+
+/* Modal Actions Improvements */
+.user-modal-actions {
+  padding: 20px 25px;
+  border-top: 1px solid #e5e7eb;
+  background: #f9fafb;
+  border-radius: 0 0 12px 12px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.user-modal-actions .cancel-btn {
+  padding: 10px 20px;
+  border: 2px solid #d1d5db;
+  background-color: white;
+  color: #6b7280;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.user-modal-actions .cancel-btn:hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.user-modal-actions .save-btn {
+  padding: 10px 20px;
+  border: 2px solid #667eea;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.user-modal-actions .save-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.user-modal-actions .delete-btn {
+  padding: 10px 20px;
+  border: 2px solid #ef4444;
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.user-modal-actions .delete-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
+/* Scrollbar styling for barangay grid */
+.barangay-grid::-webkit-scrollbar {
+  width: 8px;
+}
+
+.barangay-grid::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.barangay-grid::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.barangay-grid::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Form labels in modal */
+.user-modal-content .form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #374151;
+  font-size: 14px;
+}
+
+/* Small text styling */
+.user-modal-content small {
+  color: #6b7280;
+  font-size: 13px;
+  margin-top: 8px;
+  display: block;
+  font-style: italic;
+}
+
+/* Modal show animation */
+.user-modal.show {
+  display: flex;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .user-modal-content {
+    width: 95%;
+    margin: 10px;
+    max-height: 85vh;
+  }
+  
+  .user-modal-content.large {
+    width: 98%;
+  }
+  
+  .barangay-grid {
+    grid-template-columns: 1fr;
+    max-height: 250px;
+  }
+  
+  .user-modal-header {
+    padding: 15px 20px;
+  }
+  
+  .user-modal-body {
+    padding: 20px;
+  }
+  
+  .user-modal-actions {
+    padding: 15px 20px;
+    flex-direction: column-reverse;
+    gap: 8px;
+  }
+  
+  .user-modal-actions .cancel-btn,
+  .user-modal-actions .save-btn,
+  .user-modal-actions .delete-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ==================== ADMIN MESSAGES ==================== */
+.admin-message-success {
+  background-color: #d1fae5;
+  color: #065f46;
+  border-left: 4px solid #10b981;
+}
+
+.admin-message-warning {
+  background-color: #fef3c7;
+  color: #92400e;
+  border-left: 4px solid #f59e0b;
+}
+
+.admin-message-error {
+  background-color: #fee2e2;
+  color: #991b1b;
+  border-left: 4px solid #ef4444;
+}
+
+.admin-message-info {
+  background-color: #dbeafe;
+  color: #1e40af;
+  border-left: 4px solid #3b82f6;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+.fade-out {
+  animation: fadeOut 0.5s ease forwards;
+}
+

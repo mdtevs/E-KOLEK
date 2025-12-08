@@ -1,0 +1,216 @@
+<!-- Admin Notification Bell Component -->
+<div class="admin-notification-bell" style="position: relative; margin-right: 15px;">
+    <!-- Bell Icon with Badge -->
+    <button class="notification-bell-btn" id="adminNotificationBell" aria-label="Admin Notifications" style="background: none; border: none; cursor: pointer; position: relative; padding: 0;">
+        <i class='bx bx-bell' style="font-size: 1.8rem; color: #667eea;"></i>
+        <!-- Notification Badge (initially hidden) -->
+        <span class="admin-notification-badge" id="adminNotificationBadge" style="display: none; position: absolute; top: -5px; right: -8px; background: #ef4444; color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 0.75rem; font-weight: 600; display: flex; align-items: center; justify-content: center; animation: pulse 2s infinite;">
+            0
+        </span>
+    </button>
+
+    <!-- Notification Dropdown -->
+    <div class="admin-notification-dropdown" id="adminNotificationDropdown" style="display: none; position: absolute; top: 45px; right: 0; width: 380px; max-height: 450px; background: white; border-radius: 12px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15); z-index: 9999; overflow: hidden;">
+        <!-- Dropdown Header -->
+        <div class="notification-dropdown-header" style="padding: 16px 20px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+            <h3 style="margin: 0; font-size: 1.1rem; font-weight: 600; color: white;">Notifications</h3>
+            <button class="mark-all-read-btn" id="markAllReadBtn" style="background: rgba(255, 255, 255, 0.2); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; cursor: pointer; font-weight: 500; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">
+                Mark all as read
+            </button>
+        </div>
+
+        <!-- Notifications List -->
+        <div class="notification-list" id="adminNotificationList" style="max-height: 350px; overflow-y: auto;">
+            <!-- Loading State -->
+            <div class="notification-loading" id="notificationLoading" style="padding: 40px 20px; text-align: center; color: #9ca3af;">
+                <i class='bx bx-loader-alt bx-spin' style="font-size: 2rem;"></i>
+                <p style="margin: 10px 0 0 0; font-size: 0.9rem;">Loading notifications...</p>
+            </div>
+
+            <!-- Empty State (hidden initially) -->
+            <div class="notification-empty" id="notificationEmpty" style="display: none; padding: 40px 20px; text-align: center; color: #9ca3af;">
+                <i class='bx bx-bell-off' style="font-size: 3rem; color: #d1d5db;"></i>
+                <p style="margin: 10px 0 0 0; font-size: 0.95rem; font-weight: 500; color: #6b7280;">No notifications yet</p>
+                <p style="margin: 5px 0 0 0; font-size: 0.85rem;">You'll see new notifications here</p>
+            </div>
+
+            <!-- Notifications will be dynamically loaded here -->
+        </div>
+
+        <!-- Dropdown Footer -->
+        <div class="notification-dropdown-footer" style="padding: 12px 20px; border-top: 1px solid #e5e7eb; background: #f9fafb;">
+            {% if admin_user.role != 'security_analyst' and admin_user.role != 'content_rewards_manager' %}
+            <a href="/adminuser/" style="display: block; text-align: center; color: #667eea; text-decoration: none; font-weight: 500; font-size: 0.9rem; transition: color 0.2s;" onmouseover="this.style.color='#5568d3'" onmouseout="this.style.color='#667eea'">
+                View User Management
+            </a>
+            {% else %}
+            <p style="text-align: center; color: #9ca3af; font-size: 0.85rem; margin: 0;">No quick actions available</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+/* Notification Bell Animation */
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 0.9;
+    }
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.admin-notification-dropdown {
+    animation: slideDown 0.3s ease !important;
+}
+
+.admin-notification-badge {
+    animation: pulse 2s infinite !important;
+}
+
+/* Notification Item Styles */
+.notification-item {
+    padding: 14px 20px;
+    border-bottom: 1px solid #f3f4f6;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+}
+
+.notification-item:hover {
+    background: #f9fafb;
+}
+
+.notification-item.unread {
+    background: #eff6ff;
+}
+
+.notification-item.unread:hover {
+    background: #dbeafe;
+}
+
+.notification-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.notification-icon.new_registration {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.notification-icon.user_approved {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.notification-icon.user_rejected {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.notification-icon.system_alert {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.notification-icon.admin_account_locked {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.notification-icon.admin_account_suspended {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.notification-icon.admin_account_unlocked {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.notification-icon.admin_account_reactivated {
+    background: #d1fae5;
+    color: #059669;
+}
+
+.notification-icon.barangay_assignment_changed {
+    background: #e0e7ff;
+    color: #6366f1;
+}
+
+.notification-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.notification-message {
+    font-size: 0.9rem;
+    color: #374151;
+    margin: 0 0 4px 0;
+    line-height: 1.4;
+}
+
+.notification-time {
+    font-size: 0.8rem;
+    color: #9ca3af;
+    margin: 0;
+}
+
+.notification-unread-dot {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #3b82f6;
+    margin-top: 6px;
+}
+
+/* Scrollbar Styling */
+.notification-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.notification-list::-webkit-scrollbar-track {
+    background: #f3f4f6;
+}
+
+.notification-list::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+}
+
+.notification-list::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .admin-notification-dropdown {
+        width: 320px;
+        right: -20px;
+    }
+}
+</style>

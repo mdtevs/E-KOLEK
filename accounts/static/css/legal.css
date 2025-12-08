@@ -1,0 +1,304 @@
+/**
+ * E-KOLEK Legal Pages Styles
+ * Professional styling for Privacy Policy and Terms of Service
+ * Note: Header and Footer styles are inherited from home.css
+ */
+
+/* ===== Global Styles ===== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  line-height: 1.7;
+  color: #1f2937;
+  min-height: 100vh;
+  /* Override home.css background image for legal pages */
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%) !important;
+  background-image: none !important;
+}
+
+/* Remove duplicate header and footer styles - they come from home.css */
+
+/* ===== Main Container ===== */
+.legal-container {
+  max-width: 900px;
+  margin: 3rem auto;
+  padding: 0 2rem 3rem;
+}
+
+/* ===== Legal Header ===== */
+.legal-header {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  padding: 3rem 2.5rem;
+  border-radius: 16px;
+  box-shadow: 
+    0 10px 30px rgba(5, 150, 105, 0.2),
+    0 4px 12px rgba(5, 150, 105, 0.15);
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.legal-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.last-updated {
+  font-size: 0.95rem;
+  opacity: 0.95;
+  font-weight: 500;
+}
+
+/* ===== Legal Content ===== */
+.legal-content {
+  background: #ffffff;
+  padding: 3rem;
+  border-radius: 16px;
+  box-shadow: 
+    0 4px 6px rgba(0, 0, 0, 0.05),
+    0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+section {
+  margin-bottom: 3rem;
+}
+
+section:last-child {
+  margin-bottom: 0;
+}
+
+h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #047857;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 3px solid #10b981;
+}
+
+h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #059669;
+  margin-top: 1.75rem;
+  margin-bottom: 1rem;
+}
+
+p {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  color: #374151;
+}
+
+ul {
+  margin: 1rem 0 1.5rem 1.5rem;
+  list-style-type: disc;
+}
+
+ul li {
+  margin-bottom: 0.75rem;
+  padding-left: 0.5rem;
+  color: #4b5563;
+}
+
+ul li strong {
+  color: #047857;
+  font-weight: 600;
+}
+
+/* ===== Contact Info Box ===== */
+.contact-info {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-left: 4px solid #10b981;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin: 1.5rem 0;
+}
+
+.contact-info p {
+  margin-bottom: 0.5rem;
+  color: #065f46;
+}
+
+.contact-info p:last-child {
+  margin-bottom: 0;
+}
+
+/* ===== Acknowledgment Box ===== */
+.acknowledgment {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 2px solid #f59e0b;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: 3rem;
+  text-align: center;
+}
+
+.acknowledgment p {
+  font-size: 1.05rem;
+  color: #92400e;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* ===== Footer Override ===== */
+/* Restore professional gradient footer design */
+footer {
+  background: linear-gradient(135deg, #1f2937 0%, #111827 100%) !important;
+  color: #e5e7eb !important;
+  padding: 2.5rem 2rem !important;
+  text-align: center;
+  margin-top: 4rem;
+}
+
+footer p {
+  margin-bottom: 0.75rem;
+  color: #d1d5db !important;
+}
+
+footer p:last-child {
+  margin-bottom: 0;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+footer a {
+  color: #10b981 !important;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
+  margin: 0 0.5rem;
+}
+
+footer a:hover {
+  color: #34d399 !important;
+  text-decoration: underline;
+}
+
+/* ===== Responsive Design ===== */
+@media (max-width: 768px) {
+  .legal-container {
+    margin: 2rem auto;
+    padding: 0 1rem 2rem;
+  }
+
+  .legal-header {
+    padding: 2rem 1.5rem;
+  }
+
+  .legal-header h1 {
+    font-size: 2rem;
+  }
+
+  .legal-content {
+    padding: 2rem 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+  }
+
+  h3 {
+    font-size: 1.15rem;
+  }
+
+  ul {
+    margin-left: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .legal-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .last-updated {
+    font-size: 0.85rem;
+  }
+
+  .legal-content {
+    padding: 1.5rem 1rem;
+  }
+
+  h2 {
+    font-size: 1.35rem;
+  }
+
+  h3 {
+    font-size: 1.1rem;
+  }
+
+  p, ul li {
+    font-size: 0.95rem;
+  }
+
+  .acknowledgment {
+    padding: 1.5rem;
+  }
+
+  .acknowledgment p {
+    font-size: 1rem;
+  }
+}
+
+/* ===== Print Styles ===== */
+@media print {
+  body {
+    background: #ffffff;
+  }
+
+  header {
+    display: none !important;
+  }
+
+  footer {
+    display: none !important;
+  }
+
+  .legal-container {
+    max-width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+
+  .legal-header {
+    background: #ffffff;
+    color: #000000;
+    box-shadow: none;
+    border-bottom: 2px solid #000000;
+  }
+
+  .legal-content {
+    box-shadow: none;
+  }
+
+  h2 {
+    color: #000000;
+  }
+
+  h3 {
+    color: #000000;
+  }
+
+  a {
+    color: #000000;
+    text-decoration: underline;
+  }
+
+  .contact-info {
+    background: #f5f5f5;
+    border-left: 4px solid #000000;
+  }
+
+  .acknowledgment {
+    background: #f5f5f5;
+    border: 2px solid #000000;
+  }
+}

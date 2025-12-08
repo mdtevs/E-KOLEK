@@ -1,0 +1,194 @@
+E-KOLEK TERMS AND CONDITIONS
+Version 1.0
+Effective Date: November 27, 2025
+
+INTRODUCTION
+
+Welcome to E-KOLEK, a waste collection and management platform operated by CENRO (City Environment and Natural Resources Office) of San Pedro City. By registering and using the E-KOLEK application and services, you agree to comply with and be bound by the following terms and conditions.
+
+ARTICLE 1: DEFINITIONS
+
+1.1. "E-KOLEK" refers to the electronic waste collection platform, including its mobile application, website, and related services.
+
+1.2. "User" refers to any individual who registers for an account on the E-KOLEK platform.
+
+1.3. "Family Account" refers to a registered household unit consisting of a family representative and family members.
+
+1.4. "Points" refers to the reward currency earned through waste segregation and disposal activities on the platform.
+
+1.5. "CENRO" refers to the City Environment and Natural Resources Office of San Pedro City.
+
+ARTICLE 2: ACCOUNT REGISTRATION
+
+2.1. Users must provide accurate, complete, and current information during registration.
+
+2.2. Users are responsible for maintaining the confidentiality of their account credentials.
+
+2.3. Users must be at least 13 years old to register for an account. Users under 18 must have parental or guardian consent.
+
+2.4. Each family may have only one family account, with one designated family representative.
+
+2.5. Family members can join an existing family account using the family code provided by the family representative.
+
+2.6. All registration information is subject to verification by CENRO staff.
+
+ARTICLE 3: USER OBLIGATIONS
+
+3.1. Users agree to:
+   - Properly segregate waste according to categories defined in the platform
+   - Follow the garbage collection schedule for their barangay
+   - Provide accurate information about waste disposal activities
+   - Maintain respectful communication with CENRO staff and other users
+   - Not engage in fraudulent activities to earn points
+
+3.2. Users must not:
+   - Share account credentials with unauthorized persons
+   - Create multiple accounts for the same household
+   - Submit false information about waste collection or disposal
+   - Attempt to manipulate the points system through fraudulent means
+   - Use the platform for any illegal activities
+
+ARTICLE 4: POINTS AND REWARDS SYSTEM
+
+4.1. Users earn points by:
+   - Proper waste segregation and disposal
+   - Participating in scheduled waste collection
+   - Completing educational modules about waste management
+   - Participating in community cleanup activities
+   - Playing educational games on the platform
+
+4.2. Points accumulated can be redeemed for rewards as defined in the rewards catalog.
+
+4.3. Points have no cash value and cannot be transferred between accounts.
+
+4.4. CENRO reserves the right to adjust point values, modify the rewards catalog, and set expiration dates for points.
+
+4.5. Points earned through fraudulent means will be forfeited, and the account may be suspended or terminated.
+
+ARTICLE 5: DATA PRIVACY AND SECURITY
+
+5.1. E-KOLEK collects and processes personal information in accordance with the Data Privacy Act of 2012 (Republic Act No. 10173).
+
+5.2. Information collected includes:
+   - Name, contact information, and address
+   - Barangay of residence
+   - Waste disposal and collection history
+   - Points and rewards transaction history
+   - Account activity and usage data
+
+5.3. Personal information will be used for:
+   - Account management and verification
+   - Waste collection scheduling and coordination
+   - Points and rewards administration
+   - Communication regarding platform updates and services
+   - Analytics to improve waste management services
+
+5.4. Personal information will not be sold, rented, or shared with third parties without user consent, except as required by law.
+
+5.5. Users have the right to access, correct, and request deletion of their personal data, subject to legal retention requirements.
+
+ARTICLE 6: GARBAGE COLLECTION SCHEDULES
+
+6.1. Collection schedules are specific to each barangay and are subject to change based on operational needs.
+
+6.2. Users will be notified of their barangay's collection schedule through the platform.
+
+6.3. CENRO reserves the right to modify collection schedules with advance notice to users.
+
+6.4. Users must adhere to the scheduled collection times for their area.
+
+ARTICLE 7: CONTENT AND CONDUCT
+
+7.1. Users are responsible for any content they submit through the platform, including photos of waste segregation.
+
+7.2. Prohibited content includes:
+   - Offensive, abusive, or discriminatory material
+   - False or misleading information
+   - Content that violates intellectual property rights
+   - Spam or unsolicited promotional material
+
+7.3. CENRO reserves the right to remove any content that violates these terms.
+
+ARTICLE 8: PLATFORM AVAILABILITY
+
+8.1. E-KOLEK aims to provide continuous service but does not guarantee uninterrupted access.
+
+8.2. The platform may be temporarily unavailable due to maintenance, updates, or technical issues.
+
+8.3. CENRO is not liable for any loss or inconvenience resulting from platform downtime.
+
+ARTICLE 9: MODIFICATIONS TO TERMS
+
+9.1. CENRO reserves the right to modify these terms and conditions at any time.
+
+9.2. Users will be notified of significant changes through the platform.
+
+9.3. Continued use of the platform after modifications constitutes acceptance of the new terms.
+
+ARTICLE 10: ACCOUNT SUSPENSION AND TERMINATION
+
+10.1. CENRO may suspend or terminate accounts that:
+   - Violate these terms and conditions
+   - Engage in fraudulent activities
+   - Provide false information
+   - Abuse the platform or its users
+   - Remain inactive for an extended period
+
+10.2. Users may request account deletion by contacting CENRO support.
+
+10.3. Upon account termination, all accumulated points will be forfeited.
+
+ARTICLE 11: LIMITATION OF LIABILITY
+
+11.1. E-KOLEK is provided "as is" without warranties of any kind.
+
+11.2. CENRO is not liable for:
+   - Errors or interruptions in service
+   - Loss of data or points due to technical issues
+   - Damages resulting from use or inability to use the platform
+   - Actions of third parties
+
+11.3. Users use the platform at their own risk.
+
+ARTICLE 12: INTELLECTUAL PROPERTY
+
+12.1. All content, trademarks, and intellectual property on the E-KOLEK platform are owned by CENRO or its licensors.
+
+12.2. Users may not copy, reproduce, or distribute platform content without permission.
+
+12.3. Users grant CENRO a license to use submitted content for platform operations and promotional purposes.
+
+ARTICLE 13: DISPUTE RESOLUTION
+
+13.1. Any disputes arising from these terms shall be resolved through:
+   - Direct communication with CENRO support
+   - Mediation through appropriate city government channels
+   - Legal proceedings in the courts of San Pedro City, Laguna
+
+13.2. Users agree to attempt informal resolution before pursuing legal action.
+
+ARTICLE 14: GOVERNING LAW
+
+14.1. These terms are governed by the laws of the Republic of the Philippines.
+
+14.2. Users submit to the jurisdiction of Philippine courts for dispute resolution.
+
+ARTICLE 15: SEVERABILITY
+
+15.1. If any provision of these terms is found invalid or unenforceable, the remaining provisions shall continue in full force.
+
+ARTICLE 16: CONTACT INFORMATION
+
+For questions or concerns about these terms, users may contact:
+
+CENRO - City Environment and Natural Resources Office
+San Pedro City, Laguna
+Email: cenro.sanpedro@example.gov.ph
+Phone: (02) 1234-5678
+
+ARTICLE 17: ACCEPTANCE
+
+By clicking "I Accept" or using the E-KOLEK platform, you acknowledge that you have read, understood, and agree to be bound by these Terms and Conditions.
+
+---
+Last Updated: November 27, 2025

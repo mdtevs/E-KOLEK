@@ -1,0 +1,31 @@
+/**
+ * Admin Quiz Questions Styles
+ * Styling for the quiz questions management page
+ */
+
+/* ==================== STATUS BADGES ==================== */
+.status-badge {
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+}
+
+.video-status[data-active="true"], 
+.question-status[data-active="true"] {
+    background: #28a745;
+}
+
+.video-status[data-active="false"], 
+.question-status[data-active="false"] {
+    background: #dc3545;
+}
+
+/* ==================== TOGGLE BUTTON ANIMATIONS ==================== */
+.btn-toggle[data-active="true"] .bx {
+    transform: rotate(0deg);
+}
+
+.btn-toggle[data-active="false"] .bx {
+    transform: rotate(180deg);
+}

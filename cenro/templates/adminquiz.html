@@ -1,0 +1,286 @@
+{% load static %}
+{% load points_filters %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/adminquiz.css' %}?v={{ timestamp }}">
+    <title>Quiz Management</title>
+    
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <section id="sidebar">
+        <a href="#" class="brand">
+            <i class='bx bxs-group'></i>
+            <span class="text">CENRO Admin</span>
+        </a>
+        		<ul class="side-menu top">
+			{% if can_manage_users %}
+			<li{% if page_name == 'adminuser' %} class="active"{% endif %}>
+				<a href="{% url 'cenro:adminuser' %}">
+					<i class='bx bxs-user-detail'></i>
+					<span class="text">User Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+            {% if admin_user.role == 'super_admin' %}
+			<li>
+				<a href="{% url 'cenro:admin_management' %}">
+					<i class='bx bxs-user-detail' ></i>
+					<span class="text">Admin Management</span>
+				</a>
+			</li>
+			{% endif %}
+			
+			{% if can_manage_controls %}
+			<li{% if page_name == 'admincontrol' %} class="active"{% endif %}>
+				<a href="{% url 'cenro:admincontrol' %}">
+					<i class='bx bxs-component' ></i>
+					<span class="text">Controls Management</span>
+				</a>
+			</li>
+			{% endif %}
+			
+			{% if can_manage_points %}
+			<li{% if page_name == 'adminpoints' %} class="active"{% endif %}>
+				<a href="{% url 'cenro:adminpoints' %}">
+					<i class='bx bxs-star' ></i>
+					<span class="text">Points Management</span>
+				</a>
+			</li>
+			{% endif %}
+			
+			{% if can_manage_rewards %}
+			<li{% if page_name == 'adminrewards' %} class="active"{% endif %}>
+				<a href="{% url 'cenro:adminrewards' %}">
+					<i class='bx bxs-gift' ></i>
+					<span class="text">Rewards Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% if can_manage_schedules %}
+			<li{% if page_name == 'adminschedule' %} class="active"{% endif %}>
+				<a href="{% url 'cenro:adminschedule' %}">
+					<i class='bx bxs-calendar' ></i>
+					<span class="text">Schedule Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% if can_manage_security %}
+			<li{% if page_name == 'adminsecurity' %} class="active"{% endif %}>
+				<a href="{% url 'adminsecurity' %}">
+					<i class='bx bxs-shield' ></i>
+					<span class="text">Security Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% if can_manage_learning %}
+			<li{% if page_name == 'adminlearn' %} class="active"{% endif %}>
+				<a href="{% url 'adminlearn' %}">
+					<i class='bx bxs-book-content' ></i>
+					<span class="text">Learning Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% if can_manage_games %}
+			<li{% if page_name == 'admingames' or page_name == 'adminquiz' %} class="active"{% endif %}>
+				<a href="{% url 'cenro:admingames' %}">
+					<i class='bx bxs-game' ></i>
+					<span class="text">Games Management</span>
+				</a>      
+      <li>
+        <a href="{% url 'cenro:waste_analytics' %}">
+          <i class='bx bxs-bar-chart-alt-2' ></i>
+          <span class="text">Waste Analytics</span>
+        </a>
+      </li>
+      
+			</li>
+			{% endif %}
+			
+			<!-- Security Analyst Special Dashboard -->
+			{% if admin_role == 'security_analyst' %}
+			<li{% if page_name == 'security_dashboard' %} class="active"{% endif %}>
+				<a href="{% url 'cenro:adminsecurity' %}">
+					<i class='bx bxs-dashboard' ></i>
+					<span class="text">Security Dashboard</span>
+				</a>
+			</li>
+			{% endif %}
+			
+		</ul>
+        <ul class="side-menu">
+            <li>
+                <a href="{% url 'cenro:admin_logout' %}" class="logout">
+                    <i class='bx bxs-log-out-circle'></i>
+                    <span class="text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </section>
+
+    <!-- CONTENT -->
+    <section id="content">
+        <!-- NAVBAR -->
+				<nav>
+			<i class='bx bx-menu' ></i>
+			
+			<!-- Admin User Profile Section -->
+			{% if is_admin_authenticated %}
+			<div class="profile" style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+				<!-- Admin Notification Bell -->
+				{% include 'includes/notification_bell.html' %}
+				
+				<div class="admin-info" style="text-align: right; margin-right: 10px;">
+					<span style="display: block; font-weight: 600; color: #333;">{{ admin_full_name }}</span>
+					<span style="display: block; font-size: 0.8rem; color: #666;">{{ admin_role_display }}</span>
+				</div>
+				<i class='bx bxs-user-circle' style="font-size: 2rem; color: #667eea;"></i>
+			</div>
+			{% else %}
+			<div class="profile" style="margin-left: auto;">
+				<a href="{% url 'cenro:admin_login' %}" style="color: #667eea; text-decoration: none;">
+					<i class='bx bx-log-in' style="font-size: 1.5rem;"></i>
+					<span>Login</span>
+				</a>
+			</div>
+			{% endif %}
+		</nav>
+
+        <!-- MAIN -->
+        <main>
+            <div class="head-title">
+                <div class="left">
+                    <h1>Quiz Management</h1>
+                    <ul class="breadcrumb">
+                        <li><a href="#">Quiz</a></li>
+                        <li><i class='bx bx-chevron-right'></i></li>
+                        <li><a class="active" href="#">Management</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Excel Upload Section for Quiz Questions -->
+            <div class="excel-upload-section" style="background: #f3f4f6; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 2px dashed #667eea;">
+                <h3 style="margin-bottom: 1rem; color: #667eea;">
+                    <i class='bx bx-spreadsheet'></i> Bulk Upload Quiz Questions
+                </h3>
+                <p style="color: #6b7280; margin-bottom: 1rem;">Upload an Excel file to create multiple quiz questions at once.</p>
+                
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                    <a href="/quiz-excel/download-template/" class="btn-save" style="background: #10b981; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                        <i class='bx bx-download'></i> Download Quiz Template
+                    </a>
+                </div>
+                
+                <form id="quizUploadForm" enctype="multipart/form-data" style="margin-top: 1rem;">
+                    {% csrf_token %}
+                    <div style="margin-bottom: 1rem;">
+                        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Select Excel File:</label>
+                        <input type="file" name="excel_file" id="quizExcelFile" accept=".xlsx,.xls" required style="padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; width: 100%; max-width: 400px;">
+                        <small style="color: #6b7280; display: block; margin-top: 0.25rem;">Accepted formats: .xlsx, .xls</small>
+                    </div>
+                    <button type="submit" class="btn-save" style="background: #667eea;">
+                        <i class='bx bx-upload'></i> Upload Quiz Questions
+                    </button>
+                </form>
+                
+                <div id="quizUploadResults" style="display: none; margin-top: 1rem; padding: 1rem; border-radius: 4px;"></div>
+            </div>
+
+            <!-- Add Question Form -->
+            <div class="quiz-form">
+                <h3 style="margin-bottom: 1rem;">Add New Question</h3>
+                <form id="questionForm">
+                    {% csrf_token %}
+                    <div style="margin-bottom: 1rem;">
+                        <label >Question Text:</label>
+                        <input style="margin-top: 0.5rem;" type="text" id="questionText" class="choice-input" placeholder="Enter your question here..." required>
+                    </div>
+                    
+                    <div style="margin-bottom: 1rem;">
+                        <label>Points:</label>
+                        <input style="margin-top: 0.5rem;" type="number" id="questionPoints" class="choice-input points-input" placeholder="Points for this question" value="1" min="0" step="0.01" max="100" required>
+                    </div>
+                    
+                    <div id="choicesContainer">
+                        <label>Choices:</label>
+                        <div class="choice-group">
+                            <input type="text" class="choice-input choice-text" placeholder="Choice 1" required>
+                            <label>
+                                <input type="radio" name="correctChoice" value="0" class="correct-checkbox" required>
+                                Mark as correct answer
+                            </label>
+                        </div>
+                        <div class="choice-group">
+                            <input type="text" class="choice-input choice-text" placeholder="Choice 2" required>
+                            <label>
+                                <input type="radio" name="correctChoice" value="1" class="correct-checkbox" required>
+                                Mark as correct answer
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn-add-choice" onclick="addChoice()">Add Another Choice</button>
+                    <br>
+                    <button type="submit" class="btn-save">Save Question</button>
+                </form>
+            </div>
+
+            <!-- Questions List -->
+            <div class="questions-list">
+                <h3>Existing Questions</h3>
+                <div id="questionsList">
+                    {% for question in questions %}
+                    <div class="question-item">
+                        <h4>{{ question.text }}</h4>
+                        {% for choice in question.choices.all %}
+                        <div class="choice-item {% if choice.is_correct %}correct-choice{% endif %}">
+                            {{ choice.text }}
+                            {% if choice.is_correct %}<i class='bx bx-check'></i>{% endif %}
+                        </div>
+                        {% endfor %}
+                        <button data-question-id="{{ question.id }}" class="btn-delete" onclick="deleteQuestion(this.dataset.questionId)">
+                            Delete
+                        </button>
+                    </div>
+                    {% empty %}
+                    <p>No questions added yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </main>
+    </section>
+
+    <script src="{% static 'script.js' %}"></script>
+    
+    <!-- Pass Django URLs to JavaScript -->
+    <script>
+        window.DJANGO_URLS = {
+            addQuestion: '{% url "add_question" %}',
+            deleteQuestion: '{% url "delete_question" 0 %}' // Will replace 0 with actual ID in JS
+        };
+        window.CSRF_TOKEN = '{{ csrf_token }}';
+    </script>
+    
+    <!-- Load common admin utilities first -->
+    <script src="{% static 'js/admin_common.js' %}?v={{ timestamp }}"></script>
+    <script src="{% static 'js/adminquiz.js' %}?v={{ timestamp }}"></script>
+    <script src="{% static 'js/quiz-excel-upload.js' %}?v={{ timestamp }}"></script>
+    <script src="{% static 'js/points-input-handler.js' %}?v={{ timestamp }}"></script>
+	<script src="{% static 'js/admin_notifications.js' %}"></script>
+</body>
+</html>
+

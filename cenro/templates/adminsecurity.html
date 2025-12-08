@@ -1,0 +1,272 @@
+{% load static %}
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Boxicons -->
+  <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+  <link href='https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <!-- My CSS -->
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/adminsecurity.css' %}?v={{ timestamp }}">
+    
+  {% if admin_user.role == 'super_admin' %}
+  <title>Security Hub - CENRO</title>
+  {% else %}
+  <title>Security Analyst Dashboard - CENRO</title>
+  {% endif %}
+</head>
+<body>
+
+
+
+  <!-- SIDEBAR -->
+  <section id="sidebar">
+    <a href="#" class="brand">
+      <i class='bx bxs-shield-alt-2'></i>
+      {% if admin_user.role == 'super_admin' %}
+      <span class="text">Security Hub</span>
+      {% else %}
+      <span class="text">Security Analyst</span>
+      {% endif %}
+    </a>
+    <ul class="side-menu top">
+      <!-- Dashboard/Home -->
+      <li>
+        <a href="{% url 'cenro:dashboard' %}">
+          <i class='bx bxs-dashboard'></i>
+          <span class="text">Main Dashboard</span>
+        </a>
+      </li>
+      <li class="active">
+        <a href="{% url 'cenro:security_dashboard' %}#overview">
+          <i class='bx bxs-shield-alt-2'></i>
+          <span class="text">Security Overview</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'cenro:security_dashboard' %}#security-logs">
+          <i class='bx bxs-shield'></i>
+          <span class="text">Security Logs & Login Attempts</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'cenro:security_dashboard' %}#user-activity">
+          <i class='bx bxs-user-detail'></i>
+          <span class="text">User Registrations & Activities</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'cenro:security_dashboard' %}#redemptions">
+          <i class='bx bxs-gift'></i>
+          <span class="text">Reward Redemption History</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'cenro:security_dashboard' %}#reports">
+          <i class='bx bxs-report'></i>
+          <span class="text">Generate Security Reports</span>
+        </a>
+      </li>
+      <li class="active">
+        <a href="{% url 'cenro:adminsecurity' %}">
+          <i class='bx bxs-shield'></i>
+          <span class="text">Security Management</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'cenro:waste_analytics' %}">
+          <i class='bx bxs-bar-chart-alt-2'></i>
+          <span class="text">Waste Analytics</span>
+        </a>
+      </li>
+    </ul>
+    <ul class="side-menu">
+      <li>
+        <a href="{% url 'cenro:admincontrol' %}">
+          <i class='bx bx-arrow-back'></i>
+          <span class="text">Back to Admin</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'cenro:admin_logout' %}" class="logout">
+          <i class='bx bxs-log-out-circle'></i>
+          <span class="text">Logout</span>
+        </a>
+      </li>
+    </ul>
+  </section>
+  <!-- SIDEBAR -->
+
+
+
+  <!-- CONTENT -->
+  <section id="content">
+    <!-- NAVBAR -->
+    		<nav>
+			<i class='bx bx-menu' ></i>
+			
+			<!-- Admin User Profile Section -->
+			{% if admin_user %}
+			<div class="profile" style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+				<!-- Admin Notification Bell -->
+				{% include 'includes/notification_bell.html' %}
+				
+				<div class="admin-info" style="text-align: right; margin-right: 10px;">
+					<span style="display: block; font-weight: 600; color: #333;">{{ admin_user.full_name }}</span>
+					<span style="display: block; font-size: 0.8rem; color: #666;">{{ admin_user.get_role_display }}</span>
+				</div>
+				<i class='bx bxs-user-circle' style="font-size: 2rem; color: #667eea;"></i>
+			</div>
+			{% else %}
+			<div class="profile" style="margin-left: auto;">
+				<a href="{% url 'cenro:admin_login' %}" style="color: #667eea; text-decoration: none;">
+					<i class='bx bx-log-in' style="font-size: 1.5rem;"></i>
+					<span>Login</span>
+				</a>
+			</div>
+			{% endif %}
+		</nav>
+    <!-- NAVBAR -->
+
+    <!-- MAIN -->
+    <main>
+    <h1></h1>
+      <div class="head-title">
+        <div class="left">
+          <h1>Security Management</h1>
+          <ul class="breadcrumb">
+            <li>
+              <a href="#">Security</a>
+            </li>
+            <li><i class='bx bx-chevron-right' ></i></li>
+            <li>
+              <a class="active" href="#">Dashboard</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+    <!-- Security Dashboard Content -->
+    <div class="security-container">
+        
+        <!-- Security Alerts -->
+        {% if stats.failure_rate_24h > 30 %}
+        <div class="alert danger">
+            ⚠️ <strong>High Failure Rate Alert:</strong> Login failure rate is {{ stats.failure_rate_24h }}% in the last 24 hours. This may indicate an attack.
+        </div>
+        {% elif stats.failure_rate_24h > 15 %}
+        <div class="alert warning">
+            ⚠️ <strong>Elevated Failure Rate:</strong> Login failure rate is {{ stats.failure_rate_24h }}% in the last 24 hours. Monitor closely.
+        </div>
+        {% endif %}
+        
+        <!-- Statistics Grid -->
+        <div class="stats-grid">
+            <div class="stat-card info">
+                <h3>{{ stats.total_attempts_24h|default:0 }}</h3>
+                <p>Total Login Attempts (24h)</p>
+            </div>
+            <div class="stat-card success">
+                <h3>{{ stats.successful_logins_24h|default:0 }}</h3>
+                <p>Successful Logins (24h)</p>
+            </div>
+            <div class="stat-card danger">
+                <h3>{{ stats.failed_attempts_24h|default:0 }}</h3>
+                <p>Failed Attempts (24h)</p>
+            </div>
+            <div class="stat-card {% if stats.failure_rate_24h > 30 %}danger{% elif stats.failure_rate_24h > 15 %}warning{% else %}success{% endif %}">
+                <h3>{{ stats.failure_rate_24h|default:0 }}%</h3>
+                <p>Failure Rate (24h)</p>
+            </div>
+        </div>
+        
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+            <!-- Top Failed Users -->
+            <div class="dashboard-card">
+                <h3>🚨 Top Failed Login Attempts</h3>
+                {% for user in top_failed_users %}
+                <div class="list-item">
+                    <span>{{ user.username|default:"Unknown" }}</span>
+                    <span class="badge danger">{{ user.failures }} attempts</span>
+                </div>
+                {% empty %}
+                <p>No failed login attempts in the last 24 hours.</p>
+                {% endfor %}
+            </div>
+            
+            <!-- Suspicious IPs -->
+            <div class="dashboard-card">
+                <h3>⚠️ Suspicious IP Addresses</h3>
+                {% for ip in suspicious_ips %}
+                <div class="list-item">
+                    <span>{{ ip.ip_address }}</span>
+                    <span class="badge warning">{{ ip.failures }} failures</span>
+                </div>
+                {% empty %}
+                <p>No suspicious IP activity detected.</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Login Activity Chart -->
+        <div class="dashboard-card">
+            <h3>📊 Login Activity (Last 24 Hours)</h3>
+            <div class="chart-container">
+                <div class="chart" id="activityChart">
+                    {% for hour in hourly_activity %}
+                    <div class="chart-bar" 
+                         data-height="{% if hour.total > 0 %}{{ hour.total|add:'5' }}{% else %}5{% endif %}"
+                         title="{{ hour.hour }}: {{ hour.total }} total ({{ hour.failed }} failed)">
+                        <span class="chart-bar-label">{{ hour.hour }}</span>
+                        <span class="chart-bar-value">{{ hour.total }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Recent Failed Attempts -->
+        <div class="dashboard-card">
+            <h3>🔍 Recent Failed Login Attempts</h3>
+            <div style="max-height: 300px; overflow-y: auto;">
+                {% for attempt in recent_failures %}
+                <div class="list-item">
+                    <div>
+                        <strong>{{ attempt.username|default:"Unknown" }}</strong><br>
+                        <small>{{ attempt.ip_address }} - {{ attempt.timestamp|timesince }} ago</small><br>
+                        <small>{{ attempt.failure_reason }}</small>
+                    </div>
+                    <span class="badge danger">Failed</span>
+                </div>
+                {% empty %}
+                <p>No recent failed login attempts.</p>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Security Actions -->
+        <div class="security-actions">
+            <button onclick="refreshData()" class="security-btn primary">
+                <i class='bx bx-refresh'></i> Refresh Data
+            </button>
+            <a href="{% url 'cenro:dashboard' %}" class="security-btn primary">
+                <i class='bx bx-home'></i> Dashboard
+            </a>
+        </div>
+    </div>
+
+</main>
+
+</section>
+
+<script src="{% static 'script.js' %}"></script>
+<script src="{% static 'js/adminsecurity.js' %}?v={{ timestamp }}"></script>
+	<script src="{% static 'js/admin_notifications.js' %}"></script>
+</body>
+</html>

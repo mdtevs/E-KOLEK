@@ -1,0 +1,241 @@
+
+/* OLD MODAL STYLES - REPLACED BY unified-modal.css */
+/*
+		.user-modal {
+			display: none;
+			position: fixed;
+			z-index: 1000;
+			left: 0;
+			top: 0;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(0, 0, 0, 0.5);
+		}
+		
+		.user-modal.show {
+			display: flex !important;
+			justify-content: center;
+			align-items: center;
+		}
+		
+		.user-modal-content {
+			position: relative;
+			background-color: white;
+			padding: 0;
+			border-radius: 12px !important;
+			width: 90%;
+			max-width: 500px;
+			box-shadow: 0 4px 20px rgba(0,0,0,0.15) !important;
+			animation: modalFadeIn 0.3s;
+			max-height: 90vh;
+			overflow-y: auto;
+		}
+		
+		.user-modal-content.large {
+			max-width: 600px;
+		}
+		
+		@keyframes modalFadeIn {
+			from {
+				opacity: 0;
+				transform: scale(0.8);
+			}
+			to {
+				opacity: 1;
+				transform: scale(1);
+			}
+		}
+*/
+		
+		/* Icon Button Styles */
+		.icon-btn {
+			width: 32px;
+			height: 32px;
+			border-radius: 6px;
+			border: none;
+			cursor: pointer;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.2s ease;
+			position: relative;
+			font-size: 16px;
+		}
+		
+		.icon-btn i {
+			font-size: 16px;
+			line-height: 1;
+		}
+		
+		.icon-btn:hover {
+			transform: translateY(-1px);
+			box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+		}
+		
+		.icon-btn:active {
+			transform: translateY(0);
+		}
+		
+		/* Edit Button */
+		.icon-btn-edit {
+			background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+			color: white;
+		}
+		
+		.icon-btn-edit:hover {
+			background: linear-gradient(135deg, #5568d3 0%, #6a3d91 100%);
+		}
+		
+		/* Barangay Button */
+		.icon-btn-barangay {
+			background: #3b82f6;
+			color: white;
+		}
+		
+		.icon-btn-barangay:hover {
+			background: #2563eb;
+		}
+		
+		/* Reset Password Button */
+		.icon-btn-reset {
+			background: #ff9800;
+			color: white;
+		}
+		
+		.icon-btn-reset:hover {
+			background: #f57c00;
+		}
+		
+		/* Suspend Button */
+		.icon-btn-suspend {
+			background: #f59e0b;
+			color: white;
+		}
+		
+		.icon-btn-suspend:hover {
+			background: #d97706;
+		}
+		
+		/* Delete Button */
+		.icon-btn-delete {
+			background: #dc2626;
+			color: white;
+		}
+		
+		.icon-btn-delete:hover {
+			background: #b91c1c;
+		}
+		
+		/* Unlock/Unsuspend Button */
+		.icon-btn-success {
+			background: #10b981;
+			color: white;
+		}
+		
+		.icon-btn-success:hover {
+			background: #059669;
+		}
+		
+		/* Tooltip Styles */
+		.icon-btn::before {
+			content: attr(title);
+			position: absolute;
+			bottom: 100%;
+			left: 50%;
+			transform: translateX(-50%);
+			background: #1f2937;
+			color: white;
+			padding: 6px 12px;
+			border-radius: 6px;
+			font-size: 12px;
+			white-space: nowrap;
+			opacity: 0;
+			pointer-events: none;
+			transition: opacity 0.3s, transform 0.3s;
+			margin-bottom: 8px;
+			z-index: 1000;
+		}
+		
+		.icon-btn::after {
+			content: '';
+			position: absolute;
+			bottom: 100%;
+			left: 50%;
+			transform: translateX(-50%);
+			border: 5px solid transparent;
+			border-top-color: #1f2937;
+			opacity: 0;
+			pointer-events: none;
+			transition: opacity 0.3s, transform 0.3s;
+			margin-bottom: 3px;
+		}
+		
+		.icon-btn:hover::before,
+		.icon-btn:hover::after {
+			opacity: 1;
+			transform: translateX(-50%) translateY(-4px);
+		}
+		
+		/* Barangay Tooltip Styles */
+		.barangay-tooltip-wrapper {
+			position: relative;
+			display: inline-block;
+		}
+		
+		.barangay-count-badge {
+			transition: all 0.3s ease;
+		}
+		
+		.barangay-count-badge:hover {
+			transform: translateY(-2px);
+			box-shadow: 0 4px 8px rgba(25, 118, 210, 0.4);
+			background-color: #bbdefb !important;
+		}
+		
+		.barangay-tooltip {
+			transition: all 0.3s ease;
+		}
+		
+		.barangay-tooltip::-webkit-scrollbar {
+			width: 6px;
+		}
+		
+		.barangay-tooltip::-webkit-scrollbar-track {
+			background: #f1f5f9;
+			border-radius: 3px;
+		}
+		
+		.barangay-tooltip::-webkit-scrollbar-thumb {
+			background: #cbd5e1;
+			border-radius: 3px;
+		}
+		
+		.barangay-tooltip::-webkit-scrollbar-thumb:hover {
+			background: #94a3b8;
+		}
+		
+		/* Scrollbar styling for barangay grid */
+		.barangay-grid::-webkit-scrollbar {
+			width: 8px;
+		}
+		
+		.barangay-grid::-webkit-scrollbar-track {
+			background: #f1f5f9;
+			border-radius: 4px;
+		}
+		
+		.barangay-grid::-webkit-scrollbar-thumb {
+			background: #cbd5e1;
+			border-radius: 4px;
+		}
+		
+		.barangay-grid::-webkit-scrollbar-thumb:hover {
+			background: #94a3b8;
+		}
+		
+		/* Checkbox styling improvements */
+		.barangay-grid input[type="checkbox"]:checked + span {
+			color: #667eea;
+			font-weight: 600;
+		}
+	

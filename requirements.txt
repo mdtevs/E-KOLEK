@@ -1,0 +1,95 @@
+# E-KOLEK Production Requirements for Railway Deployment
+# Generated: December 9, 2025
+
+# Core Django
+Django==5.2.6
+djangorestframework==3.15.2
+djangorestframework-simplejwt==5.5.1
+django-cors-headers==4.6.0
+django-csp==3.8
+django-celery-beat==2.8.1
+django-celery-results==2.6.0
+django-ratelimit==4.1.0
+
+# Production Web Server (Railway Required)
+gunicorn==21.2.0
+whitenoise==6.6.0
+
+# Database
+psycopg2-binary==2.9.10
+dj-database-url==2.1.0
+
+# Configuration
+python-decouple==3.8
+
+# Security & Encryption
+cryptography==46.0.3
+
+# Background Tasks
+celery==5.5.3
+redis==6.4.0
+kombu==5.5.4
+vine==5.1.0
+billiard==4.2.2
+amqp==5.3.1
+
+# HTTP Requests
+requests==2.32.3
+urllib3==2.2.0
+certifi==2024.2.2
+charset-normalizer==3.3.2
+idna==3.6
+
+# Image Processing
+Pillow==11.3.0
+qrcode==8.2
+segno==1.6.6
+
+# Data Processing & Analytics
+pandas==2.2.3
+numpy==1.26.3
+matplotlib==3.8.2
+
+# Google Drive Integration (Optional - set USE_GOOGLE_DRIVE=False on Railway)
+google-api-python-client==2.151.0
+google-auth==2.35.0
+google-auth-httplib2==0.2.0
+google-auth-oauthlib==1.2.1
+google-api-core==2.25.1
+googleapis-common-protos==1.70.0
+httplib2==0.22.0
+oauthlib==3.3.1
+requests-oauthlib==2.0.0
+
+# QR Code & Utilities
+django-qr-code==3.1.1
+python-dateutil==2.9.0.post0
+pytz==2025.2
+tzdata==2025.2
+
+# JWT
+PyJWT==2.9.0
+
+# Excel/Data Export
+openpyxl==3.1.5
+reportlab==4.4.4
+xlrd==2.0.1
+
+# Core Python Dependencies
+asgiref==3.9.2
+sqlparse==0.5.3
+typing-extensions==4.15.0
+setuptools==69.0.3
+six==1.17.0
+
+# Security
+pyasn1==0.6.1
+pyasn1-modules==0.4.2
+rsa==4.9.1
+pycparser==2.23
+
+# Utilities
+click==8.3.0
+colorama==0.4.6
+cachetools==5.5.2
+packaging==25.0

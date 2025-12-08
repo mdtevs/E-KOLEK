@@ -1,0 +1,603 @@
+{% load static %}
+{% load points_filters %}
+{% load phone_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Boxicons from multiple CDNs for reliability -->
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link href='https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/sec_analyst_dashboard.css' %}?v={{ timestamp }}">
+  {% if admin_user.role == 'super_admin' %}
+  <title>Security Hub - CENRO</title>
+  {% else %}
+  <title>Security Analyst Dashboard - CENRO</title>
+  {% endif %}
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <section id="sidebar">
+    <a href="#" class="brand">
+      <i class='bx bxs-shield-alt-2'></i>
+      {% if admin_user.role == 'super_admin' %}
+      <span class="text">Security Hub</span>
+      {% else %}
+      <span class="text">Security Analyst</span>
+      {% endif %}
+    </a>
+    <ul class="side-menu top">
+      <li class="active" data-section="overview">
+        <a href="#" onclick="showSection('overview', event)">
+          <i class='bx bxs-dashboard'></i>
+          <span class="text">Dashboard Overview</span>
+        </a>
+      </li>
+      <li data-section="security-logs">
+        <a href="#" onclick="showSection('security-logs', event)">
+          <i class='bx bxs-shield'></i>
+          <span class="text">Security Logs & Login Attempts</span>
+        </a>
+      </li>
+      <li data-section="user-activity">
+        <a href="#" onclick="showSection('user-activity', event)">
+          <i class='bx bxs-user-detail'></i>
+          <span class="text">User Registrations & Activities</span>
+        </a>
+      </li>
+      <li data-section="redemptions">
+        <a href="#" onclick="showSection('redemptions', event)">
+          <i class='bx bxs-gift'></i>
+          <span class="text">Reward Redemption History</span>
+        </a>
+      </li>
+      <li data-section="reports">
+        <a href="#" onclick="showSection('reports', event)">
+          <i class='bx bxs-report'></i>
+          <span class="text">Generate Security Reports</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'cenro:adminsecurity' %}">
+          <i class='bx bxs-shield'></i>
+          <span class="text">Security Management</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'cenro:waste_analytics' %}">
+          <i class='bx bxs-bar-chart-alt-2'></i>
+          <span class="text">Waste Analytics</span>
+        </a>
+      </li>
+    </ul>
+    <ul class="side-menu">
+      <li>
+        <a href="{% url 'cenro:admincontrol' %}">
+          <i class='bx bx-arrow-back'></i>
+          <span class="text">Back to Admin</span>
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'cenro:admin_logout' %}" class="logout">
+          <i class='bx bxs-log-out-circle'></i>
+          <span class="text">Logout</span>
+        </a>
+      </li>
+    </ul>
+  </section>
+  <!-- SIDEBAR -->
+
+  <!-- CONTENT -->
+  <section id="content">
+    <!-- NAVBAR -->
+    <nav>
+      <i class='bx bx-menu'></i>
+      
+      <!-- Admin User Profile Section -->
+      {% if is_admin_authenticated %}
+      <div class="profile" style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+				<!-- Admin Notification Bell -->
+				{% include 'includes/notification_bell.html' %}
+				
+				<div class="admin-info" style="text-align: right; margin-right: 10px;">
+          <span style="display: block; font-weight: 600; color: #333;">{{ admin_full_name }}</span>
+          <span style="display: block; font-size: 0.8rem; color: #666;">{{ admin_role_display }}</span>
+        </div>
+        <i class='bx bxs-user-circle' style="font-size: 2rem; color: #667eea;"></i>
+      </div>
+      {% else %}
+      <div class="profile" style="margin-left: auto;">
+        <a href="{% url 'cenro:admin_login' %}" style="color: #667eea; text-decoration: none;">
+          <i class='bx bx-log-in' style="font-size: 1.5rem;"></i>
+          <span>Login</span>
+        </a>
+      </div>
+      {% endif %}
+    </nav>
+    <!-- NAVBAR -->
+
+    <!-- MAIN -->
+    <main>
+      <div class="head-title">
+        <div class="left">
+          {% if admin_user.role == 'super_admin' %}
+          <h1>Security Hub</h1>
+          {% else %}
+          <h1>Security Analyst Dashboard</h1>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- SECURITY OVERVIEW CARDS -->
+      <div id="overview-section" class="dashboard-section active">
+        <div class="section-header" style="margin-top: 30px;">
+          <h2><i class='bx bxs-dashboard'></i> Security Overview</h2>
+          <p>Real-time monitoring of system security and user activities</p>
+        </div>
+        
+        <ul class="box-info">
+          <li>
+            <i class='bx bxs-calendar-check'></i>
+            <span class="text">
+              <h3>{{ new_users_today }}</h3>
+              <p>New Users Today</p>
+            </span>
+          </li>
+          <li>
+            <i class='bx bxs-group'></i>
+            <span class="text">
+              <h3>{{ login_attempts_24h }}</h3>
+              <p>Login Attempts (24h)</p>
+            </span>
+          </li>
+          <li>
+            <i class='bx bxs-gift'></i>
+            <span class="text">
+              <h3>{{ redemptions_today }}</h3>
+              <p>Redemptions Today</p>
+            </span>
+          </li>
+          <li>
+            <i class='bx bxs-shield'></i>
+            <span class="text">
+              <h3>{{ admin_actions_today }}</h3>
+              <p>Admin Actions</p>
+            </span>
+          </li>
+        </ul>
+
+        <!-- Quick Access Cards -->
+        <div class="table-data" style="margin-top: 30px;">
+          <div class="order">
+            <div class="head">
+              <h3><i class='bx bxs-collection'></i> Quick Access</h3>
+            </div>
+            <div style="padding: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+              <a href="#" onclick="showSection('security-logs', event)" style="text-decoration: none;">
+                <div style="background: white; border: 2px solid #e5e7eb; padding: 30px; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.08);" onmouseover="this.style.borderColor='#667eea'; this.style.transform='translateY(-5px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.15)'" onmouseout="this.style.borderColor='#e5e7eb'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'">
+                  <i class='bx bxs-shield' style="font-size: 48px; margin-bottom: 10px; color: #667eea;"></i>
+                  <h4 style="margin: 10px 0; color: #333;">Security Logs</h4>
+                  <p style="margin: 0; color: #666; font-size: 14px;">View login attempts and security events</p>
+                </div>
+              </a>
+              <a href="#" onclick="showSection('user-activity', event)" style="text-decoration: none;">
+                <div style="background: white; border: 2px solid #e5e7eb; padding: 30px; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.08);" onmouseover="this.style.borderColor='#667eea'; this.style.transform='translateY(-5px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.15)'" onmouseout="this.style.borderColor='#e5e7eb'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'">
+                  <i class='bx bxs-user-detail' style="font-size: 48px; margin-bottom: 10px; color: #667eea;"></i>
+                  <h4 style="margin: 10px 0; color: #333;">User Activity</h4>
+                  <p style="margin: 0; color: #666; font-size: 14px;">Monitor registrations and transactions</p>
+                </div>
+              </a>
+              <a href="#" onclick="showSection('redemptions', event)" style="text-decoration: none;">
+                <div style="background: white; border: 2px solid #e5e7eb; padding: 30px; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.08);" onmouseover="this.style.borderColor='#667eea'; this.style.transform='translateY(-5px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.15)'" onmouseout="this.style.borderColor='#e5e7eb'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'">
+                  <i class='bx bxs-gift' style="font-size: 48px; margin-bottom: 10px; color: #667eea;"></i>
+                  <h4 style="margin: 10px 0; color: #333;">Redemptions</h4>
+                  <p style="margin: 0; color: #666; font-size: 14px;">Review reward redemption history</p>
+                </div>
+              </a>
+              <a href="#" onclick="showSection('reports', event)" style="text-decoration: none;">
+                <div style="background: white; border: 2px solid #e5e7eb; padding: 30px; border-radius: 10px; text-align: center; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.08);" onmouseover="this.style.borderColor='#667eea'; this.style.transform='translateY(-5px)'; this.style.boxShadow='0 6px 20px rgba(0,0,0,0.15)'" onmouseout="this.style.borderColor='#e5e7eb'; this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.08)'">
+                  <i class='bx bxs-report' style="font-size: 48px; margin-bottom: 10px; color: #667eea;"></i>
+                  <h4 style="margin: 10px 0; color: #333;">Generate Reports</h4>
+                  <p style="margin: 0; color: #666; font-size: 14px;">Export security and activity reports</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 1: SECURITY LOGS & LOGIN ATTEMPTS -->
+      <div id="security-logs-section" class="dashboard-section">
+        <div class="section-header" style="margin-top: 30px;">
+          <h2><i class='bx bxs-shield'></i> Security Logs & Login Attempts</h2>
+          <p>Monitor all login attempts and administrative actions</p>
+        </div>
+        
+        <div class="table-data">
+        <div class="order">
+          <div class="head">
+            <h3><i class='bx bxs-lock-alt' style="margin-bottom: 20px;"></i> Login Attempts</h3>
+          </div>
+          <table style="border-collapse: collapse; width: 100%;">
+            <thead>
+              <tr style="background-color: #f8f9fa;">
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6; width: 150px;"><i class='bx bx-calendar' style="margin-right: 5px; color: #667eea;"></i>Date/Time</th>
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6;"><i class='bx bx-user' style="margin-right: 5px; color: #667eea;"></i>Username</th>
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6; width: 120px;"><i class='bx bx-network-chart' style="margin-right: 5px; color: #667eea;"></i>IP Address</th>
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6; width: 100px;"><i class='bx bx-check-circle' style="margin-right: 5px; color: #667eea;"></i>Status</th>
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6; width: 100px;"><i class='bx bx-key' style="margin-right: 5px; color: #667eea;"></i>Method</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for attempt in login_attempts %}
+              <tr style="transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor='white'">
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 12px;">
+                  <div style="font-weight: 500;">{{ attempt.timestamp|date:"M d, Y" }}</div>
+                  <div style="color: #666;">{{ attempt.timestamp|date:"H:i:s" }}</div>
+                </td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee;">
+                  <div style="font-weight: 500; font-size: 13px;">{{ attempt.username|default:"Unknown" }}</div>
+                </td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 12px; color: #6b7280;">{{ attempt.ip_address }}</td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee;">
+                  {% if attempt.success %}
+                  <span style="padding: 4px 12px; background-color: #d1fae5; color: #065f46; border-radius: 12px; font-size: 11px; font-weight: 600;">Success</span>
+                  {% else %}
+                  <span style="padding: 4px 12px; background-color: #fee2e2; color: #991b1b; border-radius: 12px; font-size: 11px; font-weight: 600;">Failed</span>
+                  {% endif %}
+                </td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 13px; color: #374151;">{{ attempt.login_method|default:"Password" }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" style="text-align: center; padding: 40px; color: #666;">
+                  <i class='bx bx-lock-alt' style="font-size: 3rem; color: #d1d5db; margin-bottom: 15px; display: block;"></i>
+                  <h4>No login attempts found</h4>
+                  <p>Login attempts will appear here as they occur.</p>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="order">
+          <div class="head">
+            <h3><i class='bx bx-history' style="margin-top: 50px; margin-bottom: 30px;"></i> Admin Action History</h3>
+          </div>
+          <table style="border-collapse: collapse; width: 100%;">
+            <thead>
+              <tr style="background-color: #f8f9fa;">
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6; width: 150px;"><i class='bx bx-calendar' style="margin-right: 5px; color: #667eea;"></i>Date/Time</th>
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6;"><i class='bx bx-user-circle' style="margin-right: 5px; color: #667eea;"></i>Admin User</th>
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6;"><i class='bx bx-transfer' style="margin-right: 5px; color: #667eea;"></i>Action</th>
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6;"><i class='bx bx-bullseye' style="margin-right: 5px; color: #667eea;"></i>Target</th>
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6;"><i class='bx bx-info-circle' style="margin-right: 5px; color: #667eea;"></i>Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for action in admin_actions %}
+              <tr style="transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor='white'">
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 12px;">
+                  <div style="font-weight: 500;">{{ action.timestamp|date:"M d, Y" }}</div>
+                  <div style="color: #666;">{{ action.timestamp|date:"H:i:s" }}</div>
+                </td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee;">
+                  <div style="font-weight: 500; font-size: 13px;">{{ action.admin_user.full_name }}</div>
+                  <div style="color: #666; font-size: 11px;">{{ action.admin_user.username }}</div>
+                </td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee;">
+                  <span style="display: flex; align-items: center; gap: 5px;">
+                    <i class='bx bx-check-circle' style="color: #6366f1;"></i>
+                    <span style="font-size: 12px; font-weight: 500; color: #374151;">{{ action.action }}</span>
+                  </span>
+                </td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 13px; color: #374151;">{{ action.target_model|default:"-" }}</td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 13px; color: #374151;">{{ action.details|truncatewords:10 }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" style="text-align: center; padding: 40px; color: #666;">
+                  <i class='bx bx-history' style="font-size: 3rem; color: #d1d5db; margin-bottom: 15px; display: block;"></i>
+                  <h4>No admin actions found</h4>
+                  <p>Admin actions will appear here as they occur.</p>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: USER REGISTRATIONS & ACTIVITIES -->
+      <div id="user-activity-section" class="dashboard-section">
+        <div class="section-header" style="margin-top: 30px;">
+          <h2><i class='bx bxs-user-detail'></i> User Registrations & Activities</h2>
+          <p>Track new user registrations and points transactions</p>
+        </div>
+        
+        <div class="table-data">
+        <div class="order">
+          <div class="head">
+            <h3><i class='bx bxs-user-plus' style="margin-bottom: 20px;"></i> Recent User Registrations</h3>
+          </div>
+          <table style="border-collapse: collapse; width: 100%;">
+            <thead>
+              <tr style="background-color: #f8f9fa;">
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6; width: 150px;"><i class='bx bx-calendar' style="margin-right: 5px; color: #667eea;"></i>Registration Date</th>
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6;"><i class='bx bx-user' style="margin-right: 5px; color: #667eea;"></i>Full Name</th>
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6; width: 120px;"><i class='bx bx-phone' style="margin-right: 5px; color: #667eea;"></i>Phone Number</th>
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6;"><i class='bx bx-group' style="margin-right: 5px; color: #667eea;"></i>Family</th>
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6; width: 100px;"><i class='bx bx-check-circle' style="margin-right: 5px; color: #667eea;"></i>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user in recent_users %}
+              <tr style="transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor='white'">
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 12px;">
+                  <div style="font-weight: 500;">{{ user.created_at|date:"M d, Y" }}</div>
+                  <div style="color: #666;">{{ user.created_at|date:"H:i:s" }}</div>
+                </td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; font-weight: 500; font-size: 13px;">{{ user.full_name }}</td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 12px; color: #6b7280;">{{ user.phone|mask_phone }}</td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 13px; color: #374151;">{{ user.family.family_name|default:"-" }}</td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee;">
+                  {% if user.is_active %}
+                  <span style="padding: 4px 12px; background-color: #d1fae5; color: #065f46; border-radius: 12px; font-size: 11px; font-weight: 600;">Active</span>
+                  {% else %}
+                  <span style="padding: 4px 12px; background-color: #fee2e2; color: #991b1b; border-radius: 12px; font-size: 11px; font-weight: 600;">Inactive</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" style="text-align: center; padding: 40px; color: #666;">
+                  <i class='bx bx-user-plus' style="font-size: 3rem; color: #d1d5db; margin-bottom: 15px; display: block;"></i>
+                  <h4>No recent users found</h4>
+                  <p>New user registrations will appear here.</p>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="order">
+          <div class="head" style="margin-top: 20px; margin-bottom: 20px;">
+            <h3><i class='bx bxs-star'></i> Recent Points Transactions</h3>
+          </div>
+          <table style="border-collapse: collapse; width: 100%;">
+            <thead>
+              <tr style="background-color: #f8f9fa;">
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6; width: 150px;"><i class='bx bx-calendar' style="margin-right: 5px; color: #667eea;"></i>Date</th>
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6;"><i class='bx bx-user' style="margin-right: 5px; color: #667eea;"></i>User</th>
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6; width: 120px;"><i class='bx bx-purchase-tag' style="margin-right: 5px; color: #667eea;"></i>Type</th>
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6; width: 100px;"><i class='bx bx-coin' style="margin-right: 5px; color: #667eea;"></i>Points</th>
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6;"><i class='bx bx-info-circle' style="margin-right: 5px; color: #667eea;"></i>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for transaction in recent_transactions %}
+              <tr style="transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor='white'">
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 12px;">
+                  <div style="font-weight: 500;">{{ transaction.transaction_date|date:"M d, Y" }}</div>
+                  <div style="color: #666;">{{ transaction.transaction_date|date:"H:i:s" }}</div>
+                </td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; font-weight: 500; font-size: 13px;">{{ transaction.user.full_name }}</td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee;">
+                  <span style="padding: 4px 12px; background-color: #eff6ff; color: #1e40af; border-radius: 12px; font-size: 11px; font-weight: 600;">{{ transaction.transaction_type }}</span>
+                </td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; font-weight: 600; font-size: 14px;">
+                  {% if transaction.points_amount > 0 %}
+                  <span style="color: #059669;">+{{ transaction.points_amount|smart_points }}</span>
+                  {% else %}
+                  <span style="color: #dc2626;">{{ transaction.points_amount|smart_points }}</span>
+                  {% endif %}
+                </td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 13px; color: #374151;">{{ transaction.description|truncatewords:10 }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" style="text-align: center; padding: 40px; color: #666;">
+                  <i class='bx bx-star' style="font-size: 3rem; color: #d1d5db; margin-bottom: 15px; display: block;"></i>
+                  <h4>No transactions found</h4>
+                  <p>Points transactions will appear here as they occur.</p>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: REWARD REDEMPTION HISTORY -->
+      <div id="redemptions-section" class="dashboard-section">
+        <div class="section-header" style="margin-top: 30px;">
+          <h2><i class='bx bxs-gift'></i> Reward Redemption History</h2>
+          <p>Review and monitor all reward redemptions</p>
+        </div>
+        
+        <div class="table-data">
+        <div class="order">
+          <div class="head">
+            <h3><i class='bx bxs-trophy' style="margin-bottom: 20px;"></i> Recent Redemptions</h3>
+          </div>
+          <table style="border-collapse: collapse; width: 100%;">
+            <thead>
+              <tr style="background-color: #f8f9fa;">
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6; width: 150px;"><i class='bx bx-calendar' style="margin-right: 5px; color: #667eea;"></i>Date</th>
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6;"><i class='bx bx-user' style="margin-right: 5px; color: #667eea;"></i>User</th>
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6;"><i class='bx bx-gift' style="margin-right: 5px; color: #667eea;"></i>Reward</th>
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6; width: 100px;"><i class='bx bx-coin' style="margin-right: 5px; color: #667eea;"></i>Points Used</th>
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6; width: 100px;"><i class='bx bx-check-circle' style="margin-right: 5px; color: #667eea;"></i>Status</th>
+                <th style="padding: 15px; font-weight: 600; text-align: left; border-bottom: 2px solid #dee2e6;"><i class='bx bx-user-check' style="margin-right: 5px; color: #667eea;"></i>Approved By</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for redemption in redemptions %}
+              <tr style="transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f8f9fa'" onmouseout="this.style.backgroundColor='white'">
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 12px;">
+                  <div style="font-weight: 500;">{{ redemption.redemption_date|date:"M d, Y" }}</div>
+                  <div style="color: #666;">{{ redemption.redemption_date|date:"H:i:s" }}</div>
+                </td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; font-weight: 500; font-size: 13px;">{{ redemption.user.full_name }}</td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 13px; color: #374151;">{{ redemption.reward.name }}</td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; font-weight: 600; font-size: 14px; color: #dc2626;">{{ redemption.points_used|smart_points }}</td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee;">
+                  {% if redemption.claim_date %}
+                  <span style="padding: 4px 12px; background-color: #d1fae5; color: #065f46; border-radius: 12px; font-size: 11px; font-weight: 600;">Claimed</span>
+                  {% elif redemption.approved_by %}
+                  <span style="padding: 4px 12px; background-color: #dbeafe; color: #1e40af; border-radius: 12px; font-size: 11px; font-weight: 600;">Approved</span>
+                  {% else %}
+                  <span style="padding: 4px 12px; background-color: #fef3c7; color: #92400e; border-radius: 12px; font-size: 11px; font-weight: 600;">Pending</span>
+                  {% endif %}
+                </td>
+                <td style="padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 13px; color: #374151;">{{ redemption.approved_by.username|default:"-" }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="6" style="text-align: center; padding: 40px; color: #666;">
+                  <i class='bx bx-gift' style="font-size: 3rem; color: #d1d5db; margin-bottom: 15px; display: block;"></i>
+                  <h4>No redemptions found</h4>
+                  <p>Reward redemptions will appear here as they occur.</p>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Redemption Stats -->
+        <ul class="box-info">
+          <li>
+            <i class='bx bxs-gift'></i>
+            <span class="text">
+              <h3>{{ total_redemptions }}</h3>
+              <p>Total Redemptions</p>
+            </span>
+          </li>
+          <li>
+            <i class='bx bxs-star'></i>
+            <span class="text">
+              <h3>{{ total_points_redeemed }}</h3>
+              <p>Points Redeemed</p>
+            </span>
+          </li>
+          <li>
+            <i class='bx bxs-user-check'></i>
+            <span class="text">
+              <h3>{{ redemptions_today }}</h3>
+              <p>Redemptions Today</p>
+            </span>
+          </li>
+        </ul>
+        </div>
+      </div>
+
+      <!-- SECTION 4: GENERATE SECURITY REPORTS -->
+      <div id="reports-section" class="dashboard-section">
+        <div class="section-header" style="margin-top: 30px;">
+          <h2><i class='bx bxs-report'></i> Generate Security Reports</h2>
+          <p>Export comprehensive security and activity reports</p>
+        </div>
+        
+        <div class="table-data">
+        <div class="order">
+          <div class="head">
+            <h3><i class='bx bxs-file-export' style="margin-bottom: 30px;"></i> Report Generator</h3>
+          </div>
+          <div class="report-form">
+            <form method="GET" action="{% url 'cenro:generate_security_report' %}">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="report_type"><i class='bx bx-file'></i> Report Type:</label>
+                  <select name="report_type" id="report_type" required>
+                    <option value="security">Security Overview</option>
+                    <option value="users">User Activity Report</option>
+                    <option value="redemptions">Redemption Summary</option>
+                    <option value="admin_actions">Admin Actions Report</option>
+                    <option value="comprehensive">Comprehensive Report</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="format"><i class='bx bx-export'></i> Export Format:</label>
+                  <select name="format" id="format">
+                    <option value="csv">CSV (Excel Compatible)</option>
+                    <option value="pdf">PDF (Professional Report)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="start_date"><i class='bx bx-calendar'></i> Start Date:</label>
+                  <input type="date" name="start_date" id="start_date" value="{{ start_date }}" required>
+                </div>
+                <div class="form-group">
+                  <label for="end_date"><i class='bx bx-calendar-check'></i> End Date:</label>
+                  <input type="date" name="end_date" id="end_date" value="{{ end_date }}" required>
+                </div>
+              </div>
+              <button type="submit" class="btn-generate">
+                <i class='bx bxs-download'></i> Generate Report
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="order">
+          <div class="head">
+            <h3><i class='bx bxs-dashboard' style="margin-top: 30px;"></i> Quick Statistics (Last 7 Days)</h3>
+          </div>
+          <div class="stats-grid">
+            <ul class="box-info">
+              <li>
+                <i class='bx bxs-error-circle' style="color: #DC3545;"></i>
+                <span class="text">
+                  <h3>{{ failed_logins_week }}</h3>
+                  <p>Failed Login Attempts</p>
+                </span>
+              </li>
+              <li>
+                <i class='bx bxs-user-plus' style="color: #3C91E6;"></i>
+                <span class="text">
+                  <h3>{{ new_users_today }}</h3>
+                  <p>New User Registrations</p>
+                </span>
+              </li>
+              <li>
+                <i class='bx bxs-gift' style="color: #27AE60;"></i>
+                <span class="text">
+                  <h3>{{ redemptions_month }}</h3>
+                  <p>Redemptions (30 Days)</p>
+                </span>
+              </li>
+              <li>
+                <i class='bx bxs-shield' style="color: #F39C12;"></i>
+                <span class="text">
+                  <h3>{{ admin_actions_week }}</h3>
+                  <p>Admin Actions Logged</p>
+                </span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        </div>
+      </div>
+
+    </main>
+    <!-- MAIN -->
+  </section>
+  <!-- CONTENT -->
+
+  <script src="{% static 'script.js' %}"></script>
+  <script src="{% static 'js/sec_analyst_dashboard.js' %}?v={{ timestamp }}"></script>
+	<script src="{% static 'js/admin_notifications.js' %}"></script>
+</body>
+</html>
+

@@ -1,0 +1,327 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/adminrewards.css' %}?v={{ timestamp }}">
+    <link rel="stylesheet" href="{% static 'css/reward_history.css' %}?v={{ timestamp }}">
+    <title>Reward History - Admin Panel</title>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <section id="sidebar">
+        <a href="#" class="brand">
+            <i class='bx bxs-group'></i>
+            <span class="text">CENRO Admin</span>
+        </a>
+        <ul class="side-menu top">
+            {% if can_manage_users %}
+            <li>
+                <a href="{% url 'cenro:adminuser' %}">
+                    <i class='bx bxs-user-detail'></i>
+                    <span class="text">User Management</span>
+                </a>
+            </li>
+            {% endif %}
+            {% if can_manage_controls %}
+            <li>
+                <a href="{% url 'cenro:admincontrol' %}">
+                    <i class='bx bxs-component'></i>
+                    <span class="text">Controls Management</span>
+                </a>
+            </li>
+            {% endif %}
+            {% if can_manage_points %}
+            <li>
+                <a href="{% url 'cenro:adminpoints' %}">
+                    <i class='bx bxs-star'></i>
+                    <span class="text">Points Management</span>
+                </a>
+            </li>
+            {% endif %}
+            {% if can_manage_rewards %}
+            <li class="active">
+                <a href="{% url 'cenro:adminrewards' %}">
+                    <i class='bx bxs-gift'></i>
+                    <span class="text">Rewards Management</span>
+                </a>
+            </li>
+            {% endif %}
+            {% if can_manage_schedules %}
+            <li>
+                <a href="{% url 'cenro:adminschedule' %}">
+                    <i class='bx bxs-calendar'></i>
+                    <span class="text">Schedule Management</span>
+                </a>
+            </li>
+            {% endif %}
+            {% if can_manage_security %}
+            <li>
+                <a href="{% url 'cenro:adminsecurity' %}">
+                    <i class='bx bxs-shield'></i>
+                    <span class="text">Security Management</span>
+                </a>
+            </li>
+            {% endif %}
+            {% if can_manage_learning %}
+            <li>
+                <a href="{% url 'cenro:adminlearn' %}">
+                    <i class='bx bxs-book-content'></i>
+                    <span class="text">Learning Management</span>
+                </a>
+            </li>
+            {% endif %}
+            {% if can_manage_games %}
+            <li>
+                <a href="{% url 'cenro:admingames' %}">
+                    <i class='bx bxs-game'></i>
+                    <span class="text">Games Management</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+        <ul class="side-menu">
+            <li>
+                <a href="#" style="visibility: hidden;">
+                    <i class='bx bxs-cog'></i>
+                    <span class="text">Settings</span>
+                </a>
+            </li>
+            <li>
+                <a href="#" class="logout">
+                    <i class='bx bxs-log-out-circle'></i>
+                    <span class="text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </section>
+
+    <!-- CONTENT -->
+    <section id="content">
+        <!-- NAVBAR -->
+        <nav>
+            <i class='bx bx-menu'></i>
+            <a href="#" class="nav-link">Reward History</a>
+            <form action="#" style="visibility: hidden;">
+                <div class="form-input">
+                    <input type="search" placeholder="Search...">
+                    <button type="submit" class="search-btn"><i class='bx bx-search'></i></button>
+                </div>
+            </form>
+            
+            <!-- Admin Notification Bell -->
+            {% include 'includes/notification_bell.html' %}
+            
+            <input type="checkbox" id="switch-mode" hidden>
+            <label for="switch-mode" class="switch-mode"></label>
+            <a href="#" class="notification">
+                <i class='bx bxs-bell'></i>
+                <span class="num">8</span>
+            </a>
+        </nav>
+
+        <!-- MAIN -->
+        <main>
+            <div class="head-title">
+                <div class="left">
+                    <h1>Reward & Stock History</h1>
+                    <ul class="breadcrumb">
+                        <li>
+                            <a href="{% url 'cenro:adminrewards' %}">Rewards</a>
+                        </li>
+                        <li><i class='bx bx-chevron-right'></i></li>
+                        <li>
+                            <a class="active" href="#">History</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="history-container">
+                <div class="user-header">
+                    <h3>Reward & Stock History</h3>
+                    <div class="user-icons">
+                        <i class='bx bx-history'></i>
+                    </div>
+                </div>
+
+                <div class="user-table-wrapper">
+                    <!-- History Filters -->
+                    <div style="padding: 15px 20px; background-color: #f8f9fa; border-bottom: 1px solid #e5e5e5; display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+                        <form method="GET" style="display: contents;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label style="font-weight: 500; color: #374151;">Filter by Reward:</label>
+                                <select name="reward" id="reward" style="padding: 5px 10px; border: 1px solid #d1d5db; border-radius: 4px;">
+                                    <option value="">All Rewards</option>
+                                    {% for reward in rewards %}
+                                    <option value="{{ reward.id }}" {% if selected_reward == reward.id|stringformat:"s" %}selected{% endif %}>
+                                        {{ reward.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label style="font-weight: 500; color: #374151;">Filter by Action:</label>
+                                <select name="action" id="action" style="padding: 5px 10px; border: 1px solid #d1d5db; border-radius: 4px;">
+                                    <option value="">All Actions</option>
+                                    {% for value, label in action_choices %}
+                                    <option value="{{ value }}" {% if selected_action == value %}selected{% endif %}>
+                                        {{ label }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label style="font-weight: 500; color: #374151;">Date From:</label>
+                                <input type="date" name="date_from" id="date_from" value="{{ date_from }}" style="padding: 5px 10px; border: 1px solid #d1d5db; border-radius: 4px;">
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <label style="font-weight: 500; color: #374151;">Date To:</label>
+                                <input type="date" name="date_to" id="date_to" value="{{ date_to }}" style="padding: 5px 10px; border: 1px solid #d1d5db; border-radius: 4px;">
+                            </div>
+                            <button type="submit" style="padding: 6px 12px; background-color: #6366f1; color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 5px;" onmouseover="this.style.backgroundColor='#4f46e5'" onmouseout="this.style.backgroundColor='#6366f1'">
+                                <i class='bx bx-filter'></i> Apply
+                            </button>
+                            <a href="{% url 'cenro:reward_history' %}" style="padding: 6px 12px; background-color: #6b7280; color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 5px; text-decoration: none;" onmouseover="this.style.backgroundColor='#4b5563'" onmouseout="this.style.backgroundColor='#6b7280'">
+                                <i class='bx bx-x'></i> Clear
+                            </a>
+                            <a href="{% url 'cenro:adminrewards' %}" style="padding: 6px 12px; background-color: #6b7280; color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 5px; text-decoration: none;" onmouseover="this.style.backgroundColor='#4b5563'" onmouseout="this.style.backgroundColor='#6b7280'">
+                                <i class='bx bx-arrow-back'></i> Back
+                            </a>
+                        </form>
+                    </div>
+
+                    <!-- Search Bar -->
+                    <div style="padding: 15px 20px; background-color: #ffffff; border-bottom: 1px solid #e5e5e5;">
+                        <input type="text" id="historySearchInput" placeholder="Search history by reward name, action, or user..." style="padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 8px; width: 100%; max-width: 400px; font-size: 0.9rem;">
+                    </div>
+
+                    <!-- History Table -->
+                    <table class="user-table">
+                        <thead>
+                            <tr>
+                                <th>Date/Time</th>
+                                <th>Reward</th>
+                                <th>Action</th>
+                                <th>Stock Change</th>
+                                <th>Previous Stock</th>
+                                <th>New Stock</th>
+                                <th>Performed By</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for history in page_obj %}
+                            <tr>
+                                <td>{{ history.timestamp|date:"M d, Y H:i" }}</td>
+                                <td>{{ history.reward.name }}</td>
+                                <td>
+                                    <span class="action-badge action-{{ history.action }}">
+                                        {{ history.get_action_display }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if history.stock_change != 0 %}
+                                        <span class="stock-change {% if history.stock_change > 0 %}stock-positive{% else %}stock-negative{% endif %}">
+                                            {% if history.stock_change > 0 %}+{% endif %}{{ history.stock_change }}
+                                        </span>
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>{{ history.previous_stock }}</td>
+                                <td>{{ history.new_stock }}</td>
+                                <td>
+                                    {% if history.action == 'stock_redeemed' %}
+                                        <strong>{{ history.user.full_name }}</strong>
+                                        <small>(User)</small>
+                                    {% elif history.admin_user %}
+                                        <strong>{{ history.admin_user.full_name }}</strong>
+                                        <small>(Admin)</small>
+                                    {% else %}
+                                        System
+                                    {% endif %}
+                                </td>
+                                <td>{{ history.notes|default:"-" }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="8" style="text-align: center; padding: 40px; color: #6b7280;">
+                                    No history records found for the selected filters.
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                {% if page_obj.has_other_pages %}
+                <div class="pagination">
+                    {% if page_obj.has_previous %}
+                        <a href="?{% if request.GET.reward %}reward={{ request.GET.reward }}&{% endif %}{% if request.GET.action %}action={{ request.GET.action }}&{% endif %}{% if request.GET.date_from %}date_from={{ request.GET.date_from }}&{% endif %}{% if request.GET.date_to %}date_to={{ request.GET.date_to }}&{% endif %}page=1">First</a>
+                        <a href="?{% if request.GET.reward %}reward={{ request.GET.reward }}&{% endif %}{% if request.GET.action %}action={{ request.GET.action }}&{% endif %}{% if request.GET.date_from %}date_from={{ request.GET.date_from }}&{% endif %}{% if request.GET.date_to %}date_to={{ request.GET.date_to }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+                    {% endif %}
+                    
+                    <span class="current">
+                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                    </span>
+                    
+                    {% if page_obj.has_next %}
+                        <a href="?{% if request.GET.reward %}reward={{ request.GET.reward }}&{% endif %}{% if request.GET.action %}action={{ request.GET.action }}&{% endif %}{% if request.GET.date_from %}date_from={{ request.GET.date_from }}&{% endif %}{% if request.GET.date_to %}date_to={{ request.GET.date_to }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+                        <a href="?{% if request.GET.reward %}reward={{ request.GET.reward }}&{% endif %}{% if request.GET.action %}action={{ request.GET.action }}&{% endif %}{% if request.GET.date_from %}date_from={{ request.GET.date_from }}&{% endif %}{% if request.GET.date_to %}date_to={{ request.GET.date_to }}&{% endif %}page={{ page_obj.paginator.num_pages }}">Last</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </main>
+    </section>
+
+    <script src="{% static 'script.js' %}"></script>
+	<script src="{% static 'js/admin_notifications.js' %}"></script>
+
+<script>
+// Search functionality for History table
+document.getElementById('historySearchInput').addEventListener('input', function(e) {
+  const searchTerm = e.target.value.toLowerCase();
+  const table = document.querySelector('.user-table tbody');
+  const rows = table.querySelectorAll('tr');
+  let visibleCount = 0;
+  
+  rows.forEach(row => {
+    // Skip the "no history records" empty state row
+    if (row.querySelector('td[colspan]')) {
+      return;
+    }
+    
+    const text = row.textContent.toLowerCase();
+    if (text.includes(searchTerm)) {
+      row.style.display = '';
+      visibleCount++;
+    } else {
+      row.style.display = 'none';
+    }
+  });
+  
+  // Show "no results" message if needed
+  let noResults = table.querySelector('.no-results-row');
+  if (visibleCount === 0 && rows.length > 0) {
+    if (!noResults) {
+      noResults = document.createElement('tr');
+      noResults.className = 'no-results-row';
+      noResults.innerHTML = '<td colspan="8" style="text-align: center; padding: 40px; color: #6b7280;">No history records found matching your search.</td>';
+      table.appendChild(noResults);
+    }
+  } else {
+    if (noResults) noResults.remove();
+  }
+});
+</script>
+
+</body>
+</html>

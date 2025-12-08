@@ -1,0 +1,107 @@
+# Railway Deployment - Required Python Packages
+# Install these packages: pip install -r requirements.txt
+# Or install individually: pip install <package-name>
+
+# ============================================================================
+# CORE DJANGO FRAMEWORK
+# ============================================================================
+Django==5.2
+
+# ============================================================================
+# DATABASE
+# ============================================================================
+psycopg2-binary==2.9.9          # PostgreSQL adapter for Railway
+dj-database-url==2.1.0          # Parse DATABASE_URL from Railway
+
+# ============================================================================
+# PRODUCTION WEB SERVER
+# ============================================================================
+gunicorn==21.2.0                # WSGI HTTP Server (required by Railway)
+whitenoise==6.6.0               # Serve static files without Nginx
+
+# ============================================================================
+# CONFIGURATION & ENVIRONMENT
+# ============================================================================
+python-decouple==3.8            # Manage environment variables
+
+# ============================================================================
+# REST API & AUTHENTICATION
+# ============================================================================
+djangorestframework==3.14.0
+djangorestframework-simplejwt==5.3.1
+django-cors-headers==4.3.1
+
+# ============================================================================
+# SECURITY
+# ============================================================================
+django-csp==3.8                 # Content Security Policy
+cryptography==41.0.7            # Encryption utilities
+
+# ============================================================================
+# BACKGROUND TASKS (CELERY)
+# ============================================================================
+celery==5.3.4
+django-celery-results==2.5.1
+django-celery-beat==2.5.0
+redis==5.0.1                    # Redis client for Celery broker
+
+# ============================================================================
+# HTTP & API REQUESTS
+# ============================================================================
+requests==2.31.0                # SMS/OTP API calls
+
+# ============================================================================
+# IMAGE & FILE PROCESSING
+# ============================================================================
+Pillow==10.2.0                  # Image processing
+
+# ============================================================================
+# DATA PROCESSING & ANALYTICS
+# ============================================================================
+pandas==2.1.4                   # Data analysis (used in analytics views)
+matplotlib==3.8.2               # Chart generation
+numpy==1.26.3                   # Required by pandas/matplotlib
+
+# ============================================================================
+# GOOGLE DRIVE INTEGRATION (OPTIONAL)
+# ============================================================================
+# Only needed if USE_GOOGLE_DRIVE=True
+# For Railway deployment, recommend setting USE_GOOGLE_DRIVE=False
+google-auth==2.25.2
+google-auth-oauthlib==1.2.0
+google-auth-httplib2==0.2.0
+google-api-python-client==2.111.0
+
+# ============================================================================
+# DEPLOYMENT NOTES
+# ============================================================================
+# 1. Add these to your requirements.txt file
+# 2. Railway will automatically install them during deployment
+# 3. Test locally first: pip install -r requirements.txt
+# 4. Verify all imports work: python manage.py check
+# 5. For faster installs, consider pinning all dependencies
+#    Run: pip freeze > requirements.txt (after testing)
+
+# ============================================================================
+# OPTIONAL: TESTING & DEVELOPMENT (Not needed for production)
+# ============================================================================
+# pytest==7.4.3
+# pytest-django==4.7.0
+# coverage==7.3.4
+# black==23.12.1
+# flake8==7.0.0
+
+# ============================================================================
+# PACKAGE EXPLANATIONS
+# ============================================================================
+# psycopg2-binary: PostgreSQL database adapter (Railway uses PostgreSQL)
+# gunicorn: Production-grade WSGI server to run Django
+# whitenoise: Serves static files (CSS, JS) without needing Nginx
+# dj-database-url: Parses DATABASE_URL provided by Railway
+# celery: Background task processing (email, SMS, scheduled tasks)
+# redis: Message broker for Celery
+# cryptography: Session encryption in accounts app
+# requests: HTTP library for SMS API calls
+# pandas/matplotlib: Analytics and chart generation in cenro app
+# Pillow: Image upload and processing
+# google-*: Google Drive storage integration (optional)

@@ -1,0 +1,296 @@
+{% load static %}
+{% load phone_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>E-KOLEK - Verify Code</title>
+  <link rel="stylesheet" href="{% static 'css/login.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/verify_otp.css' %}" />
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <div class="flex-center">
+        <img src="{% static 'image/clogo.png' %}" alt="E-KOLEK Logo" class="header-logo">
+        <h1>E-KOLEK</h1>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <h2>Verify Code</h2>
+    <p>Enter the verification code sent to your phone</p>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="{% if message.tags == 'error' %}error-message{% else %}success-message{% endif %}">
+          {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <div id="dynamicMessage" class="error-message" style="display: none;"></div>
+
+    <div class="info-box">
+      <p>🔐 We sent a 6-digit verification code to <strong>{{ phone_number|mask_phone }}</strong></p>
+    </div>
+
+    <form method="POST" action="{% url 'verify_otp' %}" id="otpForm">
+      {% csrf_token %}
+      
+      <div class="otp-input-container">
+        <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" id="otp1" />
+        <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" id="otp2" />
+        <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" id="otp3" />
+        <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" id="otp4" />
+        <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" id="otp5" />
+        <input type="text" class="otp-input" maxlength="1" pattern="[0-9]" inputmode="numeric" id="otp6" />
+      </div>
+
+      <input type="hidden" name="otp" id="otp_code" />
+
+      <div>
+        <button type="submit">Verify Code</button>
+      </div>
+    </form>
+
+    <div class="resend-link">
+      <button id="resendBtn" onclick="resendCode()">Resend Code</button>
+      <span id="timerText" class="timer" style="display:none;"></span>
+    </div>
+
+    <div class="back-link">
+      <a href="{% url 'login_page' %}">← Back to Login</a>
+    </div>
+  </main>
+
+  <div id="loader"><div class="spinner"></div></div>
+
+  <script>
+    const otpInputs = document.querySelectorAll('.otp-input');
+    const otpCodeInput = document.getElementById('otp_code');
+    const form = document.getElementById('otpForm');
+    const resendBtn = document.getElementById('resendBtn');
+    const timerText = document.getElementById('timerText');
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+    // Function to show messages
+    function showMessage(message, type) {
+      const messageDiv = document.getElementById('dynamicMessage');
+      
+      // Set the appropriate class
+      if (type === 'error') {
+        messageDiv.className = 'error-message';
+      } else {
+        messageDiv.className = 'success-message';
+      }
+      
+      messageDiv.textContent = message;
+      messageDiv.style.display = 'block';
+      
+      // Scroll to message
+      messageDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      
+      // Auto-hide success messages after 5 seconds
+      if (type === 'success') {
+        setTimeout(() => {
+          messageDiv.style.display = 'none';
+        }, 5000);
+      }
+    }
+
+    function hideMessage() {
+      const messageDiv = document.getElementById('dynamicMessage');
+      messageDiv.style.display = 'none';
+    }
+
+    // Auto-focus first input
+    otpInputs[0].focus();
+
+    // Handle OTP input
+    otpInputs.forEach((input, index) => {
+      input.addEventListener('input', (e) => {
+        const value = e.target.value;
+        
+        // Only allow numbers
+        if (value && !/^\d$/.test(value)) {
+          e.target.value = '';
+          return;
+        }
+
+        // Move to next input
+        if (value && index < otpInputs.length - 1) {
+          otpInputs[index + 1].focus();
+        }
+
+        // Update hidden input
+        updateOtpCode();
+      });
+
+      input.addEventListener('keydown', (e) => {
+        // Handle backspace
+        if (e.key === 'Backspace' && !input.value && index > 0) {
+          otpInputs[index - 1].focus();
+        }
+      });
+
+      input.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const pastedData = e.clipboardData.getData('text').replace(/\D/g, '');
+        
+        // Fill inputs with pasted data
+        for (let i = 0; i < pastedData.length && i < otpInputs.length; i++) {
+          otpInputs[i].value = pastedData[i];
+        }
+        
+        // Focus last filled input
+        const lastIndex = Math.min(pastedData.length, otpInputs.length) - 1;
+        otpInputs[lastIndex].focus();
+        updateOtpCode();
+      });
+    });
+
+    function updateOtpCode() {
+      const otp = Array.from(otpInputs).map(input => input.value).join('');
+      otpCodeInput.value = otp;
+    }
+
+    // Resend timer
+    let countdown = 60;
+    let timerInterval;
+
+    function startTimer() {
+      resendBtn.disabled = true;
+      resendBtn.style.display = 'none';
+      timerText.style.display = 'inline';
+      countdown = 60;
+
+      timerInterval = setInterval(() => {
+        countdown--;
+        timerText.textContent = `Resend code in ${countdown}s`;
+
+        if (countdown <= 0) {
+          clearInterval(timerInterval);
+          resendBtn.disabled = false;
+          resendBtn.style.display = 'inline';
+          timerText.style.display = 'none';
+        }
+      }, 1000);
+    }
+
+    // Start timer on page load
+    startTimer();
+
+    function resendCode() {
+      if (resendBtn.disabled) return;
+
+      hideMessage(); // Clear previous messages
+      const loader = document.getElementById('loader');
+      loader.style.display = 'flex';
+
+      fetch('{% url "resend_otp" %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': csrfToken
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        loader.style.display = 'none';
+        if (data.success) {
+          showMessage('Verification code resent successfully!', 'success');
+          startTimer();
+        } else {
+          showMessage(data.error || 'Failed to resend code. Please try again.', 'error');
+        }
+      })
+      .catch(error => {
+        loader.style.display = 'none';
+        showMessage('Network error. Please check your connection and try again.', 'error');
+        console.error('Error:', error);
+      });
+    }
+
+    // Form submission with AJAX
+    form.addEventListener('submit', (e) => {
+      e.preventDefault(); // Prevent default form submission
+      updateOtpCode();
+      
+      if (otpCodeInput.value.length !== 6) {
+        showMessage('Please enter all 6 digits of the verification code.', 'error');
+        return;
+      }
+
+      hideMessage(); // Clear previous messages
+      const loader = document.getElementById('loader');
+      loader.style.display = 'flex';
+
+      // Submit via AJAX
+      fetch('{% url "verify_otp" %}', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'X-CSRFToken': csrfToken
+        },
+        body: `otp=${encodeURIComponent(otpCodeInput.value)}`
+      })
+      .then(response => {
+        // Check if response is ok (status 200-299)
+        if (!response.ok) {
+          // For error responses, still parse JSON to get error message
+          return response.json().then(data => {
+            data._httpError = true; // Mark as HTTP error
+            return data;
+          }).catch(() => {
+            // If JSON parsing fails, return generic error
+            return {
+              success: false,
+              error: 'Invalid verification code. Please try again.',
+              _httpError: true
+            };
+          });
+        }
+        return response.json();
+      })
+      .then(data => {
+        loader.style.display = 'none';
+        
+        console.log('OTP verification response:', data); // Debug log
+        
+        if (data.success) {
+          showMessage(data.message || 'OTP verified successfully! Redirecting...', 'success');
+          
+          // Redirect after short delay
+          setTimeout(() => {
+            if (data.redirect && data.redirect_url) {
+              window.location.href = data.redirect_url;
+            } else {
+              // Default redirect to dashboard
+              window.location.href = '/accounts/userdashboard/';
+            }
+          }, 1000);
+        } else {
+          // Show error message
+          const errorMessage = data.error || 'Invalid verification code. Please try again.';
+          console.log('Showing error message:', errorMessage); // Debug log
+          showMessage(errorMessage, 'error');
+          
+          // Clear inputs on error
+          otpInputs.forEach(input => input.value = '');
+          otpInputs[0].focus();
+        }
+      })
+      .catch(error => {
+        loader.style.display = 'none';
+        console.error('Network error:', error); // Debug log
+        showMessage('Network error. Please check your connection and try again.', 'error');
+      });
+    });
+  </script>
+</body>
+</html> 

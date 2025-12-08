@@ -1,0 +1,316 @@
+{% load static %}
+{% load points_filters %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/adminlearn.css' %}?v={{ timestamp }}">
+    <link rel="stylesheet" href="{% static 'admin/css/quiz_admin.css' %}?v={{ timestamp }}">
+    <link rel="stylesheet" href="{% static 'css/admin_quiz_management.css' %}?v={{ timestamp }}">
+    <title>Quiz Management Overview</title>
+</head>
+<body>
+   <!-- SIDEBAR -->
+    <section id="sidebar">
+        <a href="#" class="brand">
+            <i class='bx bxs-group'></i>
+            <span class="text">CENRO Admin</span>
+        </a>
+        		<ul class="side-menu top">
+			{% if can_manage_users %}
+			<li>
+				<a href="{% url 'cenro:adminuser' %}">
+					<i class='bx bxs-user-detail'></i>
+					<span class="text">User Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+            {% if admin_user.role == 'super_admin' %}
+			<li>
+				<a href="{% url 'cenro:admin_management' %}">
+					<i class='bx bxs-user-detail' ></i>
+					<span class="text">Admin Management</span>
+				</a>
+			</li>
+			{% endif %}
+			
+			{% if can_manage_controls %}
+			<li>
+				<a href="{% url 'cenro:admincontrol' %}">
+					<i class='bx bxs-component' ></i>
+					<span class="text">Controls Management</span>
+				</a>
+			</li>
+			{% endif %}
+			
+			{% if can_manage_points %}
+			<li>
+				<a href="{% url 'cenro:adminpoints' %}">
+					<i class='bx bxs-star' ></i>
+					<span class="text">Points Management</span>
+				</a>
+			</li>
+			{% endif %}
+			
+			{% if can_manage_rewards %}
+			<li>
+				<a href="{% url 'cenro:adminrewards' %}">
+					<i class='bx bxs-gift' ></i>
+					<span class="text">Rewards Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% if can_manage_schedules %}
+			<li>
+				<a href="{% url 'cenro:adminschedule' %}">
+					<i class='bx bxs-calendar' ></i>
+					<span class="text">Schedule Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% if can_manage_security %}
+			<li>
+<a href="{% url 'cenro:security_dashboard' %}">
+<i class='bx bxs-shield' ></i>
+<span class="text">Security Management</span>
+</a>
+</li>
+			{% endif %}
+
+			{% if can_manage_learning %}
+			<li class="active">
+				<a href="{% url 'cenro:adminlearn' %}">
+					<i class='bx bxs-book-content' ></i>
+					<span class="text">Learning Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% if can_manage_games %}
+			<li>
+				<a href="{% url 'cenro:admingames' %}">
+					<i class='bx bxs-game' ></i>
+					<span class="text">Games Management</span>
+				</a>      
+      <li>
+        <a href="{% url 'cenro:waste_analytics' %}">
+          <i class='bx bxs-bar-chart-alt-2' ></i>
+          <span class="text">Waste Analytics</span>
+        </a>
+      </li>
+      
+			</li>
+			{% endif %}
+			
+			<!-- Security Analyst Special Dashboard -->
+			{% if admin_role == 'security_analyst' %}
+			<li>
+				<a href="{% url 'cenro:adminsecurity' %}">
+					<i class='bx bxs-dashboard' ></i>
+					<span class="text">Security Dashboard</span>
+				</a>
+			</li>
+			{% endif %}
+			
+		</ul>
+
+        <ul class="side-menu">
+            <li>
+                <a href="{% url 'cenro:admin_logout' %}" class="logout">
+                    <i class='bx bxs-log-out-circle'></i>
+                    <span class="text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </section>
+
+    <!-- CONTENT -->
+    <section id="content">
+        <!-- NAVBAR -->
+        <nav>
+            <i class='bx bx-menu' ></i>
+            
+            <!-- Admin User Profile Section -->
+            {% if is_admin_authenticated %}
+            <div class="profile" style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+				<!-- Admin Notification Bell -->
+				{% include 'includes/notification_bell.html' %}
+				
+				<div class="admin-info" style="text-align: right; margin-right: 10px;">
+                    <span style="display: block; font-weight: 600; color: #333;">{{ admin_full_name }}</span>
+                    <span style="display: block; font-size: 0.8rem; color: #666;">{{ admin_role_display }}</span>
+                </div>
+                <i class='bx bxs-user-circle' style="font-size: 2rem; color: #667eea;"></i>
+            </div>
+            {% endif %}
+        </nav>
+
+        <!-- MAIN -->
+        <main>
+            <div class="head-title">
+                <div class="left">
+                    <h1>Quiz Management Overview</h1>
+                    <ul class="breadcrumb">
+                        <li><a href="{% url 'cenro:adminlearn' %}">Learning</a></li>
+                        <li><i class='bx bx-chevron-right'></i></li>
+                        <li><a class="active" href="#">Quiz Overview</a></li>
+                    </ul>
+                </div>
+                <div class="quiz-management-buttons">
+                    <a href="{% url 'cenro:adminlearn' %}" class="button">
+                        <i class='bx bx-arrow-back'></i> Back to Videos
+                    </a>
+                    <a href="{% url 'cenro:quiz_results' %}" class="button">
+                        <i class='bx bx-chart'></i> Quiz Results
+                    </a>
+                </div>
+            </div>
+
+            <!-- Overall Statistics -->
+            <div class="quiz-stats">
+                <h3><i class='bx bx-chart-line'></i> Overall Quiz Statistics</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                    <div class="stat-item">
+                        <div class="stat-value">{{ total_videos }}</div>
+                        <div class="stat-label">Total Videos</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">{{ total_questions }}</div>
+                        <div class="stat-label">Total Questions</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">{{ total_attempts }}</div>
+                        <div class="stat-label">Quiz Attempts</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">{{ overall_pass_rate|floatformat:1 }}%</div>
+                        <div class="stat-label">Overall Pass Rate</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video Quiz Management -->
+            <div class="video-quiz-management">
+                <h3 style="margin-bottom: 20px;"><i class='bx bx-brain'></i> Video Quiz Management</h3>
+                
+                {% for video_stat in video_stats %}
+                <div class="video-quiz-card" style="background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: start; gap: 20px;">
+                        <div style="display: flex; gap: 15px; flex: 1;">
+                            <img src="{{ video_stat.video.get_youtube_thumbnail }}" alt="Video thumbnail" 
+                                 style="width: 120px; height: 90px; object-fit: cover; border-radius: 6px; flex-shrink: 0;">
+                            
+                            <div style="flex: 1;">
+                                <h4 style="margin: 0 0 10px 0; color: #333;">{{ video_stat.video.title }}</h4>
+                                <p style="margin: 0 0 15px 0; color: #666; font-size: 14px;">
+                                    {{ video_stat.video.description|truncatewords:20 }}
+                                </p>
+                                
+                                <div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                                    <span style="background: #007bff; color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                                        <i class='bx bx-star'></i> {{ video_stat.video.points_reward|smart_points }} points
+                                    </span>
+                                    <span class="status-badge {% if video_stat.video.is_active %}video-status-active{% else %}video-status-inactive{% endif %}">
+                                        {% if video_stat.video.is_active %}Active{% else %}Inactive{% endif %}
+                                    </span>
+                                    {% if video_stat.has_quiz %}
+                                        <span class="status-badge quiz-badge-active">
+                                            <i class='bx bx-brain'></i> {{ video_stat.question_count }} Question{{ video_stat.question_count|pluralize }}
+                                        </span>
+                                    {% else %}
+                                        <span class="status-badge quiz-badge-none">
+                                            <i class='bx bx-brain'></i> No Quiz
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Quiz Statistics -->
+                        {% if video_stat.has_quiz %}
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; min-width: 300px;">
+                            <div style="text-align: center; padding: 10px; background: #f8f9fa; border-radius: 6px;">
+                                <div style="font-size: 18px; font-weight: bold; color: #007bff;">{{ video_stat.total_attempts }}</div>
+                                <div style="font-size: 12px; color: #6c757d;">Attempts</div>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: #f8f9fa; border-radius: 6px;">
+                                <div style="font-size: 18px; font-weight: bold; color: #28a745;">{{ video_stat.pass_rate|floatformat:1 }}%</div>
+                                <div style="font-size: 12px; color: #6c757d;">Pass Rate</div>
+                            </div>
+                            <div style="text-align: center; padding: 10px; background: #f8f9fa; border-radius: 6px;">
+                                <div style="font-size: 18px; font-weight: bold; color: #ffc107;">{{ video_stat.avg_score|floatformat:1 }}%</div>
+                                <div style="font-size: 12px; color: #6c757d;">Avg Score</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Action Buttons -->
+                        <div style="display: flex; flex-direction: column; gap: 8px; min-width: 140px;">
+                            {% if video_stat.has_quiz %}
+                                <a href="{% url 'cenro:quiz_questions' video_stat.video.id %}" class="btn-edit" style="text-decoration: none; text-align: center;">
+                                    <i class='bx bx-brain'></i> Manage Quiz
+                                </a>
+                                <a href="{% url 'cenro:quiz_results_video' video_stat.video.id %}" class="btn-edit" style="background: #17a2b8; text-decoration: none; text-align: center;">
+                                    <i class='bx bx-chart'></i> View Results
+                                </a>
+                            {% else %}
+                                <a href="{% url 'cenro:quiz_questions' video_stat.video.id %}" class="btn-edit" style="background: #28a745; text-decoration: none; text-align: center;">
+                                    <i class='bx bx-plus'></i> Add Quiz
+                                </a>
+                            {% endif %}
+                            <button class="btn-edit" data-action="edit-video">
+                                <i class='bx bx-edit'></i> Edit Video
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <div style="text-align: center; padding: 40px; color: #6b7280; background: white; border: 1px solid #dee2e6; border-radius: 8px;">
+                    <i class='bx bx-video' style="font-size: 48px; opacity: 0.5;"></i>
+                    <p>No learning videos found. Create your first video to get started!</p>
+                    <a href="{% url 'cenro:adminlearn' %}" class="button">
+                        <i class='bx bx-plus'></i> Add Video
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Quick Actions -->
+            <div style="background: white; border: 1px solid #dee2e6; border-radius: 8px; padding: 20px; margin-top: 20px;">
+                <h3 style="margin-bottom: 15px;"><i class='bx bx-flash'></i> Quick Actions</h3>
+                <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+                    <a href="{% url 'cenro:adminlearn' %}" class="button">
+                        <i class='bx bx-plus'></i> Add New Video
+                    </a>
+                    <a href="{% url 'cenro:quiz_results' %}" class="button">
+                        <i class='bx bx-chart'></i> View All Quiz Results
+                    </a>
+                    <button class="button" data-action="export-quiz">
+                        <i class='bx bx-download'></i> Export Quiz Data
+                    </button>
+                    <button class="button" data-action="generate-report">
+                        <i class='bx bx-file-text'></i> Generate Report
+                    </button>
+                </div>
+            </div>
+        </main>
+    </section>
+
+    <script src="{% static 'script.js' %}"></script>
+    
+    <!-- Hidden element to pass admin learn URL -->
+    <div id="admin-urls" data-admin-learn-url="{% url 'cenro:adminlearn' %}" style="display: none;"></div>
+    
+    <script src="{% static 'js/admin_quiz_management.js' %}?v={{ timestamp }}"></script>
+	<script src="{% static 'js/admin_notifications.js' %}"></script>
+</body>
+</html>
+

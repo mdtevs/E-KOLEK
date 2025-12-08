@@ -1,0 +1,75 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>E-KOLEK - Registration</title>
+  <link rel="stylesheet" href="{% static 'css/register_select.css' %}" />
+  
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="container">
+      <div class="flex-center">
+        <img src="{% static 'image/clogo.png' %}" alt="E-KOLEK Logo" class="header-logo">
+        <h1>E-KOLEK</h1>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main -->
+  <main class="main">
+    <div class="form-container">
+
+      <div class="form-header">
+        <div class="icon-circle">
+          <svg xmlns="http://www.w3.org/2000/svg" class="user-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+            <path d="M20 8v6M23 11h-6"/>
+          </svg>
+        </div>
+        <h2>Join E-KOLEK</h2>
+        <p>Choose your registration type to get started</p>
+      </div>
+
+      <div class="registration-options">
+        <a href="{% url 'register_family' %}" class="option-card">
+          <div class="option-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2z"/>
+              <path d="M15 13h6m-3-3v6"/>
+            </svg>
+          </div>
+          <h3>Register New Family</h3>
+          <p>Register your family and become the family representative. You'll get a unique family code for other members to join.</p>
+        </a>
+
+        <a href="{% url 'register_member' %}" class="option-card">
+          <div class="option-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <h3>Join Existing Family</h3>
+          <p>Join your family using a family code provided by your family representative. Perfect for additional family members.</p>
+        </a>
+      </div>
+
+      <div class="divider">
+        <span>Already have an account?</span>
+      </div>
+
+      <p class="text-center">
+        <a href="{% url 'login_page' %}" class="link-login">Log in here</a>
+      </p>
+
+    </div>
+  </main>
+
+</body>
+</html>

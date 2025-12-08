@@ -1,0 +1,162 @@
+/* Reward History Page Styles - Matching Admin History Design Exactly */
+
+.history-container {
+    background-color: rgba(255, 255, 255, 0.7);
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 1rem;
+}
+
+.user-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.user-header h3 {
+    color: #000000;
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+.user-icons i {
+    font-size: 1.25rem;
+    color: #6b7280; 
+    margin-left: 0.75rem;
+    cursor: pointer;
+}
+
+.user-icons i:hover {
+    color: #4b5563; 
+}
+
+.user-table-wrapper {
+    overflow-x: auto;
+}
+
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    font-size: 0.95rem;
+}
+
+.user-table th,
+.user-table td {
+    padding: 0.75rem;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.user-table thead {
+    background-color: #f3f4f6;
+}
+
+.user-table th {
+    color: #374151;
+    font-weight: 600;
+}
+
+.user-table td {
+    color: #4b5563;
+}
+
+.action-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.action-created { 
+    background: #dbeafe; 
+    color: #1e40af; 
+}
+
+.action-updated { 
+    background: #fef3c7; 
+    color: #92400e; 
+}
+
+.action-deleted { 
+    background: #fee2e2; 
+    color: #dc2626; 
+}
+
+.action-stock_added { 
+    background: #d1fae5; 
+    color: #065f46; 
+}
+
+.action-stock_removed { 
+    background: #fde68a; 
+    color: #92400e; 
+}
+
+.action-stock_redeemed { 
+    background: #e0e7ff; 
+    color: #3730a3; 
+}
+
+.stock-change {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.stock-positive { 
+    color: #059669; 
+}
+
+.stock-negative { 
+    color: #dc2626; 
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 30px;
+    gap: 10px;
+}
+
+.pagination a,
+.pagination span {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    text-decoration: none;
+    color: #374151;
+    font-weight: 500;
+    font-size: 14px;
+    background: white;
+}
+
+.pagination a:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+}
+
+.pagination .current {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .user-table {
+        font-size: 0.85rem;
+    }
+    
+    .user-table th,
+    .user-table td {
+        padding: 0.5rem;
+    }
+}

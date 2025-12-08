@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% load static %}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1011, initial-scale=1.0"/>
+  <link rel="stylesheet" href="{% static 'css/idcard.css' %}">
+  <title>ID Card Front & Back</title>
+  
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body>
+  {% for user in users %}
+    <div class="id-card">
+      <!-- Main Content -->
+      <div class="main-content">
+        <!-- Photo Section (left) -->
+        <div class="photo-section">
+          <!-- Photo -->
+          <div class="photo">
+            {% if user.photo %}
+              <img src="{{ user.photo.url }}" alt="User Photo">
+            {% else %}
+              <div style="display: flex; align-items: center; justify-content: center; height: 100%; background-color: #f0f0f0; color: #666;">
+                No Photo
+              </div>
+            {% endif %}
+          </div>
+        </div>
+        <!-- Banner and Details (right) -->
+        <div class="right-section">
+          <div class="banner">
+            {{ user.family.barangay.name|upper }}
+          </div>
+
+          <!-- Info -->
+          <div class="info">
+            <div class="info-row">
+              <span class="label">Name</span>
+              <span class="colon">:</span>
+              <span class="value">{{ user.full_name|title }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">F.C.</span>
+              <span class="colon">:</span>
+              <span class="value">{{ user.family.family_code }}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">D.O.B</span>
+              <span class="colon">:</span>
+              <span class="value">{% if user.date_of_birth %}{{ user.date_of_birth|date:"m/d/Y" }}{% else %}Not provided{% endif %}</span>
+            </div>
+            <div class="info-row">
+              <span class="label">Address</span>
+              <span class="colon">:</span>
+              <span class="value">{{ user.family.address }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="id-card-back">
+      <div class="main-content-back">
+        <!-- QR and Code -->
+        <div class="left-section-back">
+          <div class="qr-frame">
+            <img src="{{ user.qr_code_data_url }}" alt="QR Code" class="qr-code">
+            <span class="qr-placeholder">Upload QR</span>
+          </div>
+          <p class="family-code">ID: <br> {{ user.id }}</p>
+        </div>
+        <!-- Terms and Conditions -->
+        <div class="right-section-back">
+          <h2><span>TERMS &</span><br>CONDITIONS</h2>
+          <ul>
+            <li>Property of E-KOLEK. Must be returned upon request.</li>
+            <li>Present ID for all waste transactions and redemptions.</li>
+            <li>Report lost/stolen cards immediately to CENRO.</li>
+            <li>Non-transferable. For registered member use only.</li>
+            <li>Misuse may result in benefit suspension.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div style="page-break-after: always;"></div>
+  {% endfor %}
+  <a href="{% url 'cenro:adminuser' %}" style="margin: 20px; padding: 8px 20px; background: #6366f1; color: #fff; border-radius: 6px; text-decoration: none; font-weight: bold;">
+    &larr; Back to Admin User
+  </a>
+  <button id="downloadBtn" style="
+    margin: 20px;
+    padding: 12px 28px;
+    background: linear-gradient(90deg, #6366f1 0%, #10b981 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(99,102,241,0.15);
+    cursor: pointer;
+    transition: background 0.2s;
+  ">
+    <i class='bx bx-download' style="vertical-align: middle; margin-right: 8px;"></i>
+    Download All ID Cards
+  </button>
+
+
+  <script src="{% static 'js/idcard.js' %}"></script>
+</body>
+</html>

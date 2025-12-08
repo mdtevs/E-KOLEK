@@ -1,0 +1,150 @@
+# Django
+*.log
+*.pot
+*.pyc
+__pycache__/
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Environment variables - NEVER commit these!
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Google Drive Credentials - CRITICAL: Never commit these!
+google-drive-credentials.json
+google-drive-oauth-credentials.json
+google-drive-token.pickle
+google-drive-token.json
+*.pickle
+*-credentials.json
+*-oauth-credentials.json
+
+# Security and Secrets
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+secret_key.txt
+secrets.json
+
+# Media files (user uploads)
+media/
+uploads/
+
+# Static files (collected for production)
+staticfiles/
+collected-static/
+static_root/
+
+# Logs directory
+logs/
+*.log
+
+# Cache
+cache/
+*.rdb
+dump.rdb
+redis-*.rdb
+
+# Celery
+celerybeat-schedule
+celerybeat.pid
+celerybeat-schedule.db
+
+# Virtual environment
+env/
+newenv/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+.virtualenv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace
+.project
+.pydevproject
+.settings/
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Python
+*.egg-info/
+dist/
+build/
+*.egg
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Backup files
+*_backup.py
+*_backup.html
+*.bak
+*~
+*.orig
+
+# Temporary files
+*.tmp
+*.temp
+tmp/
+temp/
+
+# Database dumps and backups
+*.sql
+*.dump
+*.backup
+db_backup/
+database_backup/
+
+# Documentation build
+docs/_build/
+docs/.doctrees/
+
+# Local development overrides
+local_*.py
+local_*.json
+
+# Session data
+django_session/
+
+# Test coverage
+.coverage.*
+coverage.xml
+*.cover
+
+# Windows batch and PowerShell scripts
+*.bat
+*.ps1
+
+# Documentation files (keep only README.md in root)
+docs/*.md
+docs/**/*.md
+!docs/README.md
+
+# Backup settings files
+settings_backup.py
+*_backup_*.py

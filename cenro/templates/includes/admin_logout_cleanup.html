@@ -1,0 +1,32 @@
+<!-- Admin Logout Cleanup Script -->
+<script>
+	/**
+	 * Stop notification polling when logout is triggered
+	 * Prevents 401 errors after admin logout
+	 */
+	(function() {
+		'use strict';
+		
+		function attachLogoutCleanup() {
+			const logoutLinks = document.querySelectorAll('a.logout[href*="admin_logout"]');
+			logoutLinks.forEach(link => {
+				link.addEventListener('click', function(e) {
+					// Stop notification polling before navigating
+					if (window.stopAdminNotificationPolling) {
+						window.stopAdminNotificationPolling();
+						console.log('Stopped admin notification polling before logout');
+					}
+					// Allow normal navigation
+					return true;
+				});
+			});
+		}
+		
+		// Attach when DOM is ready
+		if (document.readyState === 'loading') {
+			document.addEventListener('DOMContentLoaded', attachLogoutCleanup);
+		} else {
+			attachLogoutCleanup();
+		}
+	})();
+</script>

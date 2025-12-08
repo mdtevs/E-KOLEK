@@ -1,0 +1,194 @@
+E-KOLEK MGA TUNTUNIN AT KUNDISYON
+Bersyon 1.0
+Petsa ng Pagpapatupad: Nobyembre 27, 2025
+
+PANIMULA
+
+Maligayang pagdating sa E-KOLEK, isang plataporma para sa koleksyon at pamamahala ng basura na pinapatakbo ng CENRO (City Environment and Natural Resources Office) ng Lungsod ng San Pedro. Sa pamamagitan ng pagrehistro at paggamit ng E-KOLEK application at mga serbisyo, sumasang-ayon ka na sumunod at magpasakop sa mga sumusunod na tuntunin at kundisyon.
+
+ARTIKULO 1: MGA KAHULUGAN
+
+1.1. "E-KOLEK" ay tumutukoy sa electronic waste collection platform, kasama ang mobile application, website, at mga kaugnay na serbisyo.
+
+1.2. "User" ay tumutukoy sa sinumang indibidwal na magrehistro ng account sa E-KOLEK platform.
+
+1.3. "Family Account" ay tumutukoy sa isang rehistradong yunit ng sambahayan na binubuo ng family representative at mga miyembro ng pamilya.
+
+1.4. "Points" ay tumutukoy sa reward currency na nakakamit sa pamamagitan ng waste segregation at disposal activities sa platform.
+
+1.5. "CENRO" ay tumutukoy sa City Environment and Natural Resources Office ng Lungsod ng San Pedro.
+
+ARTIKULO 2: PAGREHISTRO NG ACCOUNT
+
+2.1. Dapat magbigay ang mga user ng tumpak, kumpleto, at kasalukuyang impormasyon sa panahon ng pagrehistro.
+
+2.2. Responsibilidad ng mga user na panatilihin ang pagiging kumpidensyal ng kanilang account credentials.
+
+2.3. Dapat na hindi bababa sa 13 taong gulang ang mga user upang makapag-rehistro. Ang mga user na wala pang 18 taong gulang ay dapat magkaroon ng pahintulot ng magulang o tagapag-alaga.
+
+2.4. Ang bawat pamilya ay maaaring magkaroon lamang ng isang family account, na may isang itinalagang family representative.
+
+2.5. Maaaring sumali ang mga miyembro ng pamilya sa umiiral na family account gamit ang family code na ibinigay ng family representative.
+
+2.6. Lahat ng impormasyon sa pagrehistro ay napapailalim sa verification ng CENRO staff.
+
+ARTIKULO 3: MGA OBLIGASYON NG USER
+
+3.1. Sumasang-ayon ang mga user na:
+   - Tamang paghihiwalay ng basura ayon sa mga kategoryang tinukoy sa platform
+   - Sundin ang iskedyul ng koleksyon ng basura para sa kanilang barangay
+   - Magbigay ng tumpak na impormasyon tungkol sa mga aktibidad sa pagtatapon ng basura
+   - Mapanatili ang magalang na komunikasyon sa CENRO staff at iba pang users
+   - Huwag magsagawa ng mga mapanlinlang na aktibidad upang kumita ng points
+
+3.2. Hindi dapat ang mga user:
+   - Magbahagi ng account credentials sa mga hindi awtorisadong tao
+   - Lumikha ng maraming account para sa parehong sambahayan
+   - Magsumite ng maling impormasyon tungkol sa waste collection o disposal
+   - Subukang manipulahin ang points system sa pamamagitan ng mapanlinlang na paraan
+   - Gamitin ang platform para sa anumang ilegal na aktibidad
+
+ARTIKULO 4: SISTEMA NG POINTS AT REWARDS
+
+4.1. Kumikita ng points ang mga user sa pamamagitan ng:
+   - Tamang paghihiwalay at pagtatapon ng basura
+   - Paglahok sa naka-iskedyul na koleksyon ng basura
+   - Pagkumpleto ng mga educational modules tungkol sa waste management
+   - Paglahok sa mga community cleanup activities
+   - Paglalaro ng mga educational games sa platform
+
+4.2. Ang mga naipong points ay maaaring i-redeem para sa mga rewards na tinukoy sa rewards catalog.
+
+4.3. Ang mga points ay walang halaga sa pera at hindi maaaring ilipat sa pagitan ng mga account.
+
+4.4. Nakalaan sa CENRO ang karapatan na ayusin ang mga halaga ng points, baguhin ang rewards catalog, at magtakda ng petsa ng pag-expire para sa mga points.
+
+4.5. Ang mga points na nakuha sa pamamagitan ng mapanlinlang na paraan ay ipagkakait, at ang account ay maaaring suspindihin o wakasan.
+
+ARTIKULO 5: DATA PRIVACY AT SEGURIDAD
+
+5.1. Ang E-KOLEK ay nangongolekta at nagpoproseso ng personal na impormasyon alinsunod sa Data Privacy Act of 2012 (Republic Act No. 10173).
+
+5.2. Ang impormasyong nakolekta ay kinabibilangan ng:
+   - Pangalan, contact information, at address
+   - Barangay ng tirahan
+   - Kasaysayan ng pagtatapon at koleksyon ng basura
+   - Kasaysayan ng points at rewards transaction
+   - Aktibidad at paggamit ng account
+
+5.3. Ang personal na impormasyon ay gagamitin para sa:
+   - Pamamahala at verification ng account
+   - Pag-iskedyul at koordinasyon ng koleksyon ng basura
+   - Administrasyon ng points at rewards
+   - Komunikasyon tungkol sa mga update at serbisyo ng platform
+   - Analytics upang mapabuti ang mga serbisyo sa waste management
+
+5.4. Ang personal na impormasyon ay hindi ibebenta, irerenta, o ibabahagi sa mga third parties nang walang pahintulot ng user, maliban kung kinakailangan ng batas.
+
+5.5. May karapatan ang mga user na ma-access, itama, at humiling ng pagtanggal ng kanilang personal na data, napapailalim sa mga legal retention requirements.
+
+ARTIKULO 6: MGA ISKEDYUL NG KOLEKSYON NG BASURA
+
+6.1. Ang mga iskedyul ng koleksyon ay tukoy sa bawat barangay at maaaring magbago batay sa mga pangangailangan sa operasyon.
+
+6.2. Aabisuhan ang mga user tungkol sa iskedyul ng koleksyon ng kanilang barangay sa pamamagitan ng platform.
+
+6.3. Nakalaan sa CENRO ang karapatan na baguhin ang mga iskedyul ng koleksyon na may advance notice sa mga user.
+
+6.4. Dapat sundin ng mga user ang naka-iskedyul na oras ng koleksyon para sa kanilang lugar.
+
+ARTIKULO 7: CONTENT AT ASAL
+
+7.1. Responsable ang mga user para sa anumang content na kanilang isinusumite sa pamamagitan ng platform, kasama ang mga larawan ng waste segregation.
+
+7.2. Ang ipinagbabawal na content ay kinabibilangan ng:
+   - Nakakasakit, abusive, o discriminatory na material
+   - Maling o nakakalinlang na impormasyon
+   - Content na lumalabag sa mga karapatan sa intellectual property
+   - Spam o hindi hiniling na promotional material
+
+7.3. Nakalaan sa CENRO ang karapatan na alisin ang anumang content na lumalabag sa mga tuntuning ito.
+
+ARTIKULO 8: AVAILABILITY NG PLATFORM
+
+8.1. Layunin ng E-KOLEK na magbigay ng tuluy-tuloy na serbisyo ngunit hindi ginagarantiya ang walang putol na access.
+
+8.2. Ang platform ay maaaring pansamantalang hindi available dahil sa maintenance, updates, o mga teknikal na isyu.
+
+8.3. Ang CENRO ay hindi liable para sa anumang pagkawala o abala na resulta ng platform downtime.
+
+ARTIKULO 9: MGA PAGBABAGO SA MGA TUNTUNIN
+
+9.1. Nakalaan sa CENRO ang karapatan na baguhin ang mga tuntuning ito at kundisyon anumang oras.
+
+9.2. Aabisuhan ang mga user tungkol sa mahahalagang pagbabago sa pamamagitan ng platform.
+
+9.3. Ang patuloy na paggamit ng platform pagkatapos ng mga pagbabago ay bumubuo ng pagtanggap ng mga bagong tuntunin.
+
+ARTIKULO 10: SUSPENSION AT TERMINATION NG ACCOUNT
+
+10.1. Maaaring suspindihin o wakasan ng CENRO ang mga account na:
+   - Lumalabag sa mga tuntuning ito at kundisyon
+   - Nakikibahagi sa mga mapanlinlang na aktibidad
+   - Nagbibigay ng maling impormasyon
+   - Nang-aabuso sa platform o sa mga user nito
+   - Nananatiling inactive sa mahabang panahon
+
+10.2. Maaaring humiling ang mga user ng pagtanggal ng account sa pamamagitan ng pakikipag-ugnayan sa CENRO support.
+
+10.3. Sa pagwawakas ng account, lahat ng naipong points ay ipagkakait.
+
+ARTIKULO 11: LIMITASYON NG LIABILITY
+
+11.1. Ang E-KOLEK ay ibinibigay "as is" nang walang warranties ng anumang uri.
+
+11.2. Ang CENRO ay hindi liable para sa:
+   - Mga error o interruptions sa serbisyo
+   - Pagkawala ng data o points dahil sa mga teknikal na isyu
+   - Mga pinsala na resulta ng paggamit o kawalan ng kakayahang gumamit ng platform
+   - Mga aksyon ng third parties
+
+11.3. Ginagamit ng mga user ang platform sa kanilang sariling peligro.
+
+ARTIKULO 12: INTELLECTUAL PROPERTY
+
+12.1. Lahat ng content, trademarks, at intellectual property sa E-KOLEK platform ay pag-aari ng CENRO o ng mga lisensiyado nito.
+
+12.2. Hindi maaaring kopyahin, magparami, o ipamahagi ng mga user ang platform content nang walang pahintulot.
+
+12.3. Binibigyan ng mga user ang CENRO ng lisensya na gamitin ang naisumiteng content para sa mga operasyon ng platform at promotional purposes.
+
+ARTIKULO 13: RESOLUSYON NG DISPUTE
+
+13.1. Anumang mga dispute na nagmumula sa mga tuntuning ito ay lulutasin sa pamamagitan ng:
+   - Direktang komunikasyon sa CENRO support
+   - Mediation sa pamamagitan ng naaangkop na city government channels
+   - Mga legal proceedings sa mga korte ng Lungsod ng San Pedro, Laguna
+
+13.2. Sumasang-ayon ang mga user na subukan ang informal resolution bago magpatuloy sa legal action.
+
+ARTIKULO 14: GOVERNING LAW
+
+14.1. Ang mga tuntuning ito ay pinamamahalaan ng mga batas ng Republika ng Pilipinas.
+
+14.2. Sumusuko ang mga user sa jurisdiction ng mga Philippine courts para sa resolusyon ng dispute.
+
+ARTIKULO 15: SEVERABILITY
+
+15.1. Kung ang anumang probisyon ng mga tuntuning ito ay natagpuang invalid o hindi maipapatupad, ang natitirang mga probisyon ay magpapatuloy sa buong puwersa.
+
+ARTIKULO 16: CONTACT INFORMATION
+
+Para sa mga tanong o alalahanin tungkol sa mga tuntuning ito, maaaring makipag-ugnayan ang mga user sa:
+
+CENRO - City Environment and Natural Resources Office
+Lungsod ng San Pedro, Laguna
+Email: cenro.sanpedro@example.gov.ph
+Telepono: (02) 1234-5678
+
+ARTIKULO 17: PAGTANGGAP
+
+Sa pamamagitan ng pag-click sa "I Accept" o paggamit ng E-KOLEK platform, kinikilala mo na nabasa mo, naintindihan, at sumasang-ayon na magpasakop sa mga Tuntuning ito at Kundisyon.
+
+---
+Huling Na-update: Nobyembre 27, 2025

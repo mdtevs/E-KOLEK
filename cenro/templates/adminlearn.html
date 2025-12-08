@@ -1,0 +1,383 @@
+{% load static %}
+{% load points_filters %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
+    <!-- Boxicons from multiple CDNs for reliability -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href='https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/adminlearn.css' %}?v={{ timestamp }}">
+    <link rel="stylesheet" href="{% static 'css/unified-modal.css' %}">
+    <title>Learning Videos Management</title>
+    
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <section id="sidebar">
+        <a href="#" class="brand">
+            <i class='bx bxs-group'></i>
+            <span class="text">CENRO Admin</span>
+        </a>
+        		<ul class="side-menu top">
+			<!-- Dashboard/Home -->
+			<li>
+				<a href="{% url 'cenro:dashboard' %}">
+					<i class='bx bxs-dashboard'></i>
+					<span class="text">Dashboard</span>
+				</a>
+			</li>
+
+			{% if can_manage_users %}
+			<li>
+				<a href="{% url 'cenro:adminuser' %}">
+					<i class='bx bxs-user-detail'></i>
+					<span class="text">User Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+            {% if admin_user.role == 'super_admin' %}
+			<li>
+				<a href="{% url 'cenro:admin_management' %}">
+					<i class='bx bxs-user-detail' ></i>
+					<span class="text">Admin Management</span>
+				</a>
+			</li>
+			{% endif %}
+			
+			{% if can_manage_controls %}
+			<li>
+				<a href="{% url 'cenro:admincontrol' %}">
+					<i class='bx bxs-component' ></i>
+					<span class="text">Controls Management</span>
+				</a>
+			</li>
+			{% endif %}
+			
+			{% if can_manage_points %}
+			<li>
+				<a href="{% url 'cenro:adminpoints' %}">
+					<i class='bx bxs-star' ></i>
+					<span class="text">Points Management</span>
+				</a>
+			</li>
+			{% endif %}
+			
+			{% if can_manage_rewards %}
+			<li>
+				<a href="{% url 'cenro:adminrewards' %}">
+					<i class='bx bxs-gift' ></i>
+					<span class="text">Rewards Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% if can_manage_schedules %}
+			<li>
+				<a href="{% url 'cenro:adminschedule' %}">
+					<i class='bx bxs-calendar' ></i>
+					<span class="text">Schedule Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% if can_manage_security %}
+			<li>
+<a href="{% url 'cenro:security_dashboard' %}">
+<i class='bx bxs-shield' ></i>
+<span class="text">Security Management</span>
+</a>
+</li>
+			{% endif %}
+
+			{% if can_manage_learning %}
+			<li class="active">
+				<a href="{% url 'cenro:adminlearn' %}">
+					<i class='bx bxs-book-content' ></i>
+					<span class="text">Learning Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% if can_manage_games %}
+			<li>
+				<a href="{% url 'cenro:admingames' %}">
+					<i class='bx bxs-game' ></i>
+					<span class="text">Games Management</span>
+				</a>      
+      <li>
+        <a href="{% url 'cenro:waste_analytics' %}">
+          <i class='bx bxs-bar-chart-alt-2' ></i>
+          <span class="text">Waste Analytics</span>
+        </a>
+      </li>
+      
+			</li>
+			{% endif %}
+			
+			<!-- Security Analyst Special Dashboard -->
+			{% if admin_role == 'security_analyst' %}
+			<li>
+				<a href="{% url 'cenro:adminsecurity' %}">
+					<i class='bx bxs-dashboard' ></i>
+					<span class="text">Security Dashboard</span>
+				</a>
+			</li>
+			{% endif %}
+			
+		</ul>
+
+        <ul class="side-menu">
+            <li>
+                <a href="{% url 'cenro:admin_logout' %}" class="logout">
+                    <i class='bx bxs-log-out-circle'></i>
+                    <span class="text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </section>
+
+    <!-- CONTENT -->
+    <section id="content">
+        <!-- NAVBAR -->
+				<nav>
+			<i class='bx bx-menu' ></i>
+			
+			<!-- Admin User Profile Section -->
+			{% if is_admin_authenticated %}
+			<div class="profile" style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+				<!-- Admin Notification Bell -->
+				{% include 'includes/notification_bell.html' %}
+				
+				<div class="admin-info" style="text-align: right; margin-right: 10px;">
+					<span style="display: block; font-weight: 600; color: #333;">{{ admin_full_name }}</span>
+					<span style="display: block; font-size: 0.8rem; color: #666;">{{ admin_role_display }}</span>
+				</div>
+				<i class='bx bxs-user-circle' style="font-size: 2rem; color: #667eea;"></i>
+			</div>
+			{% else %}
+			<div class="profile" style="margin-left: auto;">
+				<a href="{% url 'cenro:admin_login' %}" style="color: #667eea; text-decoration: none;">
+					<i class='bx bx-log-in' style="font-size: 1.5rem;"></i>
+					<span>Login</span>
+				</a>
+			</div>
+			{% endif %}
+		</nav>
+
+        <!-- MAIN -->
+        <main>
+            <div class="head-title">
+                <div class="left">
+                    <h1>Learning Videos & Quiz Management</h1>
+                    <ul class="breadcrumb">
+                        <li><a href="#">Learning</a></li>
+                        <li><i class='bx bx-chevron-right'></i></li>
+                        <li><a class="active" href="#">Videos & Quiz Management</a></li>
+                    </ul>
+                </div>
+                <div class="quiz-management-buttons">
+                    <a href="{% url 'cenro:quiz_management' %}" class="button">
+                        <i class='bx bx-brain'></i> Quiz Overview
+                    </a>
+                    <a href="{% url 'cenro:quiz_results' %}" class="button">
+                        <i class='bx bx-chart'></i> Quiz Results
+                    </a>
+                </div>
+            </div>
+
+            <!-- Add Video Form -->
+            <div class="video-form">
+                <h3 style="margin-bottom: 1.5rem;">Add New Learning Video</h3>
+                <form id="videoForm">
+                    {% csrf_token %}
+                    <input type="hidden" id="videoId" value="">
+                    
+                    <div class="form-group">
+                        <label for="videoTitle">Video Title:</label>
+                        <input type="text" id="videoTitle" class="form-input" placeholder="Enter video title..." required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="videoDescription">Description:</label>
+                        <textarea id="videoDescription" class="form-input form-textarea" placeholder="Enter video description..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="videoUrl">YouTube Video URL:</label>
+                        <input type="url" id="videoUrl" class="form-input" placeholder="https://youtu.be/..." required>
+                        <div id="urlPreview" class="url-preview" style="display: none;"></div>
+                        <img id="thumbnailPreview" class="preview-thumbnail" style="display: none;">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="thumbnailUrl">Custom Thumbnail URL (Optional):</label>
+                        <input type="url" id="thumbnailUrl" class="form-input" placeholder="https://example.com/thumbnail.jpg">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="pointsReward">Points Reward:</label>
+                        <input type="number" id="pointsReward" class="form-input points-input" min="0" step="0.01" value="0" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="isActive" class="form-checkbox" checked>
+                            Video is active and available to users
+                        </label>
+                    </div>
+                    
+                    <button type="submit" class="btn-save">
+                        <i class='bx bx-save'></i>
+                        <span id="saveButtonText">Save Video</span>
+                    </button>
+                    <button type="button" id="cancelEdit" class="btn-save" style="background: #6b7280; margin-left: 1rem; display: none;" onclick="cancelEdit(); return false;">
+                        <i class='bx bx-x'></i>
+                        Cancel
+                    </button>
+                </form>
+            </div>
+
+            <!-- Videos List -->
+            <div class="videos-list">
+                <h3>Learning Videos</h3>
+                <div id="videosList" style="max-height: 450px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px;">
+                    {% for video in videos %}
+                    <div class="video-item" data-video-id="{{ video.id }}">
+                        <img src="{{ video.get_youtube_thumbnail }}" alt="Video thumbnail" class="video-thumbnail" onerror="this.style.display='none'">
+                        <div class="video-details">
+                            <h4 class="video-title">{{ video.title }}</h4>
+                            <p class="video-description">{{ video.description|truncatewords:20 }}</p>
+                            <div class="video-meta">
+                                <span class="video-points">{{ video.points_reward|smart_points }} points</span>
+                                <span class="video-status {% if video.is_active %}status-active{% else %}status-inactive{% endif %}">
+                                    {% if video.is_active %}Active{% else %}Inactive{% endif %}
+                                </span>
+                                <span>{{ video.created_at|date:"M d, Y" }}</span>
+                                <br>
+                                {% with quiz_count=video.quiz_questions.count %}
+                                    {% if quiz_count > 0 %}
+                                        <span class="quiz-info" style="color: #28a745; font-weight: bold;">
+                                            <i class='bx bx-brain'></i> {{ quiz_count }} Quiz Question{{ quiz_count|pluralize }}
+                                        </span>
+                                    {% else %}
+                                        <span class="quiz-info" style="color: #6c757d;">
+                                            <i class='bx bx-brain'></i> No Quiz
+                                        </span>
+                                    {% endif %}
+                                {% endwith %}
+                            </div>
+                        </div>
+                        <div class="video-actions">
+                            <button class="btn-edit" 
+                                    data-video-id="{{ video.id }}"
+                                    data-title="{{ video.title }}"
+                                    data-description="{{ video.description }}"
+                                    data-video-url="{{ video.video_url }}"
+                                    data-thumbnail-url="{{ video.thumbnail_url|default_if_none:"" }}"
+                                    data-points="{{ video.points_reward }}"
+                                    data-active="{{ video.is_active|yesno:'true,false' }}"
+                                    onclick="editVideoHandler(this)">
+                                <i class='bx bx-edit'></i> Edit
+                            </button>
+                            {% with quiz_count=video.quiz_questions.count %}
+                                {% if quiz_count > 0 %}
+                                    <a href="{% url 'cenro:quiz_questions' video.id %}" class="btn-edit" style="background: #28a745; text-decoration: none;">
+                                        <i class='bx bx-brain'></i> Manage Quiz ({{ quiz_count }})
+                                    </a>
+                                {% else %}
+                                    <a href="{% url 'cenro:quiz_questions' video.id %}" class="btn-edit" style="background: #6c757d; text-decoration: none;">
+                                        <i class='bx bx-plus'></i> Add Quiz
+                                    </a>
+                                {% endif %}
+                            {% endwith %}
+                            <button class="btn-toggle" 
+                                    data-video-id="{{ video.id }}"
+                                    data-new-status="{{ video.is_active|yesno:'false,true' }}"
+                                    onclick="toggleVideoHandler(this)">
+                                <i class='bx bx-toggle-{% if video.is_active %}left{% else %}right{% endif %}'></i> 
+                                {% if video.is_active %}Deactivate{% else %}Activate{% endif %}
+                            </button>
+                            <button class="btn-delete" 
+                                    data-video-id="{{ video.id }}"
+                                    onclick="deleteVideoHandler(this)">
+                                <i class='bx bx-trash'></i> Delete
+                            </button>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p style="text-align: center; color: #6b7280; padding: 2rem;">No learning videos added yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </main>
+    </section>
+
+    <!-- Universal Confirmation Modal -->
+    <div class="modal-overlay" id="confirmationModal" style="display: none; z-index: 10001;">
+      <div class="modal-content" style="padding: 35px; max-width: 500px;">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 25px;">
+          <div>
+            <h3 style="margin: 0 0 8px 0; font-size: 1.5rem; color: #1f2937; display: flex; align-items: center; gap: 10px;">
+              <i class='bx bx-check-circle' style="color: #667eea; font-size: 1.6rem;" id="confirmIcon"></i>
+              <span id="confirmTitle">Confirm Action</span>
+            </h3>
+            <p style="color: #6b7280; margin: 0; font-size: 0.9rem;" id="confirmSubtitle">Please review your changes</p>
+          </div>
+          <button type="button" onclick="closeConfirmation()" style="background: #f3f4f6; border: none; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#e5e7eb'; this.style.transform='rotate(90deg)'" onmouseout="this.style.background='#f3f4f6'; this.style.transform='rotate(0deg)'">
+            <i class='bx bx-x' style="font-size: 1.6rem; color: #6b7280;"></i>
+          </button>
+        </div>
+        
+        <div style="background: #f0f9ff; border: 2px solid #bae6fd; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+          <div style="display: flex; align-items: start; gap: 12px;">
+            <i class='bx bx-info-circle' style="font-size: 1.5rem; color: #0284c7; flex-shrink: 0; margin-top: 2px;"></i>
+            <div>
+              <h4 style="color: #0c4a6e; margin: 0 0 8px 0; font-size: 1rem; font-weight: 600;">Confirm Changes</h4>
+              <p style="color: #075985; margin: 0; font-size: 0.9rem; line-height: 1.5;" id="confirmMessage">Are you sure you want to proceed with this action?</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+          <button type="button" onclick="closeConfirmation()" style="padding: 14px 24px; border-radius: 10px; font-weight: 600; background: #f3f4f6; border: 2px solid #e5e7eb; color: #6b7280; transition: all 0.2s; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.95rem;">
+            <i class='bx bx-x' style="font-size: 1.2rem;"></i> Cancel
+          </button>
+          <button type="button" onclick="confirmAction()" id="confirmButton" style="padding: 14px 24px; border-radius: 10px; font-weight: 600; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white; box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4); transition: all 0.2s; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.95rem;">
+            <i class='bx bx-check' style="font-size: 1.2rem;"></i> Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="{% static 'script.js' %}"></script>
+    
+    <!-- Pass Django URLs and data to JavaScript -->
+    <script>
+        // Django URLs for JavaScript
+        window.DJANGO_URLS = {
+            addVideo: '{% url "cenro:add_video" %}',
+            editVideo: '{% url "cenro:edit_video" %}',
+            toggleVideo: '{% url "cenro:toggle_video" %}',
+            deleteVideo: '{% url "cenro:delete_video" %}'
+        };
+        
+        // CSRF Token
+        window.CSRF_TOKEN = '{{ csrf_token }}';
+    </script>
+    
+    <!-- External JavaScript file -->
+    <script src="{% static 'js/unified-modal.js' %}"></script>
+    <script src="{% static 'js/admin_common.js' %}?v={{ timestamp }}"></script>
+    <script src="{% static 'js/adminlearn.js' %}?v={{ timestamp }}"></script>
+    <script src="{% static 'js/points-input-handler.js' %}?v={{ timestamp }}"></script>
+	<script src="{% static 'js/admin_notifications.js' %}"></script>
+</body>
+</html>
+

@@ -1,0 +1,241 @@
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #eaeaea;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      padding: 40px 0;
+    }
+
+    
+
+    /* FRONT STYLES */
+    .id-card {
+      position: relative;
+      width: 1011px;
+      height: 638px;
+      background-image: url("../images/frnt.png");
+      background-size: 100% 100%;
+      background-position: center; /* Optional: centers the image */
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 10px; /* Space between front and back cards */
+    }
+
+
+    .banner {
+      margin-top: 200px;
+      background: #14532d;
+      color: #fff;
+      font-size: 2em;
+      font-weight: bold;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      text-align: center;
+      border-radius: 8px;
+      padding: 16px 0;
+      margin-bottom: 24px;
+      width: 100%; /* Banner fills only the right section */
+    }
+
+    .content {
+      display: flex;
+      gap: 30px;
+      padding: 30px 40px;
+      align-items: center;
+    }
+
+    .photo {
+      width: 150px;
+      height: 180px;
+      margin-top: 200px;
+      border: 4px solid #1d3557;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .info-row {
+      display: flex;
+      gap: 10px;
+      font-size: 20px;
+    }
+
+    .label {
+      width: 80px;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .colon {
+      width: 10px;
+      text-align: center;
+    }
+
+    .value {
+      font-weight: bold;
+      color: #222;
+    }
+
+    .id-card-content {
+      position: relative;
+      z-index: 2; /* Above the wave */
+    }
+
+    .main-content {
+      display: flex;
+      gap: 30px;
+      padding: 30px 40px;
+      align-items: center;
+    }
+
+    .photo-section {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .right-section {
+      flex: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+    /* BACK STYLES */
+    .id-card-back {
+      position: relative;
+      width: 1011px;
+      height: 638px;
+      background-image: url("../images/bck.png");
+      background-size: 100% 100%;
+      background-position: center;
+      border-radius: 16px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main-content-back {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 120px;
+      z-index: 2;
+      position: relative;
+    }
+
+    .left-section-back {
+      text-align: center;
+      margin-left: 30px;
+      margin-top: 30px;
+    }
+
+    .qr-frame {
+      width: 300px;
+      height: 300px;
+      border: 2px dashed #aaa;
+      border-radius: 10px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #fff;
+    }
+
+    .qr-code {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .qr-placeholder {
+      position: absolute;
+      color: #999;
+      font-size: 14px;
+      pointer-events: none;
+      text-align: center;
+      display: none;
+    }
+
+    .qr-frame img[src=""], .qr-frame img:not([src]) {
+      display: none;
+    }
+
+    .qr-frame img[src=""]:not([src]), .qr-frame img:not([src]) ~ .qr-placeholder {
+      display: block;
+    }
+
+    .family-code {
+      margin-top: 20px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #000;
+    }
+
+    .right-section-back {
+      width: 58%;
+    }
+
+    .right-section-back h2 {
+      font-size: 40px;
+      color: #0c0c5a;
+      font-weight: bold;
+      font-style: italic;
+      margin-bottom: 20px;
+    }
+
+    .right-section-back ul {
+      list-style-type: disc;
+      padding-left: 20px;
+      padding-right: 20px;
+      color: #000;
+    }
+
+    .right-section-back li {
+      margin-bottom: 15px;
+      line-height: 1.6;
+      font-weight: bold;
+      font-size: 18px;
+      color: #000;
+    }
+
+    /* Responsive for demonstration */
+    @media (max-width: 1100px) {
+      .id-card-back, .id-card-front {
+        width: 98vw;
+        min-width: 0;
+        max-width: 100%;
+        height: auto;
+      }
+      .main-content-back {
+        flex-direction: column;
+        margin-top: 40px;
+        align-items: center;
+      }
+      .right-section-back {
+        width: 90%;
+        margin-top: 30px;
+      }
+    }
+ 

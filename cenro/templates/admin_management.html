@@ -1,0 +1,1263 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- Boxicons from multiple CDNs for reliability -->
+	<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+	<link href='https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+	<!-- My CSS -->
+	<link rel="stylesheet" href="{% static 'style.css' %}">
+	<link rel="stylesheet" href="{% static 'css/adminuser.css' %}?v=20250815-{{ timestamp }}"&burst=123>
+    <link rel="stylesheet" href="{% static 'css/admin_management.css' %}?v={{ timestamp }}">
+    <link rel="stylesheet" href="{% static 'css/unified-modal.css' %}">
+	
+	
+
+	<title>Admin Management</title>
+</head>
+<body>
+
+
+	<!-- SIDEBAR -->
+	<section id="sidebar">
+		<a href="#" class="brand">
+			<i class='bx bxs-group' ></i>
+			<span class="text">CENRO Admin</span>
+		</a>
+		<ul class="side-menu top">
+			<!-- Dashboard/Home -->
+			<li>
+				<a href="{% url 'cenro:dashboard' %}">
+					<i class='bx bxs-dashboard'></i>
+					<span class="text">Dashboard</span>
+				</a>
+			</li>
+
+			{% if can_manage_users %}
+			<li>
+				<a href="{% url 'cenro:adminuser' %}">
+					<i class='bx bxs-user-detail'></i>
+					<span class="text">User Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+            {% if admin_user.role == 'super_admin' %}
+			<li class="active">
+				<a href="{% url 'cenro:admin_management' %}">
+					<i class='bx bxs-user-detail' ></i>
+					<span class="text">Admin Management</span>
+				</a>
+			</li>
+			{% endif %}
+			
+			{% if can_manage_controls %}
+			<li>
+				<a href="{% url 'cenro:admincontrol' %}">
+					<i class='bx bxs-component' ></i>
+					<span class="text">Controls Management</span>
+				</a>
+			</li>
+			{% endif %}
+			
+			{% if can_manage_points %}
+			<li>
+				<a href="{% url 'cenro:adminpoints' %}">
+					<i class='bx bxs-star' ></i>
+					<span class="text">Points Management</span>
+				</a>
+			</li>
+			{% endif %}
+			
+			{% if can_manage_rewards %}
+			<li>
+				<a href="{% url 'cenro:adminrewards' %}">
+					<i class='bx bxs-gift' ></i>
+					<span class="text">Rewards Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% if can_manage_schedules %}
+			<li>
+				<a href="{% url 'cenro:adminschedule' %}">
+					<i class='bx bxs-calendar' ></i>
+					<span class="text">Schedule Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% if can_manage_security %}
+			<li>
+<a href="{% url 'cenro:security_dashboard' %}">
+<i class='bx bxs-shield' ></i>
+<span class="text">Security Management</span>
+</a>
+</li>
+			{% endif %}
+
+
+
+			{% if can_manage_learning %}
+			<li>
+				<a href="{% url 'cenro:adminlearn' %}">
+					<i class='bx bxs-book-content' ></i>
+					<span class="text">Learning Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% if can_manage_games %}
+			<li>
+				<a href="{% url 'cenro:admingames' %}">
+					<i class='bx bxs-game' ></i>
+					<span class="text">Games Management</span>
+				</a>      
+      <li>
+        <a href="{% url 'cenro:waste_analytics' %}">
+          <i class='bx bxs-bar-chart-alt-2' ></i>
+          <span class="text">Waste Analytics</span>
+        </a>
+      </li>
+      
+			</li>
+			{% endif %}
+			
+			<!-- Security Analyst Special Dashboard -->
+			{% if admin_role == 'security_analyst' %}
+			<li>
+				<a href="{% url 'cenro:adminsecurity' %}">
+					<i class='bx bxs-dashboard' ></i>
+					<span class="text">Security Dashboard</span>
+				</a>
+			</li>
+			{% endif %}
+			
+		</ul>
+		<ul class="side-menu">
+			<li>
+				<a href="{% url 'cenro:admin_logout' %}" class="logout">
+					<i class='bx bxs-log-out-circle' ></i>
+					<span class="text">Logout</span>
+				</a>
+			</li>
+		</ul>
+	</section>
+	<!-- SIDEBAR -->
+
+	<!-- CONTENT -->
+	<section id="content">
+		<!-- NAVBAR -->
+		<nav>
+			<i class='bx bx-menu' ></i>
+			
+			<!-- Admin User Profile Section -->
+			{% if is_admin_authenticated %}
+			<div class="profile" style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+				<!-- Admin Notification Bell -->
+				{% include 'includes/notification_bell.html' %}
+				
+				<div class="admin-info" style="text-align: right; margin-right: 10px;">
+					<span style="display: block; font-weight: 600; color: #333;">{{ admin_full_name }}</span>
+					<span style="display: block; font-size: 0.8rem; color: #666;">{{ admin_role_display }}</span>
+				</div>
+				<i class='bx bxs-user-circle' style="font-size: 2rem; color: #667eea;"></i>
+			</div>
+			{% else %}
+			<div class="profile" style="margin-left: auto;">
+				<a href="{% url 'cenro:admin_login' %}" style="color: #667eea; text-decoration: none;">
+					<i class='bx bx-log-in' style="font-size: 1.5rem;"></i>
+					<span>Login</span>
+				</a>
+			</div>
+			{% endif %}
+		</nav>
+		<!-- NAVBAR -->
+
+		<!-- MAIN -->
+		<main>
+			<div class="head-title">
+				<div class="left">
+					<h1>Admin Management</h1>
+					<ul class="breadcrumb">
+						<li>
+							<a href="#">Admin</a>
+						</li>
+						<li><i class='bx bx-chevron-right' ></i></li>
+						<li>
+							<a class="active" href="#">Management</a>
+						</li>
+					</ul>
+				</div>
+			</div>
+
+			<ul class="box-info">
+				<li>
+					<i class='bx bxs-group' ></i>
+					<span class="text">
+						<h3>{{ total_admins }}</h3>
+						<p>Total Admins</p>
+					</span>
+				</li>
+				<li>
+					<i class='bx bxs-user-check' ></i>
+					<span class="text">
+						<h3>{{ approved_count }}</h3>
+						<p>Active Admins</p>
+					</span>
+				</li>
+				<li>
+					<i class='bx bx-pause-circle' ></i>
+					<span class="text">
+						<h3>{{ suspended_count }}</h3>
+						<p>Suspended Accounts</p>
+					</span>
+				</li>
+			</ul>
+
+			<ul class="box-info" style="margin-top: 20px;">
+				<li>
+					<i class='bx bx-lock-alt' ></i>
+					<span class="text">
+						<h3>{{ locked_count }}</h3>
+						<p>Locked Accounts</p>
+					</span>
+				</li>
+			</ul>
+
+			<div class="tab-container">
+				<!-- Tab Buttons -->
+				<div class="tab-buttons">
+					<button class="tab-button active" onclick="switchTab('create')">
+						Create Admin
+						<i class='bx bx-plus' style="margin-left: 5px;"></i>
+					</button>
+					<button class="tab-button" onclick="switchTab('approved')">
+						Approved Admins
+					</button>
+					<button class="tab-button" onclick="switchTab('suspended')">
+						Suspended Admins
+					</button>
+					<button class="tab-button" onclick="switchTab('locked')">
+						Locked Accounts
+					</button>
+					<button class="tab-button" onclick="switchTab('history')">
+						Admin History
+						<i class='bx bx-history' style="margin-left: 5px;"></i>
+					</button>
+				</div>
+
+				<!-- Create Admin Tab -->
+				<div id="create-tab" class="tab-content active">
+					<div class="user-container">
+						<div class="user-header">
+							<h3>Create New Admin Account</h3>
+							<div class="user-icons">
+								<i class='bx bx-user-plus'></i>
+							</div>
+						</div>
+
+					<div class="user-form-wrapper" style="padding: 20px;">
+						<form method="POST" action="{% url 'cenro:admin_management' %}" id="createAdminForm">
+							{% csrf_token %}
+							<input type="hidden" name="action" value="create">								<div class="form-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+								<div class="form-group">
+									<label for="full_name" style="display: block; margin-bottom: 5px; font-weight: 600;">Full Name *</label>
+									<input type="text" id="full_name" name="full_name" required 
+										   style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" 
+										   placeholder="Enter full name">
+									<small id="full-name-error" style="color: #dc2626; display: none; margin-top: 5px;">✗ Full name is required</small>
+								</div>								<div class="form-group">
+									<label for="username" style="display: block; margin-bottom: 5px; font-weight: 600;">Username *</label>
+									<input type="text" id="username" name="username" required 
+										   style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" 
+										   placeholder="Enter username">
+									<small id="username-error" style="color: #dc2626; display: none; margin-top: 5px;">✗ Username is required</small>
+								</div>									<div class="form-group">
+										<label for="email" style="display: block; margin-bottom: 5px; font-weight: 600;">Email Address *</label>
+										<input type="email" id="email" name="email" required 
+											   style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" 
+											   placeholder="admin@example.com">
+										<small id="email-error" style="color: #dc2626; display: none; margin-top: 5px;">This email is already registered</small>
+										<small id="email-success" style="color: #10b981; display: none; margin-top: 5px;">✓ Email available</small>
+									</div>
+									
+									<div class="form-group">
+										<label style="display: block; margin-bottom: 5px; font-weight: 600; color: #6b7280;">Email Purpose</label>
+										<small style="color: #6b7280; font-size: 0.85em; display: block;">Credentials and notifications will be sent here</small>
+									</div>
+									
+								<div class="form-group">
+									<label for="password" style="display: block; margin-bottom: 5px; font-weight: 600;">Password *</label>
+									<input type="password" id="password" name="password" required 
+										   style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" 
+										   placeholder="Enter password (min 8 chars)">
+									<small id="password-error" style="color: #dc2626; display: none; margin-top: 5px;">✗ Password must be at least 8 characters</small>
+								</div>								
+								<div class="form-group">
+									<label for="confirm_password" style="display: block; margin-bottom: 5px; font-weight: 600;">Confirm Password *</label>
+									<input type="password" id="confirm_password" name="confirm_password" required 
+										   style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;" 
+										   placeholder="Confirm password">
+									<small id="password-match-error" style="color: #dc2626; display: none; margin-top: 5px;">✗ Passwords do not match</small>
+									<small id="password-match-success" style="color: #10b981; display: none; margin-top: 5px;">✓ Passwords match</small>
+								</div>
+							</div>								<div class="form-group" style="margin-top: 20px;">
+								<label for="role" style="display: block; margin-bottom: 5px; font-weight: 600;">Role *</label>
+								<select id="role" name="role" required onchange="toggleBarangaySelection()" 
+										style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px;">
+									<option value="">Select Role</option>
+									<option value="operations_manager">Operations Manager</option>
+									<option value="content_rewards_manager">Content & Rewards Manager</option>
+									<option value="security_analyst">Security Analyst</option>
+								</select>
+								<small id="role-error" style="color: #dc2626; display: none; margin-top: 5px;">✗ Please select a role</small>
+							</div>								<div class="role-description" style="margin-top: 15px; padding: 15px; background-color: #f8f9fa; border-radius: 4px; border-left: 4px solid #667eea;">
+									<div id="operations_manager_desc" class="role-desc" style="display: none;">
+										<h4 style="margin: 0 0 10px; color: #667eea;">Operations Manager</h4>
+										<p style="margin: 0; color: #666;">Can manage: User Management, Points Management, Schedule Management</p>
+										<p style="margin: 5px 0 0; color: #666; font-size: 0.9em;">• Can be assigned to specific barangays</p>
+									</div>
+									<div id="content_rewards_manager_desc" class="role-desc" style="display: none;">
+										<h4 style="margin: 0 0 10px; color: #667eea;">Content & Rewards Manager</h4>
+										<p style="margin: 0; color: #666;">Can manage: Rewards Management, Learning Management, Games Management</p>
+									</div>
+									<div id="security_analyst_desc" class="role-desc" style="display: none;">
+										<h4 style="margin: 0 0 10px; color: #667eea;">Security Analyst</h4>
+										<p style="margin: 0; color: #666;">Can manage: Security Management + View-only access to all sections</p>
+									</div>
+								</div>
+								
+								<div id="barangay_selection" class="form-group" style="margin-top: 20px; display: none;">
+									<label style="display: block; margin-bottom: 10px; font-weight: 600;">Assigned Barangays (Operations Manager only)</label>
+									<div class="barangay-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; max-height: 200px; overflow-y: auto; border: 1px solid #ddd; padding: 15px; border-radius: 4px; background-color: #f9f9f9;">
+										<!-- Select All Option -->
+										<label style="display: flex; align-items: center; padding: 5px; cursor: pointer; background: #e3f2fd; border: 1px solid #2196f3; border-radius: 4px; margin-bottom: 5px;" 
+											   onmouseover="this.style.background='#bbdefb';"
+											   onmouseout="this.style.background='#e3f2fd';">
+											<input type="checkbox" id="select_all_barangays_create" onclick="toggleAllBarangays('create')" style="margin-right: 8px;">
+											<span style="font-weight: 600; color: #1976d2;">All Barangays</span>
+										</label>
+										{% for barangay in barangays %}
+										<label class="barangay-option-create" style="display: flex; align-items: center; padding: 5px; cursor: pointer;">
+											<input type="checkbox" name="barangays" value="{{ barangay.id }}" class="barangay-checkbox-create" onclick="updateSelectAll('create')" style="margin-right: 8px;">
+											<span>{{ barangay.name }}</span>
+										</label>
+										{% endfor %}
+									</div>
+									<small style="color: #666; margin-top: 5px; display: block;">Select barangays this Operations Manager can manage. Choose "All Barangays" for unrestricted access.</small>
+									<small id="barangay-error" style="color: #dc2626; display: none; margin-top: 5px;">✗ Please select at least one barangay for Operations Manager</small>
+								</div>
+								
+								<div class="form-actions" style="margin-top: 30px; text-align: right; border-top: 1px solid #eee; padding-top: 20px;">
+									<button type="reset" class="cancel-btn" style="margin-right: 10px; padding: 10px 20px; border: 1px solid #6c757d; background-color: #6c757d; color: white; border-radius: 4px; cursor: pointer;">
+										<i class='bx bx-x'></i> Reset Form
+									</button>
+									<button type="submit" class="save-btn" style="padding: 10px 20px; border: 1px solid #28a745; background-color: #28a745; color: white; border-radius: 4px; cursor: pointer;">
+										<i class='bx bx-plus'></i> Create Admin Account
+									</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+
+				<!-- Approved Admins Tab -->
+				<div id="approved-tab" class="tab-content">
+					<div class="user-container">
+						<div class="user-header">
+							<h3>Approved Admin Accounts</h3>
+							<div class="user-icons">
+								<input type="text" id="adminSearchInput" placeholder="Search admin accounts..." style="padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 8px; width: 280px; font-size: 0.9rem; margin-right: 10px;">
+							</div>
+						</div>
+
+						<div class="user-table-wrapper">
+							{% if approved_admins %}
+							<table class="user-table">
+								<thead>
+									<tr>
+										<th>Username</th>
+										<th>Full Name</th>
+										<th>Email</th>
+										<th>Role</th>
+										<th>Assigned Barangays</th>
+										<th>Approved By</th>
+										<th>Approval Date</th>
+										<th>Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for admin in approved_admins %}
+									{% if admin.id != admin_user.id %}
+									<tr>
+										<td>{{ admin.username }}</td>
+										<td>{{ admin.full_name|title }}</td>
+										<td><a href="mailto:{{ admin.email }}" style="color: #6366f1; text-decoration: none;">{{ admin.email }}</a></td>
+										<td>
+											<span class="user-status" style="background-color: #10b981;">{{ admin.get_role_display }}</span>
+										</td>
+										<td>
+											{% if admin.role == 'operations_manager' %}
+												{% if admin.assigned_barangays.all %}
+													{% with barangay_count=admin.assigned_barangays.count %}
+														{% if barangay_count > 3 %}
+															<div class="barangay-tooltip-wrapper" style="position: relative; display: inline-block;">
+																<button class="barangay-count-badge" style="background-color: #e3f2fd; color: #1976d2; border: none; padding: 6px 12px; border-radius: 12px; font-size: 0.85em; cursor: pointer; font-weight: 600; box-shadow: 0 2px 4px rgba(25, 118, 210, 0.2); transition: all 0.2s;">
+																	{{ barangay_count }} Barangays <i class='bx bx-chevron-down' style="font-size: 1.2em; vertical-align: middle;"></i>
+																</button>
+																<div class="barangay-tooltip" style="visibility: hidden; opacity: 0; position: absolute; left: 50%; transform: translateX(-50%); background-color: white; color: #333; padding: 12px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 100; width: 250px; max-height: 300px; overflow-y: auto; top: 100%; margin-top: 8px; transition: all 0.3s; border: 1px solid #e0e0e0;">
+																	<div style="font-weight: 600; margin-bottom: 8px; color: #667eea; border-bottom: 1px solid #f0f0f0; padding-bottom: 6px;">Assigned Barangays:</div>
+																	<div style="display: flex; flex-wrap: wrap; gap: 4px;">
+																		{% for barangay in admin.assigned_barangays.all %}
+																			<span class="barangay-tag" style="display: inline-block; background-color: #e3f2fd; color: #1976d2; padding: 4px 10px; border-radius: 12px; font-size: 0.8em;">
+																				{{ barangay.name }}
+																			</span>
+																		{% endfor %}
+																	</div>
+																</div>
+															</div>
+														{% else %}
+															<div class="barangay-list" style="display: flex; flex-wrap: wrap; gap: 4px; max-width: 250px;">
+																{% for barangay in admin.assigned_barangays.all %}
+																	<span class="barangay-tag" style="display: inline-block; background-color: #e3f2fd; color: #1976d2; padding: 4px 10px; border-radius: 12px; font-size: 0.8em;">
+																		{{ barangay.name }}
+																	</span>
+																{% endfor %}
+															</div>
+														{% endif %}
+													{% endwith %}
+												{% else %}
+													<span style="color: #666; font-style: italic;">All Barangays</span>
+												{% endif %}
+											{% else %}
+												<span style="color: #666; font-style: italic;">N/A</span>
+											{% endif %}
+										</td>
+										<td>{{ admin.approved_by.full_name|default:"System" }}</td>
+										<td>{{ admin.approval_date|date:"M d, Y H:i"|default:"N/A" }}</td>
+										<td>
+											<div class="action-buttons" style="display: flex; gap: 8px; align-items: center;">
+												<button type="button" class="icon-btn icon-btn-edit" data-admin-id="{{ admin.id }}" data-admin-username="{{ admin.username }}" data-admin-fullname="{{ admin.full_name }}" data-admin-email="{{ admin.email }}" data-admin-role="{{ admin.role }}" onclick="showEditAdminModal(this)" title="Edit Admin">
+													<i class='bx bx-edit'></i>
+												</button>
+												{% if admin.role == 'operations_manager' %}
+												<button type="button" class="icon-btn icon-btn-barangay" data-admin-id="{{ admin.id }}" data-admin-username="{{ admin.username }}" onclick="showEditBarangayModal(this)" title="Edit Barangays">
+													<i class='bx bx-map'></i>
+												</button>
+												{% endif %}
+												<button type="button" class="icon-btn icon-btn-reset" data-admin-id="{{ admin.id }}" data-admin-username="{{ admin.username }}" onclick="showResetPasswordModal(this)" title="Reset Password">
+													<i class='bx bx-key'></i>
+												</button>
+												<button type="button" class="icon-btn icon-btn-suspend" data-admin-id="{{ admin.id }}" data-admin-username="{{ admin.username }}" onclick="showSuspendModal(this)" title="Suspend">
+													<i class='bx bx-pause'></i>
+												</button>
+												<button type="button" class="icon-btn icon-btn-delete" data-admin-id="{{ admin.id }}" data-admin-username="{{ admin.username }}" onclick="showDeleteAdminModal(this)" title="Delete Admin">
+													<i class='bx bx-trash'></i>
+												</button>
+											</div>
+										</td>
+									</tr>
+									{% endif %}
+									{% endfor %}
+								</tbody>
+							</table>
+							{% else %}
+							<div style="text-align: center; padding: 40px; color: #666;">
+								<i class='bx bx-user-check' style="font-size: 3rem; color: #6b7280; margin-bottom: 15px;"></i>
+								<h4>No approved admin accounts</h4>
+								<p>No admin accounts have been approved yet.</p>
+							</div>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+
+
+
+				<!-- Suspended Admins Tab -->
+				<div id="suspended-tab" class="tab-content">
+				<div class="user-container">
+					<div class="user-header">
+						<h3>Suspended Admin Accounts</h3>
+						<div class="user-icons">
+							<input type="text" id="suspendedSearchInput" placeholder="Search suspended admins..." style="padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 8px; width: 280px; font-size: 0.9rem; margin-right: 10px;">
+						</div>
+					</div>						<div class="user-table-wrapper">
+							{% if suspended_admins %}
+							<table class="user-table">
+								<thead>
+									<tr>
+										<th>Username</th>
+										<th>Full Name</th>
+										<th>Email</th>
+										<th>Role</th>
+										<th>Suspended By</th>
+										<th>Suspension Date</th>
+										<th>Reason</th>
+										<th>Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for admin in suspended_admins %}
+									<tr>
+										<td>{{ admin.username }}</td>
+										<td>{{ admin.full_name|title }}</td>
+										<td><a href="mailto:{{ admin.email }}" style="color: #6366f1; text-decoration: none;">{{ admin.email }}</a></td>
+										<td>
+											<span class="user-status" style="background-color: #f59e0b;">{{ admin.get_role_display }}</span>
+										</td>
+										<td>{{ admin.approved_by.full_name|default:"System" }}</td>
+										<td>{{ admin.approval_date|date:"M d, Y H:i"|default:"N/A" }}</td>
+										<td>{{ admin.rejection_reason|default:"No reason provided" }}</td>
+										<td>
+											<div class="action-buttons" style="display: flex; gap: 8px; align-items: center;">
+												<button type="button" class="icon-btn icon-btn-success" data-admin-id="{{ admin.id }}" data-admin-username="{{ admin.username }}" onclick="unsuspendAdmin(this)" title="Unsuspend Admin">
+													<i class='bx bx-play'></i>
+												</button>
+												<button type="button" class="icon-btn icon-btn-delete" data-admin-id="{{ admin.id }}" data-admin-username="{{ admin.username }}" onclick="showDeleteAdminModal(this)" title="Delete Admin">
+													<i class='bx bx-trash'></i>
+												</button>
+											</div>
+										</td>
+									</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+							{% else %}
+							<div style="text-align: center; padding: 40px; color: #666;">
+								<i class='bx bx-shield-check' style="font-size: 3rem; color: #10b981; margin-bottom: 15px;"></i>
+								<h4>No suspended admin accounts</h4>
+								<p>All admin accounts are in good standing.</p>
+							</div>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+
+				<!-- Locked Accounts Tab -->
+				<div id="locked-tab" class="tab-content">
+					<div class="user-container">
+						<div class="user-header">
+							<h3>Locked Admin Accounts</h3>
+							<div class="user-icons">
+								<input type="text" id="lockedSearchInput" placeholder="Search locked accounts..." style="padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 8px; width: 280px; font-size: 0.9rem; margin-right: 10px;">
+							</div>
+						</div>
+						<div class="user-content">
+							{% if locked_admins %}
+							<table class="user-table" style="width: 100%; border-collapse: collapse;">
+								<thead>
+									<tr style="background-color: #f8f9fa; border-bottom: 2px solid #dee2e6;">
+										<th style="padding: 15px; text-align: left; font-weight: 600; color: #495057;">Full Name</th>
+										<th style="padding: 15px; text-align: left; font-weight: 600; color: #495057;">Username</th>
+										<th style="padding: 15px; text-align: left; font-weight: 600; color: #495057;">Email</th>
+										<th style="padding: 15px; text-align: left; font-weight: 600; color: #495057;">Role</th>
+										<th style="padding: 15px; text-align: left; font-weight: 600; color: #495057;">Locked Until</th>
+										<th style="padding: 15px; text-align: left; font-weight: 600; color: #495057;">Failed Attempts</th>
+										<th style="padding: 15px; text-align: left; font-weight: 600; color: #495057;">Actions</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for admin in locked_admins %}
+									<tr style="border-bottom: 1px solid #dee2e6;">
+										<td style="padding: 15px; vertical-align: middle;">
+											<div style="display: flex; align-items: center;">
+												<div style="width: 40px; height: 40px; background-color: #ef4444; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+													<i class='bx bx-lock-alt' style="color: white; font-size: 1.2rem;"></i>
+												</div>
+												<div>
+													<div style="font-weight: 500; color: #212529;">{{ admin.full_name }}</div>
+													<div style="font-size: 0.85rem; color: #6c757d;">Locked Account</div>
+												</div>
+											</div>
+										</td>
+										<td style="padding: 15px; color: #495057;">{{ admin.username }}</td>
+										<td style="padding: 15px; color: #495057;"><a href="mailto:{{ admin.email }}" style="color: #6366f1; text-decoration: none;">{{ admin.email }}</a></td>
+										<td style="padding: 15px;">
+											<span class="role-badge role-{{ admin.role }}" style="padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 500;">
+												{{ admin.get_role_display }}
+											</span>
+										</td>
+										<td style="padding: 15px; color: #495057;">
+											{% if admin.account_locked_until %}
+												{{ admin.account_locked_until|date:"M d, Y H:i" }}
+											{% else %}
+												Manual Lock
+											{% endif %}
+										</td>
+										<td style="padding: 15px;">
+											<span style="color: #dc3545; font-weight: 600;">{{ admin.failed_login_attempts }}</span>
+										</td>
+										<td style="padding: 15px;">
+											<div class="action-buttons" style="display: flex; gap: 8px; align-items: center;">
+												<button type="button" class="icon-btn icon-btn-success" data-admin-id="{{ admin.id }}" data-admin-username="{{ admin.username }}" onclick="unlockAdmin(this)" title="Unlock Account">
+													<i class='bx bx-lock-open'></i>
+												</button>
+												<button type="button" class="icon-btn icon-btn-reset" data-admin-id="{{ admin.id }}" data-admin-username="{{ admin.username }}" onclick="showResetPasswordModal(this)" title="Reset Password">
+													<i class='bx bx-key'></i>
+												</button>
+												<button type="button" class="icon-btn icon-btn-delete" data-admin-id="{{ admin.id }}" data-admin-username="{{ admin.username }}" onclick="showDeleteAdminModal(this)" title="Delete Admin">
+													<i class='bx bx-trash'></i>
+												</button>
+											</div>
+										</td>
+									</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+							{% else %}
+							<div style="text-align: center; padding: 40px; color: #666;">
+								<i class='bx bx-lock-open' style="font-size: 3rem; color: #6b7280; margin-bottom: 15px;"></i>
+								<h4>No locked accounts</h4>
+								<p>No admin accounts are currently locked.</p>
+							</div>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+
+				<!-- Admin History Tab -->
+				<div id="history-tab" class="tab-content">
+					<div class="user-container">
+						<div class="user-header">
+							<h3>Admin Action History</h3>
+							<div class="user-icons">
+								<i class='bx bx-history'></i>
+							</div>
+						</div>
+
+						<div class="user-table-wrapper">
+							<!-- History Filters -->
+							<div style="padding: 15px 20px; background-color: #f8f9fa; border-bottom: 1px solid #e5e5e5; display: flex; gap: 15px; align-items: center; flex-wrap: wrap;">
+								<div style="display: flex; align-items: center; gap: 8px;">
+									<label style="font-weight: 500; color: #374151;">Filter by Action:</label>
+									<select id="actionFilter" onchange="filterHistory()" style="padding: 5px 10px; border: 1px solid #d1d5db; border-radius: 4px;">
+										<option value="">All Actions</option>
+										<option value="password_reset">Password Reset</option>
+										<option value="create_admin">Create Admin</option>
+										<option value="approve_admin">Approve Admin</option>
+										<option value="suspend_admin">Suspend Admin</option>
+										<option value="edit_barangays">Edit Barangays</option>
+										<option value="login">Login</option>
+										<option value="logout">Logout</option>
+									</select>
+								</div>
+								<div style="display: flex; align-items: center; gap: 8px;">
+									<label style="font-weight: 500; color: #374151;">Filter by Admin:</label>
+									<select id="adminFilter" onchange="filterHistory()" style="padding: 5px 10px; border: 1px solid #d1d5db; border-radius: 4px;">
+										<option value="">All Admins</option>
+										{% for admin in all_admins %}
+										<option value="{{ admin.username }}">{{ admin.full_name }} ({{ admin.username }})</option>
+										{% endfor %}
+									</select>
+								</div>
+								<div style="display: flex; align-items: center; gap: 8px;">
+									<label style="font-weight: 500; color: #374151;">Show Last:</label>
+									<select id="limitFilter" onchange="filterHistory()" style="padding: 5px 10px; border: 1px solid #d1d5db; border-radius: 4px;">
+										<option value="50">50 records</option>
+										<option value="100">100 records</option>
+										<option value="200">200 records</option>
+										<option value="500">500 records</option>
+									</select>
+								</div>
+								<button onclick="refreshHistory()" style="padding: 6px 12px; background-color: #6366f1; color: white; border: none; border-radius: 4px; cursor: pointer; display: flex; align-items: center; gap: 5px;" onmouseover="this.style.backgroundColor='#4f46e5'" onmouseout="this.style.backgroundColor='#6366f1'">
+									<i class='bx bx-refresh'></i> Refresh
+								</button>
+							</div>
+
+							<!-- History Table -->
+							<table class="user-table">
+								<thead>
+									<tr>
+										<th style="width: 120px;">Date/Time</th>
+										<th style="width: 100px;">Admin</th>
+										<th style="width: 100px;">Action</th>
+										<th style="width: 100px;">Target</th>
+										<th>Description</th>
+										<th style="width: 100px;">IP Address</th>
+									</tr>
+								</thead>
+								<tbody id="historyTableBody">
+									{% if admin_history %}
+									{% for record in admin_history %}
+									<tr class="history-record" data-action="{{ record.action }}" data-admin="{{ record.admin_user.username }}">
+										<td style="font-size: 12px;">
+											<div style="font-weight: 500;">{{ record.timestamp|date:"M d, Y" }}</div>
+											<div style="color: #666;">{{ record.timestamp|date:"H:i:s" }}</div>
+										</td>
+										<td>
+											<div style="font-weight: 500; font-size: 13px;">{{ record.admin_user.full_name }}</div>
+											<div style="color: #666; font-size: 11px;">{{ record.admin_user.username }}</div>
+										</td>
+										<td>
+											<span style="display: flex; align-items: center; gap: 5px;">
+												<i class='bx {{ record.get_action_icon }}' style="color: #6366f1;"></i>
+												<span style="font-size: 12px; font-weight: 500; color: #374151;">{{ record.get_action_display }}</span>
+											</span>
+										</td>
+										<td>
+											{% if record.target_admin %}
+											<div style="font-weight: 500; font-size: 13px;">{{ record.target_admin.full_name }}</div>
+											<div style="color: #666; font-size: 11px;">{{ record.target_admin.username }}</div>
+											{% else %}
+											<span style="color: #9ca3af; font-style: italic; font-size: 12px;">System</span>
+											{% endif %}
+										</td>
+										<td style="font-size: 13px; color: #374151;">
+											{{ record.description }}
+											{% if record.details %}
+											<div style="font-size: 11px; color: #6b7280; margin-top: 2px;">
+												{% for key, value in record.details.items %}
+												<strong>{{ key }}:</strong> {{ value }}<br>
+												{% endfor %}
+											</div>
+											{% endif %}
+										</td>
+										<td style="font-size: 12px; color: #6b7280;">{{ record.ip_address }}</td>
+									</tr>
+									{% endfor %}
+									{% else %}
+									<tr>
+										<td colspan="6" style="text-align: center; padding: 40px; color: #666;">
+											<i class='bx bx-history' style="font-size: 3rem; color: #d1d5db; margin-bottom: 15px; display: block;"></i>
+											<h4>No admin history found</h4>
+											<p>Admin actions will appear here as they occur.</p>
+										</td>
+									</tr>
+									{% endif %}
+								</tbody>
+							</table>
+
+							<!-- Pagination -->
+							{% if admin_history.has_other_pages %}
+							<div style="padding: 15px 20px; background-color: #f8f9fa; border-top: 1px solid #e5e5e5; display: flex; justify-content: center; align-items: center; gap: 10px;">
+								{% if admin_history.has_previous %}
+								<a href="?page=1&tab=history" style="padding: 8px 12px; background-color: #6366f1; color: white; text-decoration: none; border-radius: 4px; font-size: 12px;">&laquo; First</a>
+								<a href="?page={{ admin_history.previous_page_number }}&tab=history" style="padding: 8px 12px; background-color: #6366f1; color: white; text-decoration: none; border-radius: 4px; font-size: 12px;">&lsaquo; Prev</a>
+								{% endif %}
+								
+								<span style="padding: 8px 16px; background-color: #e5e7eb; border-radius: 4px; font-size: 12px; font-weight: 500;">
+									Page {{ admin_history.number }} of {{ admin_history.paginator.num_pages }}
+								</span>
+								
+								{% if admin_history.has_next %}
+								<a href="?page={{ admin_history.next_page_number }}&tab=history" style="padding: 8px 12px; background-color: #6366f1; color: white; text-decoration: none; border-radius: 4px; font-size: 12px;">Next &rsaquo;</a>
+								<a href="?page={{ admin_history.paginator.num_pages }}&tab=history" style="padding: 8px 12px; background-color: #6366f1; color: white; text-decoration: none; border-radius: 4px; font-size: 12px;">Last &raquo;</a>
+								{% endif %}
+							</div>
+							{% endif %}
+						</div>
+					</div>
+				</div>
+
+				</div>
+
+			<!-- Suspend Modal -->
+			<div id="suspendModal" class="modal-overlay" style="display: none;">
+				<div class="modal-content" style="padding: 35px;">
+					<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 25px;">
+						<div>
+							<h3 style="margin: 0 0 8px 0; font-size: 1.5rem; color: #1f2937; display: flex; align-items: center; gap: 10px;">
+								<i class='bx bx-block' style="color: #f59e0b; font-size: 1.6rem;"></i>
+								Suspend Admin Account
+							</h3>
+							<p style="color: #6b7280; margin: 0; font-size: 0.9rem;">Temporarily disable admin access</p>
+						</div>
+						<button type="button" onclick="closeSuspendModal()" style="background: #f3f4f6; border: none; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#e5e7eb'; this.style.transform='rotate(90deg)'" onmouseout="this.style.background='#f3f4f6'; this.style.transform='rotate(0deg)'">
+							<i class='bx bx-x' style="font-size: 1.6rem; color: #6b7280;"></i>
+						</button>
+					</div>
+
+					<form id="suspendAdminForm" method="POST" onsubmit="return showConfirmation(event, 'update', 'Admin Status', 'suspendAdminForm');">
+						{% csrf_token %}
+						<input type="hidden" id="suspendAdminId" name="admin_id">
+						<input type="hidden" name="action" value="suspend">
+
+						<div style="background: #fffbeb; border: 2px solid #fcd34d; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+							<div style="display: flex; align-items: start; gap: 12px;">
+								<i class='bx bx-info-circle' style="font-size: 1.5rem; color: #f59e0b; flex-shrink: 0; margin-top: 2px;"></i>
+								<div>
+									<h4 style="color: #92400e; margin: 0 0 8px 0; font-size: 1rem; font-weight: 600;">Suspending Admin</h4>
+									<p style="color: #78350f; margin: 0; font-size: 0.9rem; line-height: 1.5;">You are about to suspend: <strong id="suspendAdminUsername" style="color: #f59e0b;">-</strong></p>
+								</div>
+							</div>
+						</div>
+
+						<div style="margin-bottom: 20px;">
+							<label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+								<i class='bx bx-message-detail' style="color: #667eea; font-size: 1.1rem;"></i> Suspension Reason
+							</label>
+							<textarea id="suspensionReason" name="suspension_reason" required rows="4" placeholder="Enter reason for suspension..." style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease; resize: vertical; font-family: inherit;"></textarea>
+						</div>
+
+						<div class="modal-actions" style="display: flex; gap: 12px; margin-top: 30px;">
+							<button type="button" onclick="closeSuspendModal()" style="flex: 1; padding: 14px 24px; border: 2px solid #e5e7eb; background: white; color: #6b7280; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">Cancel</button>
+							<button type="submit" style="flex: 1; padding: 14px 24px; border: none; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);">Suspend Admin</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+
+
+			<!-- Edit Barangay Modal -->
+			<div id="editBarangayModal" class="modal-overlay" style="display: none;">
+				<div class="modal-content" style="padding: 35px; max-width: 650px;">
+					<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 25px;">
+						<div>
+							<h3 style="margin: 0 0 8px 0; font-size: 1.5rem; color: #1f2937; display: flex; align-items: center; gap: 10px;">
+								<i class='bx bx-map-alt' style="color: #667eea; font-size: 1.6rem;"></i>
+								Edit Assigned Barangays
+							</h3>
+							<p style="color: #6b7280; margin: 0; font-size: 0.9rem;">Manage barangay access permissions</p>
+						</div>
+						<button type="button" onclick="closeEditBarangayModal()" style="background: #f3f4f6; border: none; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#e5e7eb'; this.style.transform='rotate(90deg)'" onmouseout="this.style.background='#f3f4f6'; this.style.transform='rotate(0deg)'">
+							<i class='bx bx-x' style="font-size: 1.6rem; color: #6b7280;"></i>
+						</button>
+					</div>
+
+					<form id="editBarangayForm" method="POST" onsubmit="return showConfirmation(event, 'update', 'Barangay Assignment', 'editBarangayForm');">
+						{% csrf_token %}
+						<input type="hidden" id="editBarangayAdminId" name="admin_id">
+						<input type="hidden" name="action" value="edit_barangays">
+
+						<div style="background: #f0f9ff; border: 2px solid #bae6fd; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+							<p style="margin: 0; color: #0c4a6e; font-size: 0.9rem;">Editing barangay assignments for: <strong id="editBarangayAdminUsername" style="color: #667eea;">-</strong></p>
+						</div>
+
+						<div style="margin-bottom: 20px;">
+							<label style="display: block; margin-bottom: 12px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+								<i class='bx bx-list-check' style="color: #667eea; font-size: 1.1rem;"></i> Assigned Barangays
+							</label>
+							<div class="barangay-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; max-height: 350px; overflow-y: auto; border: 2px solid #e5e7eb; padding: 20px; border-radius: 12px; background: #fafafa;">
+								<!-- Select All Option -->
+								<label style="display: flex; align-items: center; padding: 12px 14px; cursor: pointer; background: #f0f9ff; border: 2px solid #bae6fd; border-radius: 8px; margin-bottom: 6px; transition: all 0.2s; grid-column: 1 / -1;" 
+									   onmouseover="this.style.background='#e0f2fe'; this.style.borderColor='#7dd3fc';"
+									   onmouseout="this.style.background='#f0f9ff'; this.style.borderColor='#bae6fd';">
+									<input type="checkbox" id="select_all_barangays_edit" onclick="toggleAllBarangays('edit')" style="margin-right: 10px; width: 18px; height: 18px; cursor: pointer;">
+									<span style="font-weight: 600; color: #0369a1; font-size: 0.95rem;"><i class='bx bx-globe' style="margin-right: 6px;"></i>All Barangays</span>
+								</label>
+								{% for barangay in barangays %}
+								<label class="barangay-option-edit" style="display: flex; align-items: center; padding: 12px 14px; cursor: pointer; background: white; border: 2px solid #e5e7eb; border-radius: 8px; transition: all 0.2s;" onmouseover="this.style.backgroundColor='#f9fafb'; this.style.borderColor='#d1d5db';" onmouseout="this.style.backgroundColor='white'; this.style.borderColor='#e5e7eb';">
+									<input type="checkbox" name="barangays" value="{{ barangay.id }}" class="barangay-checkbox-edit" onclick="updateSelectAll('edit')" style="margin-right: 10px; width: 18px; height: 18px; cursor: pointer;" id="edit_barangay_{{ barangay.id }}">
+									<span style="color: #374151; font-size: 0.9rem;">{{ barangay.name }}</span>
+								</label>
+								{% endfor %}
+							</div>
+							<small style="color: #6b7280; font-size: 0.85rem; margin-top: 10px; display: block;">Select barangays this Operations Manager can manage. Choose "All Barangays" for unrestricted access.</small>
+						</div>
+
+						<div class="modal-actions" style="display: flex; gap: 12px; margin-top: 30px;">
+							<button type="button" onclick="closeEditBarangayModal()" style="flex: 1; padding: 14px 24px; border: 2px solid #e5e7eb; background: white; color: #6b7280; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">Cancel</button>
+							<button type="submit" style="flex: 1; padding: 14px 24px; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);">Save Changes</button>
+						</div>
+					</form>
+				</div>
+			</div>
+
+		</main>
+		 
+	</section>
+
+	<!-- Edit Admin Modal -->
+	<div id="editAdminModal" class="modal-overlay" style="display: none;">
+		<div class="modal-content" style="padding: 35px; max-width: 550px;">
+			<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 25px;">
+				<div>
+					<h3 style="margin: 0 0 8px 0; font-size: 1.5rem; color: #1f2937; display: flex; align-items: center; gap: 10px;">
+						<i class='bx bx-edit-alt' style="color: #667eea; font-size: 1.6rem;"></i>
+						Edit Admin Account
+					</h3>
+					<p style="color: #6b7280; margin: 0; font-size: 0.9rem;">Update admin information and permissions</p>
+				</div>
+				<button type="button" onclick="closeEditAdminModal()" style="background: #f3f4f6; border: none; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#e5e7eb'; this.style.transform='rotate(90deg)'" onmouseout="this.style.background='#f3f4f6'; this.style.transform='rotate(0deg)'">
+					<i class='bx bx-x' style="font-size: 1.6rem; color: #6b7280;"></i>
+				</button>
+			</div>
+
+			<form id="editAdminForm" method="post" onsubmit="return showConfirmation(event, 'update', 'Admin', 'editAdminForm');">
+				{% csrf_token %}
+				<input type="hidden" name="action" value="edit_admin">
+				<input type="hidden" name="admin_id" id="editAdminId">
+
+				<div style="background: #f0f9ff; border: 2px solid #bae6fd; border-radius: 12px; padding: 16px; margin-bottom: 20px;">
+					<p style="margin: 0; color: #0c4a6e; font-size: 0.9rem;"><i class='bx bx-info-circle' style="margin-right: 6px;"></i>Editing admin: <strong id="editAdminUsername" style="color: #667eea;">-</strong></p>
+				</div>
+
+				<div style="margin-bottom: 20px;">
+					<label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+						<i class='bx bx-user' style="color: #667eea; font-size: 1.1rem;"></i> Full Name <span style="color: #ef4444;">*</span>
+					</label>
+					<input type="text" id="edit_full_name" name="full_name" required style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease;">
+				</div>
+
+				<div style="margin-bottom: 20px;">
+					<label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+						<i class='bx bx-envelope' style="color: #667eea; font-size: 1.1rem;"></i> Email Address <span style="color: #ef4444;">*</span>
+					</label>
+					<input type="email" id="edit_email" name="email" required style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease;">
+					<span id="edit-email-error" class="error-message" style="color: #ef4444; font-size: 0.85rem; display: none; margin-top: 6px;"></span>
+					<span id="edit-email-success" class="success-message" style="color: #10b981; font-size: 0.85rem; display: none; margin-top: 6px;">✓ Email is available</span>
+				</div>
+
+				<div style="margin-bottom: 20px;">
+					<label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+						<i class='bx bx-shield' style="color: #667eea; font-size: 1.1rem;"></i> Role <span style="color: #ef4444;">*</span>
+					</label>
+					<select id="edit_role" name="role" required style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease; background: white; cursor: pointer;">
+						<option value="operations_manager">Operations Manager</option>
+						<option value="content_rewards_manager">Content & Rewards Manager</option>
+						<option value="security_analyst">Security Analyst</option>
+					</select>
+					<small style="color: #6b7280; font-size: 0.85rem; margin-top: 6px; display: block;">Super Admin role cannot be changed for security reasons.</small>
+				</div>
+
+				<div style="display: flex; gap: 12px; margin-top: 30px;">
+					<button type="button" onclick="closeEditAdminModal()" style="flex: 1; padding: 14px 24px; border: 2px solid #e5e7eb; background: white; color: #6b7280; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">Cancel</button>
+					<button type="submit" style="flex: 1; padding: 14px 24px; border: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);"><i class='bx bx-save' style="margin-right: 6px;"></i>Save Changes</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<!-- Delete Admin Modal -->
+	<div id="deleteAdminModal" class="modal-overlay" style="display: none;">
+		<div class="modal-content" style="padding: 35px; max-width: 550px;">
+			<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 25px;">
+				<div>
+					<h3 style="margin: 0 0 8px 0; font-size: 1.5rem; color: #1f2937; display: flex; align-items: center; gap: 10px;">
+						<i class='bx bx-user-x' style="color: #ef4444; font-size: 1.6rem;"></i>
+						Delete Admin Account
+					</h3>
+					<p style="color: #6b7280; margin: 0; font-size: 0.9rem;">This action cannot be undone</p>
+				</div>
+				<button type="button" onclick="closeDeleteAdminModal()" style="background: #f3f4f6; border: none; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#e5e7eb'; this.style.transform='rotate(90deg)'" onmouseout="this.style.background='#f3f4f6'; this.style.transform='rotate(0deg)'">
+					<i class='bx bx-x' style="font-size: 1.6rem; color: #6b7280;"></i>
+				</button>
+			</div>
+
+			<form id="deleteAdminForm" method="post" onsubmit="return showConfirmation(event, 'delete', 'Admin', 'deleteAdminForm');">
+				{% csrf_token %}
+				<input type="hidden" name="action" value="delete_admin">
+				<input type="hidden" name="admin_id" id="deleteAdminId">
+
+				<div class="danger-box" style="background: #fee2e2; border: 2px solid #fecaca; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+					<div style="display: flex; align-items: start; gap: 12px;">
+						<i class='bx bx-error' style="font-size: 1.5rem; color: #ef4444; flex-shrink: 0; margin-top: 2px;"></i>
+						<div>
+							<h4 style="color: #991b1b; margin: 0 0 8px 0; font-size: 1rem; font-weight: 600;">Warning</h4>
+							<p style="color: #7f1d1d; margin: 0; font-size: 0.9rem; line-height: 1.5;">You are about to delete the admin account: <strong id="deleteAdminUsername" style="color: #ef4444;">-</strong></p>
+						</div>
+					</div>
+				</div>
+
+				<div style="background: #fffbeb; border: 2px solid #fcd34d; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+					<h4 style="color: #92400e; margin: 0 0 12px 0; font-size: 0.95rem; font-weight: 600;">⚠️ This action will:</h4>
+					<ul style="margin: 0; padding-left: 22px; color: #78350f; font-size: 0.9rem; line-height: 1.8;">
+						<li>Deactivate the admin account permanently</li>
+						<li>Remove all access permissions</li>
+						<li>Preserve history and logs for audit purposes</li>
+						<li>This action cannot be easily undone</li>
+					</ul>
+				</div>
+
+				<div style="margin-bottom: 20px;">
+					<label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+						<i class='bx bx-message-detail' style="color: #667eea; font-size: 1.1rem;"></i> Reason for Deletion <span style="color: #ef4444;">*</span>
+					</label>
+					<textarea id="deletion_reason" name="deletion_reason" required rows="3" placeholder="Please provide a reason for deleting this admin account..." style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease; resize: vertical; font-family: inherit;"></textarea>
+					<small style="color: #6b7280; font-size: 0.85rem; margin-top: 6px; display: block;">This will be logged for security and auditing purposes.</small>
+				</div>
+
+				<div class="form-group" style="margin-bottom: 20px;">
+					<label style="display: flex; align-items: flex-start; cursor: pointer; padding: 14px; background: #fee2e2; border: 2px solid #fecaca; border-radius: 10px;">
+						<input type="checkbox" id="confirmDelete" required style="margin-right: 12px; margin-top: 2px; width: 18px; height: 18px; cursor: pointer;">
+						<span style="color: #991b1b; font-size: 0.9rem; line-height: 1.5;">
+							I understand that this action will permanently deactivate the admin account and cannot be easily undone. I have documented the reason for this deletion.
+						</span>
+					</label>
+				</div>
+
+				<div class="modal-actions" style="display: flex; gap: 12px; margin-top: 30px;">
+					<button type="button" onclick="closeDeleteAdminModal()" style="flex: 1; padding: 14px 24px; border: 2px solid #e5e7eb; background: white; color: #6b7280; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">Cancel</button>
+					<button type="submit" style="flex: 1; padding: 14px 24px; border: none; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); color: white; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);"><i class='bx bx-trash' style="margin-right: 6px;"></i>Delete Admin</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<!-- Reset Password Modal -->
+	<div id="resetPasswordModal" class="modal-overlay" style="display: none;">
+		<div class="modal-content" style="padding: 35px; max-width: 550px;">
+			<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 25px;">
+				<div>
+					<h3 style="margin: 0 0 8px 0; font-size: 1.5rem; color: #1f2937; display: flex; align-items: center; gap: 10px;">
+						<i class='bx bx-key' style="color: #f59e0b; font-size: 1.6rem;"></i>
+						Reset Admin Password
+					</h3>
+					<p style="color: #6b7280; margin: 0; font-size: 0.9rem;">Generate new temporary credentials</p>
+				</div>
+				<button type="button" onclick="closeResetPasswordModal()" style="background: #f3f4f6; border: none; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#e5e7eb'; this.style.transform='rotate(90deg)'" onmouseout="this.style.background='#f3f4f6'; this.style.transform='rotate(0deg)'">
+					<i class='bx bx-x' style="font-size: 1.6rem; color: #6b7280;"></i>
+				</button>
+			</div>
+
+			<form id="resetPasswordForm" method="post" onsubmit="return showConfirmation(event, 'update', 'Password', 'resetPasswordForm');">
+				{% csrf_token %}
+				<input type="hidden" name="action" value="reset_password">
+				<input type="hidden" name="admin_id" id="resetAdminId">
+
+				<div style="background: #fffbeb; border: 2px solid #fcd34d; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+					<p style="margin: 0; color: #92400e; font-size: 0.9rem; display: flex; align-items: center; gap: 8px;">
+						<i class='bx bx-info-circle' style="font-size: 1.3rem; flex-shrink: 0;"></i>
+						<span><strong>Warning:</strong> This will generate a new temporary password for <strong id="resetAdminUsername" style="color: #f59e0b;">-</strong>.</span>
+					</p>
+				</div>
+
+				<div style="background: #dbeafe; border: 2px solid #93c5fd; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+					<h4 style="margin: 0 0 12px 0; color: #1e40af; font-size: 1rem; font-weight: 600;">What happens next:</h4>
+					<ul style="margin: 0; padding-left: 22px; color: #1e3a8a; font-size: 0.9rem; line-height: 1.8;">
+						<li>A secure temporary password will be generated</li>
+						<li>The admin will be forced to change their password on next login</li>
+						<li>You'll receive the temporary password to share with them</li>
+						<li>Their current session will be invalidated</li>
+					</ul>
+				</div>
+
+				<div style="margin-bottom: 20px;">
+					<label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+						<i class='bx bx-shield-alt-2' style="color: #667eea; font-size: 1.1rem;"></i> Confirm Action
+					</label>
+					<label style="display: flex; align-items: center; background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 10px; padding: 14px; cursor: pointer;">
+						<input type="checkbox" id="confirmReset" required style="margin-right: 12px; width: 18px; height: 18px; cursor: pointer;">
+						<span style="color: #374151; font-size: 0.9rem;">I understand this will reset the password for this admin user</span>
+					</label>
+				</div>
+
+				<div style="margin-bottom: 20px;">
+					<label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+						<i class='bx bx-comment-detail' style="color: #667eea; font-size: 1.1rem;"></i> Reason for Password Reset (Optional)
+					</label>
+					<textarea name="reset_reason" placeholder="e.g., Admin forgot password, security concern, etc." style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; resize: vertical; min-height: 90px; font-family: inherit; transition: all 0.3s ease;"></textarea>
+				</div>
+
+				<div class="modal-actions" style="display: flex; gap: 12px; margin-top: 30px;">
+					<button type="button" onclick="closeResetPasswordModal()" style="flex: 1; padding: 14px 24px; border: 2px solid #e5e7eb; background: white; color: #6b7280; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">Cancel</button>
+					<button type="submit" style="flex: 1; padding: 14px 24px; border: none; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);"><i class='bx bx-key' style="margin-right: 6px;"></i>Reset Password</button>
+				</div>
+			</form>
+		</div>
+	</div>
+
+	<!-- Password Reset Success Modal -->
+	<div id="passwordResetSuccessModal" class="modal-overlay" style="display: none;">
+		<div class="modal-content" style="padding: 35px; max-width: 550px;">
+			<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 25px;">
+				<div>
+					<h3 style="margin: 0 0 8px 0; font-size: 1.5rem; color: #1f2937; display: flex; align-items: center; gap: 10px;">
+						<i class='bx bx-check-circle' style="color: #10b981; font-size: 1.6rem;"></i>
+						Password Reset Successful
+					</h3>
+					<p style="color: #6b7280; margin: 0; font-size: 0.9rem;">Temporary password generated</p>
+				</div>
+				<button type="button" onclick="closePasswordResetSuccessModal()" style="background: #f3f4f6; border: none; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#e5e7eb'; this.style.transform='rotate(90deg)'" onmouseout="this.style.background='#f3f4f6'; this.style.transform='rotate(0deg)'">
+					<i class='bx bx-x' style="font-size: 1.6rem; color: #6b7280;"></i>
+				</button>
+			</div>
+
+			<div>
+				<div style="background: #d1fae5; border: 2px solid #6ee7b7; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+					<p style="margin: 0; color: #047857; font-size: 0.9rem; display: flex; align-items: center; gap: 8px;">
+						<i class='bx bx-check-circle' style="font-size: 1.3rem; flex-shrink: 0;"></i>
+						<span>The password has been successfully reset for <strong id="resetSuccessUsername" style="color: #10b981;">-</strong>.</span>
+					</p>
+				</div>
+
+				<div style="background: #fef9e7; border: 2px solid #fcd34d; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+					<h4 style="margin: 0 0 14px 0; color: #92400e; font-size: 1rem; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+						<i class='bx bx-key' style="font-size: 1.3rem;"></i>
+						Temporary Password
+					</h4>
+					<div style="background: #ffffff; border: 2px solid #f59e0b; border-radius: 10px; padding: 16px; font-family: 'Courier New', monospace; font-size: 1.2rem; font-weight: bold; text-align: center; color: #92400e; position: relative;">
+						<span id="tempPassword">Loading...</span>
+						<button type="button" onclick="copyPassword()" title="Copy password" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: #f59e0b; border: none; color: white; cursor: pointer; padding: 8px 12px; border-radius: 6px; font-size: 1rem; transition: all 0.2s;">
+							<i class='bx bx-copy'></i>
+						</button>
+					</div>
+				</div>
+
+				<div style="background: #eff6ff; border: 2px solid #93c5fd; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+					<h4 style="margin: 0 0 10px 0; color: #1e40af; font-size: 1rem; font-weight: 600;">Important Instructions:</h4>
+					<ul style="margin: 0; padding-left: 22px; color: #1e3a8a; font-size: 0.9rem; line-height: 1.8;">
+						<li><strong>Share this password securely</strong> with the admin user</li>
+						<li>They must log in and <strong>change their password immediately</strong></li>
+						<li>This temporary password will expire after first use</li>
+						<li>Keep this password confidential and secure</li>
+					</ul>
+				</div>
+
+				<div class="modal-actions" style="display: flex; gap: 12px;">
+					<button type="button" onclick="copyPassword()" style="flex: 1; padding: 14px 24px; border: 2px solid #3b82f6; background: #3b82f6; color: white; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;"><i class='bx bx-copy' style="margin-right: 6px;"></i>Copy Password</button>
+					<button type="button" onclick="closePasswordResetSuccessModal()" style="flex: 1; padding: 14px 24px; border: none; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);"><i class='bx bx-check' style="margin-right: 6px;"></i>Done</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- Django URLs for JavaScript -->
+	<script>
+		window.adminManagementUrls = {
+			adminManagementUrl: "{% url 'cenro:admin_management' %}",
+			getBarangaysUrl: "/cenro/admin/get-barangays/PLACEHOLDER_ADMIN_ID/"
+		};
+	</script>
+	
+	<script src="{% static 'script.js' %}"></script>
+	<script src="{% static 'js/tab-persistence.js' %}?v={{ timestamp }}"></script>
+	<script src="{% static 'js/adminuser.js' %}?v={{ timestamp }}"></script>
+    <script src="{% static 'js/admin_management.js' %}?v={{ timestamp }}"></script>
+
+<!-- Universal Confirmation Modal -->
+<div class="modal-overlay" id="confirmationModal" style="display: none; z-index: 10001;">
+  <div class="modal-content" style="padding: 35px; max-width: 500px;">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 25px;">
+      <div>
+        <h3 style="margin: 0 0 8px 0; font-size: 1.5rem; color: #1f2937; display: flex; align-items: center; gap: 10px;">
+          <i class='bx bx-check-circle' style="color: #667eea; font-size: 1.6rem;" id="confirmIcon"></i>
+          <span id="confirmTitle">Confirm Action</span>
+        </h3>
+        <p style="color: #6b7280; margin: 0; font-size: 0.9rem;" id="confirmSubtitle">Please review your changes</p>
+      </div>
+      <button type="button" onclick="closeConfirmation()" style="background: #f3f4f6; border: none; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#e5e7eb'; this.style.transform='rotate(90deg)'" onmouseout="this.style.background='#f3f4f6'; this.style.transform='rotate(0deg)'">
+        <i class='bx bx-x' style="font-size: 1.6rem; color: #6b7280;"></i>
+      </button>
+    </div>
+    
+    <div style="background: #f0f9ff; border: 2px solid #bae6fd; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+      <div style="display: flex; align-items: start; gap: 12px;">
+        <i class='bx bx-info-circle' style="font-size: 1.5rem; color: #0284c7; flex-shrink: 0; margin-top: 2px;"></i>
+        <div>
+          <h4 style="color: #0c4a6e; margin: 0 0 8px 0; font-size: 1rem; font-weight: 600;">Confirm Changes</h4>
+          <p style="color: #075985; margin: 0; font-size: 0.9rem; line-height: 1.5;" id="confirmMessage">Are you sure you want to proceed with this action?</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+      <button type="button" onclick="closeConfirmation()" style="padding: 14px 24px; border-radius: 10px; font-weight: 600; background: #f3f4f6; border: 2px solid #e5e7eb; color: #6b7280; transition: all 0.2s; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.95rem;">
+        <i class='bx bx-x' style="font-size: 1.2rem;"></i> Cancel
+      </button>
+      <button type="button" onclick="confirmAction()" id="confirmButton" style="padding: 14px 24px; border-radius: 10px; font-weight: 600; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white; box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4); transition: all 0.2s; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.95rem;">
+        <i class='bx bx-check' style="font-size: 1.2rem;"></i> Confirm
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'js/unified-modal.js' %}"></script>
+
+	<script src="{% static 'js/admin_notifications.js' %}"></script>
+
+<script>
+// Search functionality for Approved Admins table
+document.getElementById('adminSearchInput').addEventListener('input', function(e) {
+  const searchTerm = e.target.value.toLowerCase();
+  const table = document.querySelector('#approved-tab .user-table tbody');
+  const rows = table.querySelectorAll('tr');
+  let visibleCount = 0;
+  
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    if (text.includes(searchTerm)) {
+      row.style.display = '';
+      visibleCount++;
+    } else {
+      row.style.display = 'none';
+    }
+  });
+  
+  // Show "no results" message if needed
+  let noResults = table.querySelector('.no-results-row');
+  if (visibleCount === 0) {
+    if (!noResults) {
+      noResults = document.createElement('tr');
+      noResults.className = 'no-results-row';
+      noResults.innerHTML = '<td colspan="8" style="text-align: center; padding: 40px; color: #6b7280;">No admin accounts found matching your search.</td>';
+      table.appendChild(noResults);
+    }
+  } else {
+    if (noResults) noResults.remove();
+  }
+});
+
+// Search functionality for Suspended Admins table
+document.getElementById('suspendedSearchInput').addEventListener('input', function(e) {
+  const searchTerm = e.target.value.toLowerCase();
+  const table = document.querySelector('#suspended-tab .user-table tbody');
+  const rows = table.querySelectorAll('tr');
+  let visibleCount = 0;
+  
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    if (text.includes(searchTerm)) {
+      row.style.display = '';
+      visibleCount++;
+    } else {
+      row.style.display = 'none';
+    }
+  });
+  
+  // Show "no results" message if needed
+  let noResults = table.querySelector('.no-results-row');
+  if (visibleCount === 0) {
+    if (!noResults) {
+      noResults = document.createElement('tr');
+      noResults.className = 'no-results-row';
+      noResults.innerHTML = '<td colspan="8" style="text-align: center; padding: 40px; color: #6b7280;">No suspended admins found matching your search.</td>';
+      table.appendChild(noResults);
+    }
+  } else {
+    if (noResults) noResults.remove();
+  }
+});
+
+// Search functionality for Locked Accounts table
+document.getElementById('lockedSearchInput').addEventListener('input', function(e) {
+  const searchTerm = e.target.value.toLowerCase();
+  const table = document.querySelector('#locked-tab .user-table tbody');
+  const rows = table.querySelectorAll('tr');
+  let visibleCount = 0;
+  
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    if (text.includes(searchTerm)) {
+      row.style.display = '';
+      visibleCount++;
+    } else {
+      row.style.display = 'none';
+    }
+  });
+  
+  // Show "no results" message if needed
+  let noResults = table.querySelector('.no-results-row');
+  if (visibleCount === 0) {
+    if (!noResults) {
+      noResults = document.createElement('tr');
+      noResults.className = 'no-results-row';
+      noResults.innerHTML = '<td colspan="7" style="text-align: center; padding: 40px; color: #6b7280;">No locked accounts found matching your search.</td>';
+      table.appendChild(noResults);
+    }
+  } else {
+    if (noResults) noResults.remove();
+  }
+});
+</script>
+
+</body>
+</html>
+

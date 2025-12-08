@@ -1,0 +1,332 @@
+{% load static %}
+{% load points_filters %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<!-- Boxicons from multiple CDNs for reliability -->
+	<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+	<link href='https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+	<!-- My CSS -->
+	<link rel="stylesheet" href="{% static 'style.css' %}">
+
+	<title>Admin Dashboard - E-KOLEK</title>
+</head>
+<body>
+
+	<!-- SIDEBAR -->
+	<section id="sidebar">
+		<a href="#" class="brand">
+			<i class='bx bxs-group' ></i>
+			<span class="text">CENRO Admin</span>
+		</a>
+		<ul class="side-menu top">
+			<!-- Dashboard/Home -->
+			<li class="active">
+				<a href="{% url 'cenro:dashboard' %}">
+					<i class='bx bxs-dashboard'></i>
+					<span class="text">Dashboard</span>
+				</a>
+			</li>
+
+			{% if can_manage_users %}
+			<li>
+				<a href="{% url 'cenro:adminuser' %}">
+					<i class='bx bxs-user-detail'></i>
+					<span class="text">User Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% if admin_user.role == 'super_admin' %}
+			<li>
+				<a href="{% url 'cenro:admin_management' %}">
+					<i class='bx bxs-user-detail' ></i>
+					<span class="text">Admin Management</span>
+				</a>
+			</li>
+			{% endif %}
+			
+			{% if can_manage_controls %}
+			<li>
+				<a href="{% url 'cenro:admincontrol' %}">
+					<i class='bx bxs-component' ></i>
+					<span class="text">Controls Management</span>
+				</a>
+			</li>
+			{% endif %}
+			
+			{% if can_manage_points %}
+			<li>
+				<a href="{% url 'cenro:adminpoints' %}">
+					<i class='bx bxs-star' ></i>
+					<span class="text">Points Management</span>
+				</a>
+			</li>
+			{% endif %}
+			
+			{% if can_manage_rewards %}
+			<li>
+				<a href="{% url 'cenro:adminrewards' %}">
+					<i class='bx bxs-gift' ></i>
+					<span class="text">Rewards Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% if can_manage_schedules %}
+			<li>
+				<a href="{% url 'cenro:adminschedule' %}">
+					<i class='bx bxs-calendar' ></i>
+					<span class="text">Schedule Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% if can_manage_security %}
+			<li>
+				<a href="{% url 'cenro:security_dashboard' %}">
+					<i class='bx bxs-shield' ></i>
+					<span class="text">Security Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% if can_manage_learning %}
+			<li>
+				<a href="{% url 'cenro:adminlearn' %}">
+					<i class='bx bxs-book-content' ></i>
+					<span class="text">Learning Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% if can_manage_games %}
+			<li>
+				<a href="{% url 'cenro:admingames' %}">
+					<i class='bx bxs-game' ></i>
+					<span class="text">Games Management</span>
+				</a>      
+			</li>
+			<li>
+				<a href="{% url 'cenro:waste_analytics' %}">
+					<i class='bx bxs-bar-chart-alt-2' ></i>
+					<span class="text">Waste Analytics</span>
+				</a>
+			</li>
+			{% endif %}
+			
+		</ul>
+		<ul class="side-menu">
+			<li>
+				<a href="{% url 'cenro:admin_logout' %}" class="logout">
+					<i class='bx bxs-log-out-circle' ></i>
+					<span class="text">Logout</span>
+				</a>
+			</li>
+		</ul>
+	</section>
+	<!-- SIDEBAR -->
+
+	<!-- CONTENT -->
+	<section id="content">
+		<!-- NAVBAR -->
+		<nav>
+			<i class='bx bx-menu' ></i>
+			
+			<!-- Admin User Profile Section -->
+			{% if is_admin_authenticated %}
+			<div class="profile" style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+				<!-- Admin Notification Bell -->
+				{% include 'includes/notification_bell.html' %}
+				
+				<div class="admin-info" style="text-align: right; margin-right: 10px;">
+					<span style="display: block; font-weight: 600; color: #333;">{{ admin_full_name }}</span>
+					<span style="display: block; font-size: 0.8rem; color: #666;">{{ admin_role_display }}</span>
+				</div>
+				<i class='bx bxs-user-circle' style="font-size: 2rem; color: #667eea;"></i>
+			</div>
+			{% else %}
+			<div class="profile" style="margin-left: auto;">
+				<a href="{% url 'cenro:admin_login' %}" style="color: #667eea; text-decoration: none;">
+					<i class='bx bx-log-in' style="font-size: 1.5rem;"></i>
+					<span>Login</span>
+				</a>
+			</div>
+			{% endif %}
+		</nav>
+		<!-- NAVBAR -->
+
+		<!-- MAIN -->
+		<main>
+			<div class="head-title">
+				<div class="left">
+					<h1>Admin Dashboard</h1>
+					<ul class="breadcrumb">
+						<li>
+							<a href="{% url 'cenro:dashboard' %}">Dashboard</a>
+						</li>
+						<li><i class='bx bx-chevron-right' ></i></li>
+						<li>
+							<a class="active" href="#">Home</a>
+						</li>
+					</ul>
+				</div>
+				{% if admin_user.role != 'security_analyst' and admin_user.role != 'content_rewards_manager' %}
+				<a href="{% url 'cenro:admin_preview_user_dashboard' %}" class="btn-download">
+					<i class='bx bx-desktop'></i>
+					<span class="text">Preview User Dashboard</span>
+				</a>
+				{% endif %}
+			</div>
+
+			<!-- Welcome Banner -->
+			<div class="welcome-banner" style="margin-top: 30px;">
+				<div class="welcome-content">
+					<div class="welcome-text">
+						<h2>Welcome back, {{ admin_user.full_name }}!</h2>
+						<p>{{ admin_user.get_role_display }} • Last login: {% now "F d, Y - g:i A" %}</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- System Statistics -->
+			<ul class="box-info">
+				<li>
+					<i class='bx bxs-user-check' ></i>
+					<span class="text">
+						<h3>{{ stats.total_users }}</h3>
+						<p>Total Users</p>
+					</span>
+				</li>
+				<li>
+					<i class='bx bxs-time-five' ></i>
+					<span class="text">
+						<h3>{{ stats.pending_users }}</h3>
+						<p>Pending Approvals</p>
+					</span>
+				</li>
+				<li>
+					<i class='bx bxs-home-heart' ></i>
+					<span class="text">
+						<h3>{{ stats.total_families }}</h3>
+						<p>Active Families</p>
+					</span>
+				</li>
+				<li>
+					<i class='bx bxs-gift' ></i>
+					<span class="text">
+						<h3>{{ stats.active_rewards }}</h3>
+						<p>Active Rewards</p>
+					</span>
+				</li>
+			</ul>
+
+            <!-- Analytics Charts Section -->
+			<div class="charts-section" style="margin-top: 20px;"> 
+				<h3 class="section-title">System Analytics</h3>
+				
+				<div class="charts-grid">
+					<!-- User Growth Chart -->
+					<div class="chart-card">
+						<div class="chart-header">
+							<h4>
+								<i class='bx bxs-user-plus'></i>
+								User Growth
+							</h4>
+						<span class="chart-subtitle">Total Registered Users</span>
+					</div>
+					<div class="chart-body">
+						<canvas id="userGrowthChart" 
+							data-total-users="{{ stats.total_users }}"
+							data-pending-users="{{ stats.pending_users }}">
+						</canvas>
+					</div>
+						<div class="chart-footer">
+							<div class="chart-stat">
+								<span class="stat-value">{{ stats.total_users }}</span>
+								<span class="stat-label">Total Users</span>
+							</div>
+							<div class="chart-stat">
+								<span class="stat-value pending">{{ stats.pending_users }}</span>
+								<span class="stat-label">Pending</span>
+							</div>
+						</div>
+					</div>
+
+					<!-- Waste Collection Impact Chart -->
+					<div class="chart-card">
+						<div class="chart-header">
+							<h4>
+								<i class='bx bxs-leaf'></i>
+								Waste Collection Impact
+							</h4>
+						<span class="chart-subtitle">Total Waste Collected</span>
+					</div>
+					<div class="chart-body">
+						<canvas id="wasteCollectionChart" 
+							data-total-waste="{{ stats.total_waste_collected }}"
+							data-waste-count="{{ stats.waste_transactions_count }}"
+							data-waste-this-month="{{ stats.waste_collected_this_month }}">
+						</canvas>
+					</div>
+						<div class="chart-footer">
+							<div class="chart-stat">
+								<span class="stat-value">{{ stats.total_waste_collected|floatformat:1 }} kg</span>
+								<span class="stat-label">Total Collected</span>
+							</div>
+							<div class="chart-stat">
+								<span class="stat-value success">{{ stats.waste_collected_this_month|floatformat:1 }} kg</span>
+								<span class="stat-label">This Month</span>
+							</div>
+						</div>
+					</div>
+
+					<!-- Rewards Activity Chart -->
+					<div class="chart-card">
+						<div class="chart-header">
+							<h4>
+								<i class='bx bxs-gift'></i>
+								Rewards Activity
+							</h4>
+						<span class="chart-subtitle">Redemption Overview</span>
+					</div>
+					<div class="chart-body">
+						<canvas id="rewardsChart" 
+							data-active-rewards="{{ stats.active_rewards }}"
+							data-total-redemptions="{{ stats.total_redemptions }}">
+						</canvas>
+					</div>
+						<div class="chart-footer">
+							<div class="chart-stat">
+								<span class="stat-value">{{ stats.active_rewards }}</span>
+								<span class="stat-label">Active</span>
+							</div>
+							<div class="chart-stat">
+								<span class="stat-value">{{ stats.total_redemptions }}</span>
+								<span class="stat-label">Redeemed</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+		</main>
+		<!-- MAIN -->
+	</section>
+	<!-- CONTENT -->
+	
+	<!-- Chart.js for Analytics -->
+	<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+	<!-- Admin Charts JavaScript -->
+	<script src="{% static 'admin_charts.js' %}"></script>
+	<!-- Main Script -->
+	<script src="{% static 'script.js' %}"></script>
+
+	<script src="{% static 'js/admin_notifications.js' %}"></script>
+	{% include 'includes/admin_logout_cleanup.html' %}
+</body>
+</html>

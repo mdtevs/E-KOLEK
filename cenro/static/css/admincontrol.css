@@ -1,0 +1,188 @@
+
+    /* Table styling */
+.admin-section {
+  margin-bottom: 2rem;
+  margin-top: 2rem;
+  background: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 1.5rem;
+}
+.admin-section h2 {
+  color: #047857;
+  margin-bottom: 1rem;
+}
+.reward-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.reward-icons .add-reward-btn {
+  background: #047857;
+  color: #fff;
+  border: none;
+  border-radius: 0.3rem;
+  padding: 0.5rem 1.2rem;
+  cursor: pointer;
+  font-size: 1rem;
+}
+.reward-table-wrapper {
+  overflow-x: auto;
+}
+.reward-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+.reward-table th, .reward-table td {
+  border: none;
+  padding: 0.75rem 0.5rem;
+  text-align: left;
+}
+.reward-table th {
+  background: #f3f4f6;
+  color:  #374151;
+  font-weight: 600;
+}
+.reward-table tr:nth-child(even) {
+  background: #f3f4f6;
+}
+.reward-actions {
+  display: flex;
+  gap: 0.3rem;
+}
+.reward-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.2rem;
+  margin-right: 0.2rem;
+}
+.reward-action-btn i {
+  font-size: 1.3rem;
+  vertical-align: middle;
+  transition: color 0.2s;
+}
+.reward-action-btn:hover i.bx-trash {
+  color: #dc2626;
+}
+.reward-action-btn:hover i.bx-edit {
+  color: #f59e42;
+}
+
+/* Modal styling */
+.reward-modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0,0,0,0.3);
+  align-items: center;
+  justify-content: center;
+}
+.reward-modal-content {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 0.7rem;
+  min-width: 320px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  position: relative;
+}
+.reward-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+.reward-close {
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #ef4444;
+}
+.reward-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+.save-btn {
+  background: #047857;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 0.3rem;
+  cursor: pointer;
+}
+.cancel-btn {
+  background: #d1d5db;
+  color: #333;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 0.3rem;
+  cursor: pointer;
+}
+.reward-modal label {
+  display: block;
+  margin-top: 0.7rem;
+  margin-bottom: 0.2rem;
+  color: #047857;
+  font-weight: 500;
+}
+.reward-modal input[type="text"],
+.reward-modal input[type="number"] {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 0.3rem;
+  border: 1px solid #d1d5db;
+  margin-bottom: 0.5rem;
+}
+
+/* Tab styling */
+.tab-container {
+  margin-bottom: 2rem;
+  margin-top: 2rem;
+}
+
+.tab-nav {
+  margin-bottom: 2rem;
+}
+
+.tab-button {
+  background: #f3f4f6;
+  color: #374151;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem 0.5rem 0 0;
+  cursor: pointer;
+  margin-right: 0.5rem;
+  font-weight: 500;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.tab-button:hover {
+  background: #e5e7eb;
+}
+
+.tab-button.active {
+  background: #047857;
+  color: white;
+}
+
+.tab-button i {
+  margin-right: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+

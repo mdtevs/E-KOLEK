@@ -1,0 +1,649 @@
+
+		/* Reward Container - Premium Card Design */
+.reward-container {
+    background: white;
+    padding: 28px;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.06);
+    margin-top: 24px;
+    border: 1px solid #e5e7eb;
+}
+
+.reward-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #f3f4f6;
+}
+
+.reward-container .reward-header h3 {
+    color: #111827 !important;
+    font-weight: 700;
+    font-size: 1.5rem;
+    margin: 0;
+    letter-spacing: -0.025em;
+}
+
+.reward-icons {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.reward-icons i {
+    font-size: 1.4rem;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 8px;
+    border-radius: 6px;
+}
+
+.reward-icons i:hover {
+    color: #7e22ce;
+    background-color: #f3f4f6;
+}
+
+.add-reward-btn {
+    background: linear-gradient(135deg, #7e22ce 0%, #9333ea 100%);
+    color: white;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(126, 34, 206, 0.2);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.add-reward-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(126, 34, 206, 0.3);
+    background: linear-gradient(135deg, #6b21a8 0%, #7e22ce 100%);
+}
+
+.add-reward-btn:active {
+    transform: translateY(0);
+}
+
+/* Table Wrapper with Enhanced Styling */
+.reward-table-wrapper {
+    overflow-x: auto;
+    background: white;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.reward-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: white;
+    font-size: 0.9rem;
+}
+
+.reward-table th,
+.reward-table td {
+    padding: 16px 12px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+    vertical-align: middle;
+}
+
+.reward-table thead {
+    background: linear-gradient(180deg, #f9fafb 0%, #f3f4f6 100%);
+}
+
+.reward-table th {
+    color: #374151;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: linear-gradient(180deg, #f9fafb 0%, #f3f4f6 100%);
+    border-bottom: 2px solid #d1d5db;
+}
+
+.reward-table tbody tr {
+    transition: all 0.15s ease;
+}
+
+.reward-table tbody tr:hover {
+    background-color: #f9fafb;
+    transform: scale(1.001);
+}
+
+.reward-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.reward-table td {
+    color: #1f2937;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* ID Column - Accent Badge Style */
+.reward-table td:nth-child(1) {
+    font-weight: 700;
+    color: #7e22ce;
+    font-size: 0.85rem;
+}
+
+/* Name Column - Bold & Prominent */
+.reward-table td:nth-child(2) {
+    font-weight: 600;
+    color: #111827;
+    font-size: 0.95rem;
+}
+
+/* Category Column - Badge Style */
+.reward-table td:nth-child(3) {
+    font-weight: 600;
+    color: #059669;
+}
+
+/* Points Column - Highlighted */
+.reward-table td:nth-child(4) {
+    font-weight: 700;
+    color: #2563eb;
+    font-size: 0.95rem;
+}
+
+/* Stock Column - Status Badge */
+.reward-table td:nth-child(5) {
+    font-weight: 700;
+    color: #dc2626;
+}
+
+.reward-url {
+    color: #2563eb;
+    font-size: 0.875rem;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.reward-url:hover {
+    text-decoration: underline;
+}
+
+.reward-actions {
+    text-align: left;
+    display: flex;
+    gap: 8px;
+}
+
+.reward-actions .reward-action-btn {
+    margin: 0;
+}
+
+.reward-action-btn {
+    background-color: white;
+    border: 1.5px solid #d1d5db;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 38px;
+    height: 38px;
+    transition: all 0.2s ease;
+    color: #4b5563;
+}
+
+.reward-action-btn:hover {
+    background: linear-gradient(135deg, #7e22ce 0%, #9333ea 100%);
+    color: white;
+    border-color: #7e22ce;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(126, 34, 206, 0.2);
+}
+
+.reward-action-btn:active {
+    transform: translateY(0);
+}
+
+/* Image column styling - Enhanced Preview */
+.reward-table td:nth-child(7) {
+    text-align: center;
+    width: 100px;
+    padding: 12px;
+}
+
+.reward-table td:nth-child(7) img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.reward-table td:nth-child(7) img:hover {
+    transform: scale(1.1);
+    border-color: #7e22ce;
+    box-shadow: 0 4px 12px rgba(126, 34, 206, 0.3);
+}
+
+.reward-table td:nth-child(7) a {
+    display: inline-block;
+}
+
+/* Actions column styling - Enhanced Layout */
+.reward-table td:nth-child(8) {
+    text-align: left;
+    width: 120px;
+    vertical-align: middle;
+    padding: 12px;
+}
+
+/* OLD MODAL STYLES - REPLACED BY unified-modal.css */
+/* 
+		.reward-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+}
+
+.reward-modal {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    justify-content: center;
+    align-items: center;
+}
+
+.reward-modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+}
+
+.reward-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.reward-modal-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #4c1d95;
+}
+
+.reward-close {
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #888;
+}
+
+.reward-modal-content label {
+    display: block;
+    font-weight: 500;
+    margin-top: 1rem;
+}
+
+.reward-modal-content input,
+.reward-modal-content textarea {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.25rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.reward-modal-content select {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.25rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    background: white;
+    color: #333;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.reward-modal-actions {
+    margin-top: 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.cancel-btn,
+.save-btn,
+.delete-btn {
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.cancel-btn {
+    background: #e2e8f0;
+    color: #1a202c;
+}
+*/
+
+.save-btn {
+    background: #4c1d95;
+    color: white;
+}
+
+.delete-btn {
+    background: #e53e3e;
+    color: white;
+}
+
+		/* Loading Animation & Button States */
+.save-btn:disabled,
+.delete-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.btn-loading {
+    color: #ffffff;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.bx-spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Progress Indicator for File Upload */
+.upload-progress {
+    width: 100%;
+    height: 6px;
+    background-color: #f3f4f6;
+    border-radius: 3px;
+    margin-top: 12px;
+    overflow: hidden;
+    display: none;
+}
+
+.upload-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #7e22ce, #9333ea, #a855f7);
+    background-size: 200% 100%;
+    width: 0%;
+    transition: width 0.3s ease;
+    border-radius: 3px;
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.upload-progress.active {
+    display: block;
+}
+
+/* Force black color for reward management heading */
+.reward-header h3,
+.reward-container .reward-header h3,
+#content .reward-container .reward-header h3,
+#content main .reward-container .reward-header h3 {
+    color: #111827 !important;
+}
+
+/* Action Badge Styles - Enhanced Design */
+.action-badge {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-block;
+    white-space: nowrap;
+}
+
+.action-created {
+    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+    color: #1e40af;
+    border: 1px solid #93c5fd;
+}
+
+.action-updated {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #92400e;
+    border: 1px solid #fcd34d;
+}
+
+.action-deleted {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    color: #dc2626;
+    border: 1px solid #fca5a5;
+}
+
+.action-stock_added {
+    background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #065f46;
+    border: 1px solid #6ee7b7;
+}
+
+.action-stock_removed {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: #92400e;
+    border: 1px solid #fcd34d;
+}
+
+.action-stock_redeemed {
+    background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+    color: #3730a3;
+    border: 1px solid #a5b4fc;
+}
+
+/* Stock Change Styles - Enhanced Visual */
+.stock-change {
+    font-weight: 800;
+    font-size: 1.05rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+}
+
+.stock-change.positive {
+    color: #059669;
+    background: #d1fae5;
+}
+
+.stock-change.negative {
+    color: #dc2626;
+    background: #fee2e2;
+}
+
+/* Recent Activity Section - Enhanced History Table */
+.history-table-wrapper {
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.history-table thead tr {
+    background: linear-gradient(180deg, #f9fafb 0%, #f3f4f6 100%);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.history-table th {
+    padding: 14px 12px;
+    text-align: left;
+    border-bottom: 2px solid #d1d5db;
+    white-space: nowrap;
+    color: #374151;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.history-table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.history-table tbody tr:hover {
+    background-color: #f9fafb;
+}
+
+.history-table td {
+    padding: 14px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    white-space: nowrap;
+    color: #1f2937;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.history-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Modal Body for Delete Confirmation */
+.reward-modal-body {
+    padding: 20px 0;
+}
+
+.reward-modal-body p {
+    color: #4b5563;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Image Preview in Edit Modal */
+#editCurrentImagePreview {
+    background: #f9fafb;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+#editCurrentImagePreview small {
+    display: block;
+    margin-top: 8px;
+}
+
+#editCurrentImage {
+    margin-top: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Success Message Notification */
+#successMessage {
+    display: none;
+    position: fixed;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    padding: 20px 40px;
+    border-radius: 12px;
+    z-index: 9999;
+    box-shadow: 0 10px 25px rgba(16, 185, 129, 0.3);
+    font-size: 1.1rem;
+    font-weight: 600;
+    animation: successPop 0.3s ease;
+}
+
+@keyframes successPop {
+    0% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Responsive Design Enhancements */
+@media (max-width: 768px) {
+    .reward-container {
+        padding: 16px;
+    }
+    
+    .reward-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+    
+    .reward-icons {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .add-reward-btn {
+        font-size: 0.8rem;
+        padding: 8px 16px;
+    }
+    
+    .reward-table th,
+    .reward-table td {
+        padding: 10px 8px;
+        font-size: 0.85rem;
+    }
+    
+    .reward-modal-content {
+        width: 95%;
+        padding: 24px;
+    }
+}
+
+   

@@ -1,0 +1,98 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href='https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="{% static 'css/adminregister.css' %}">
+    <title>Admin Registration - CENRO</title>
+</head>
+<body>
+    <div class="register-container">
+        <div class="register-header">
+            <h1>Admin Registration</h1>
+            <p>Create your admin account for CENRO System</p>
+        </div>
+        
+        <div class="register-form">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="role-info">
+                <strong>Admin Roles Available:</strong><br>
+                • <strong>Super Administrator:</strong> Full system access<br>
+                • <strong>Operations Manager:</strong> User, Points, Schedules<br>
+                • <strong>Content & Rewards Manager:</strong> Rewards, Learning, Games<br>
+                • <strong>Security Analyst:</strong> Security monitoring + view-only access
+            </div>
+
+            <form method="POST" id="registerForm">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="full_name">Full Name</label>
+                    <input type="text" id="full_name" name="full_name" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="role">Role</label>
+                        <select id="role" name="role" required>
+                            <option value="">Select Role</option>
+                            <option value="super_admin">Super Administrator</option>
+                            <option value="operations_manager">Operations Manager</option>
+                            <option value="content_rewards_manager">Content & Rewards Manager</option>
+                            <option value="security_analyst">Security Analyst</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm Password</label>
+                        <input type="password" id="confirm_password" name="confirm_password" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="barangays">Assigned Barangays (Optional)</label>
+                    <select id="barangays" name="barangays" multiple style="height: 100px;">
+                        {% for barangay in barangays %}
+                            <option value="{{ barangay.id }}">{{ barangay.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <small style="color: #6c757d; font-size: 0.8rem;">Hold Ctrl to select multiple barangays</small>
+                </div>
+
+                <button type="submit" class="register-btn" id="registerBtn">
+                    <span class="btn-text">Create Admin Account</span>
+                    <span class="loading">
+                        <i class='bx bx-loader-alt bx-spin'></i> Creating account...
+                    </span>
+                </button>
+            </form>
+
+            <div class="login-link">
+                <p>Already have an account? <a href="{% url 'admin_login' %}">Sign in here</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/adminregister.js' %}"></script>
+</body>
+</html>

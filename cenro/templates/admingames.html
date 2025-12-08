@@ -1,0 +1,846 @@
+{% load static %}
+{% load points_filters %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Boxicons from multiple CDNs for reliability -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link href='https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/admingames.css' %}?v={{ timestamp }}">
+    <link rel="stylesheet" href="{% static 'css/unified-modal.css' %}?v={{ timestamp }}">
+    <title>Quiz Management</title>
+    
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <section id="sidebar">
+        <a href="#" class="brand">
+            <i class='bx bxs-group'></i>
+            <span class="text">CENRO Admin</span>
+        </a>
+        		<ul class="side-menu top">
+			<!-- Dashboard/Home -->
+			<li>
+				<a href="{% url 'cenro:dashboard' %}">
+					<i class='bx bxs-dashboard'></i>
+					<span class="text">Dashboard</span>
+				</a>
+			</li>
+
+			{% if can_manage_users %}
+			<li>
+				<a href="{% url 'cenro:adminuser' %}">
+					<i class='bx bxs-user-detail'></i>
+					<span class="text">User Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+            {% if admin_user.role == 'super_admin' %}
+			<li>
+				<a href="{% url 'cenro:admin_management' %}">
+					<i class='bx bxs-user-detail' ></i>
+					<span class="text">Admin Management</span>
+				</a>
+			</li>
+			{% endif %}
+			
+			{% if can_manage_controls %}
+			<li>
+				<a href="{% url 'cenro:admincontrol' %}">
+					<i class='bx bxs-component' ></i>
+					<span class="text">Controls Management</span>
+				</a>
+			</li>
+			{% endif %}
+			
+			{% if can_manage_points %}
+			<li>
+				<a href="{% url 'cenro:adminpoints' %}">
+					<i class='bx bxs-star' ></i>
+					<span class="text">Points Management</span>
+				</a>
+			</li>
+			{% endif %}
+			
+			{% if can_manage_rewards %}
+			<li>
+				<a href="{% url 'cenro:adminrewards' %}">
+					<i class='bx bxs-gift' ></i>
+					<span class="text">Rewards Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% if can_manage_schedules %}
+			<li>
+				<a href="{% url 'cenro:adminschedule' %}">
+					<i class='bx bxs-calendar' ></i>
+					<span class="text">Schedule Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% if can_manage_security %}
+			<li>
+<a href="{% url 'cenro:security_dashboard' %}">
+<i class='bx bxs-shield' ></i>
+<span class="text">Security Management</span>
+</a>
+</li>
+			{% endif %}
+
+			{% if can_manage_learning %}
+			<li>
+				<a href="{% url 'cenro:adminlearn' %}">
+					<i class='bx bxs-book-content' ></i>
+					<span class="text">Learning Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% if can_manage_games %}
+			<li class="active">
+				<a href="{% url 'cenro:admingames' %}">
+					<i class='bx bxs-game' ></i>
+					<span class="text">Games Management</span>
+				</a>      
+      <li>
+        <a href="{% url 'cenro:waste_analytics' %}">
+          <i class='bx bxs-bar-chart-alt-2' ></i>
+          <span class="text">Waste Analytics</span>
+        </a>
+      </li>
+      
+			</li>
+			{% endif %}
+			
+			<!-- Security Analyst Special Dashboard -->
+			{% if admin_role == 'security_analyst' %}
+			<li>
+				<a href="{% url 'cenro:adminsecurity' %}">
+					<i class='bx bxs-dashboard' ></i>
+					<span class="text">Security Dashboard</span>
+				</a>
+			</li>
+			{% endif %}
+			
+		</ul>
+        <ul class="side-menu">
+            <li>
+                <a href="{% url 'cenro:admin_logout' %}" class="logout">
+                    <i class='bx bxs-log-out-circle'></i>
+                    <span class="text">Logout</span>
+                </a>
+            </li>
+        </ul>
+    </section>
+
+    <!-- CONTENT -->
+    <section id="content">
+        <!-- NAVBAR -->
+				<nav>
+			<i class='bx bx-menu' ></i>
+			
+			<!-- Admin User Profile Section -->
+			{% if is_admin_authenticated %}
+			<div class="profile" style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+				<!-- Admin Notification Bell -->
+				{% include 'includes/notification_bell.html' %}
+				
+				<div class="admin-info" style="text-align: right; margin-right: 10px;">
+					<span style="display: block; font-weight: 600; color: #333;">{{ admin_full_name }}</span>
+					<span style="display: block; font-size: 0.8rem; color: #666;">{{ admin_role_display }}</span>
+				</div>
+				<i class='bx bxs-user-circle' style="font-size: 2rem; color: #667eea;"></i>
+			</div>
+			{% else %}
+			<div class="profile" style="margin-left: auto;">
+				<a href="{% url 'admin_login' %}" style="color: #667eea; text-decoration: none;">
+					<i class='bx bx-log-in' style="font-size: 1.5rem;"></i>
+					<span>Login</span>
+				</a>
+			</div>
+			{% endif %}
+		</nav>
+
+        <!-- MAIN -->
+        <main>
+            <div class="head-title">
+                <div class="left">
+                    <h1>Games Management</h1>
+                    <ul class="breadcrumb">
+                        <li><a href="#">Games</a></li>
+                        <li><i class='bx bx-chevron-right'></i></li>
+                        <li><a class="active" href="#">Management</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Tab Navigation -->
+            <div style="margin-bottom: 2rem; margin-top: 2rem;">
+                <button class="tab-btn active" onclick="openTab(event, 'categoriesTab')">Waste Categories</button>
+                <button class="tab-btn" onclick="openTab(event, 'itemsTab')">Waste Items</button>
+                <button class="tab-btn" onclick="openTab(event, 'quizTab')">Quiz Questions</button>
+                <button class="tab-btn" onclick="openTab(event, 'cooldownTab')">Game Cooldown</button>
+            </div>
+
+            <!-- Waste Categories Tab -->
+            <div id="categoriesTab" class="tab-content" style="display: block;">
+                <!-- Excel Upload Section for Categories -->
+                <div class="excel-upload-section" style="background: #f3f4f6; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 2px dashed #4CAF50;">
+                    <h3 style="margin-bottom: 1rem; color: #4CAF50;">
+                        <i class='bx bx-spreadsheet'></i> Bulk Upload Waste Categories
+                    </h3>
+                    <p style="color: #6b7280; margin-bottom: 1rem;">Upload an Excel file to create multiple waste categories at once.</p>
+                    
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                        <a href="/category-excel/download-template/" class="btn-save" style="background: #10b981; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                            <i class='bx bx-download'></i> Download Category Template
+                        </a>
+                    </div>
+                    
+                    <form id="categoryUploadForm" enctype="multipart/form-data" style="margin-top: 1rem;">
+                        {% csrf_token %}
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Select Excel File:</label>
+                            <input type="file" name="excel_file" id="categoryExcelFile" accept=".xlsx,.xls" required style="padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; width: 100%; max-width: 400px;">
+                            <small style="color: #6b7280; display: block; margin-top: 0.25rem;">Accepted formats: .xlsx, .xls</small>
+                        </div>
+                        <button type="submit" class="btn-save" style="background: #4CAF50;">
+                            <i class='bx bx-upload'></i> Upload Categories
+                        </button>
+                    </form>
+                    
+                    <div id="categoryUploadResults" style="display: none; margin-top: 1rem; padding: 1rem; border-radius: 4px;"></div>
+                </div>
+
+                <!-- Add Category Form -->
+                <div class="quiz-form">
+                    <h3 style="margin-bottom: 1rem;">Add New Waste Category</h3>
+                    <form id="categoryForm">
+                        {% csrf_token %}
+                        <div style="margin-bottom: 1rem;">
+                            <label>Category Name:</label>
+                            <input style="margin-top: 0.5rem;" type="text" id="categoryName" class="choice-input" placeholder="e.g., Recyclable, Organic" required>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label>Color (Hex):</label>
+                            <input style="margin-top: 0.5rem;" type="color" id="categoryColor" class="choice-input" value="#4CAF50">
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label>Icon Name:</label>
+                            <input style="margin-top: 0.5rem;" type="text" id="categoryIcon" class="choice-input" placeholder="e.g., recycling, delete, nature" value="delete">
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label>Description:</label>
+                            <textarea style="margin-top: 0.5rem;" id="categoryDescription" class="choice-input" placeholder="Description of this waste category" rows="3"></textarea>
+                        </div>
+                        <button type="submit" class="btn-save">Save Category</button>
+                    </form>
+                </div>
+
+                <!-- Categories List -->
+                <div class="questions-list">
+                    <h3>Existing Categories</h3>
+                    <div id="categoriesList" style="max-height: 400px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px;">
+                        {% for category in categories %}
+                        <div class="question-item">
+                            <h4>{{ category.name }}</h4>
+                            <p><strong>Color:</strong> 
+                                <span class="color-display" data-color="{{ category.color_hex }}">{{ category.color_hex }}</span>
+                            </p>
+                            <p><strong>Icon:</strong> {{ category.icon_name }}</p>
+                            <p><strong>Description:</strong> {{ category.description }}</p>
+                            <p><strong>Items:</strong> {{ category.items.count }}</p>
+                            <button data-category-id="{{ category.id }}" class="btn-delete" onclick="deleteCategory(this.dataset.categoryId)">
+                                Delete
+                            </button>
+                        </div>
+                        {% empty %}
+                        <p>No categories added yet.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Waste Items Tab -->
+            <div id="itemsTab" class="tab-content" style="display: none;">
+                <!-- Excel Upload Section for Items -->
+                <div class="excel-upload-section" style="background: #f3f4f6; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 2px dashed #2196F3;">
+                    <h3 style="margin-bottom: 1rem; color: #2196F3;">
+                        <i class='bx bx-spreadsheet'></i> Bulk Upload Waste Items
+                    </h3>
+                    <p style="color: #6b7280; margin-bottom: 1rem;">Upload an Excel file to create multiple waste items at once.</p>
+                    
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                        <a href="/item-excel/download-template/" class="btn-save" style="background: #10b981; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                            <i class='bx bx-download'></i> Download Item Template
+                        </a>
+                    </div>
+                    
+                    <form id="itemUploadForm" enctype="multipart/form-data" style="margin-top: 1rem;">
+                        {% csrf_token %}
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Select Excel File:</label>
+                            <input type="file" name="excel_file" id="itemExcelFile" accept=".xlsx,.xls" required style="padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; width: 100%; max-width: 400px;">
+                            <small style="color: #6b7280; display: block; margin-top: 0.25rem;">Accepted formats: .xlsx, .xls</small>
+                        </div>
+                        <button type="submit" class="btn-save" style="background: #2196F3;">
+                            <i class='bx bx-upload'></i> Upload Items
+                        </button>
+                    </form>
+                    
+                    <div id="itemUploadResults" style="display: none; margin-top: 1rem; padding: 1rem; border-radius: 4px;"></div>
+                </div>
+
+                <!-- Add Item Form -->
+                <div class="quiz-form">
+                    <h3 style="margin-bottom: 1rem;">Add New Waste Item</h3>
+                    <form id="itemForm">
+                        {% csrf_token %}
+                        <div style="margin-bottom: 1rem;">
+                            <label>Item Name:</label>
+                            <input style="margin-top: 0.5rem;" type="text" id="itemName" class="choice-input" placeholder="e.g., Plastic Bottle" required>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label>Emoji:</label>
+                            <input style="margin-top: 0.5rem;" type="text" id="itemEmoji" class="choice-input" placeholder="e.g., ♻️, 🥤, 🍎">
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label>Category:</label>
+                            <select style="margin-top: 0.5rem;" id="itemCategory" class="choice-input" required>
+                                <option value="">Select Category</option>
+                                {% for category in categories %}
+                                <option value="{{ category.id }}">{{ category.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label>Points:</label>
+                            <input style="margin-top: 0.5rem;" type="number" id="itemPoints" class="choice-input points-input" value="0" min="0" step="0.01" required>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label>Difficulty Level:</label>
+                            <select style="margin-top: 0.5rem;" id="itemDifficulty" class="choice-input" required>
+                                <option value="easy">Easy</option>
+                                <option value="medium">Medium</option>
+                                <option value="hard">Hard</option>
+                            </select>
+                        </div>
+                        <div style="margin-bottom: 1rem;">
+                            <label>
+                                <input type="checkbox" id="itemActive" checked> Is Active
+                            </label>
+                        </div>
+                        <button type="submit" class="btn-save">Save Item</button>
+                    </form>
+                </div>
+
+                <!-- Items List -->
+                <div class="questions-list">
+                    <h3>Existing Items</h3>
+                    <div id="itemsList" style="max-height: 400px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px;">
+                        {% for item in items %}
+                        <div class="question-item">
+                            <h4>{{ item.emoji }} {{ item.name }}</h4>
+                            <p><strong>Category:</strong> {{ item.category.name }}</p>
+                            <p><strong>Points:</strong> {{ item.points|smart_points }}</p>
+                            <p><strong>Difficulty:</strong> {{ item.get_difficulty_level_display }}</p>
+                            <p><strong>Status:</strong> {% if item.is_active %}Active{% else %}Inactive{% endif %}</p>
+                            <button data-item-id="{{ item.id }}" class="btn-delete" onclick="deleteItem(this.dataset.itemId)">
+                                Delete
+                            </button>
+                        </div>
+                        {% empty %}
+                        <p>No items added yet.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Questions Tab -->
+            <div id="quizTab" class="tab-content" style="display: none;">
+                <!-- Excel Upload Section -->
+                <div class="excel-upload-section" style="background: #f3f4f6; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border: 2px dashed #667eea;">
+                    <h3 style="margin-bottom: 1rem; color: #667eea;">
+                        <i class='bx bx-spreadsheet'></i> Bulk Upload Game Questions
+                    </h3>
+                    <p style="color: #6b7280; margin-bottom: 1rem;">Upload an Excel file to create multiple game questions at once.</p>
+                    
+                    <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                        <a href="/game-excel/download-template/" class="btn-save" style="background: #10b981; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem;">
+                            <i class='bx bx-download'></i> Download Game Template
+                        </a>
+                    </div>
+                    
+                    <form id="gameUploadForm" enctype="multipart/form-data" style="margin-top: 1rem;">
+                        {% csrf_token %}
+                        <div style="margin-bottom: 1rem;">
+                            <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Select Excel File:</label>
+                            <input type="file" name="excel_file" id="gameExcelFile" accept=".xlsx,.xls" required style="padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 4px; width: 100%; max-width: 400px;">
+                            <small style="color: #6b7280; display: block; margin-top: 0.25rem;">Accepted formats: .xlsx, .xls</small>
+                        </div>
+                        <button type="submit" class="btn-save" style="background: #667eea;">
+                            <i class='bx bx-upload'></i> Upload Game Questions
+                        </button>
+                    </form>
+                    
+                    <div id="gameUploadResults" style="display: none; margin-top: 1rem; padding: 1rem; border-radius: 4px;"></div>
+                </div>
+
+                <!-- Add Question Form -->
+                <div class="quiz-form">
+                    <h3 style="margin-bottom: 1rem;">Add New Question</h3>
+                    <form id="questionForm">
+                        {% csrf_token %}
+                        <div style="margin-bottom: 1rem;">
+                            <label >Question Text:</label>
+                            <input style="margin-top: 0.5rem;" type="text" id="questionText" class="choice-input" placeholder="Enter your question here..." required>
+                        </div>
+                        
+                        <div style="margin-bottom: 1rem;">
+                            <label>Points:</label>
+                            <input style="margin-top: 0.5rem;" type="number" id="questionPoints" class="choice-input points-input" value="0" min="0" step="0.01" required>
+                        </div>
+                        
+                        <div id="choicesContainer">
+                            <label>Choices:</label>
+                            <div class="choice-group">
+                                <input type="text" class="choice-input choice-text" placeholder="Choice 1" required>
+                                <label>
+                                    <input type="radio" name="correctChoice" value="0" class="correct-checkbox" required>
+                                    Mark as correct answer
+                                </label>
+                            </div>
+                            <div class="choice-group">
+                                <input type="text" class="choice-input choice-text" placeholder="Choice 2" required>
+                                <label>
+                                    <input type="radio" name="correctChoice" value="1" class="correct-checkbox" required>
+                                    Mark as correct answer
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="btn-add-choice" onclick="addChoice()">Add Another Choice</button>
+                        <br>
+                        <button type="submit" class="btn-save">Save Question</button>
+                    </form>
+                </div>
+
+                <!-- Questions List -->
+                <div class="questions-list">
+                    <h3>Existing Questions</h3>
+                    <div id="questionsList" style="max-height: 400px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px;">
+                        {% for question in questions %}
+                        <div class="question-item">
+                            <h4>{{ question.text }}</h4>
+                            <p><strong>Points:</strong> {{ question.points|smart_points }}</p>
+                            {% for choice in question.choices.all %}
+                            <div class="choice-item {% if choice.is_correct %}correct-choice{% endif %}">
+                                {{ choice.text }}
+                                {% if choice.is_correct %}<i class='bx bx-check'></i>{% endif %}
+                            </div>
+                            {% endfor %}
+                            <button data-question-id="{{ question.id }}" class="btn-delete" onclick="deleteQuestion(this.dataset.questionId)">
+                                Delete
+                            </button>
+                        </div>
+                        {% empty %}
+                        <p>No questions added yet.</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Cooldown Configuration Tab -->
+            <div id="cooldownTab" class="tab-content" style="display: none;">
+                <div class="card mt-4">
+                    <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; border-radius: 8px 8px 0 0; margin-bottom: 2rem;">
+                        <h3 style="margin: 0; color: white;">
+                            <i class='bx bx-time-five'></i> Game Cooldown Configuration
+                        </h3>
+                        <p style="margin: 0.5rem 0 0 0; opacity: 0.9; color: white;">Set how long users must wait between game sessions</p>
+                    </div>
+                    <div class="card-body" style="padding: 2rem;">
+                        <div class="row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                            <!-- Quiz Game Cooldown -->
+                            <div class="cooldown-config-card" style="background: white; border: 2px solid #e5e7eb; border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                <h4 style="color: #667eea; margin-bottom: 1rem;">
+                                    <i class='bx bx-question-mark'></i> Quiz Game
+                                </h4>
+                                <form id="quiz-cooldown-form">
+                                    {% csrf_token %}
+                                    <div style="margin-bottom: 1rem;">
+                                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">Hours (0-168)</label>
+                                        <input type="number" class="form-control choice-input" 
+                                               name="cooldown_hours" 
+                                               value="{{ game_configs.quiz.cooldown_hours }}"
+                                               placeholder="Enter hours (e.g., 72)"
+                                               min="0" max="168" required
+                                               style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem;">
+                                    </div>
+                                    <div style="margin-bottom: 1rem;">
+                                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">Minutes (0-59)</label>
+                                        <input type="number" class="form-control choice-input" 
+                                               name="cooldown_minutes" 
+                                               value="{{ game_configs.quiz.cooldown_minutes }}"
+                                               placeholder="Enter minutes (e.g., 30)"
+                                               min="0" max="59" required
+                                               style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem;">
+                                    </div>
+                                    <div style="margin-bottom: 1.5rem;">
+                                        <label style="display: flex; align-items: center; cursor: pointer;">
+                                            <input type="checkbox" name="is_active" 
+                                                   {% if game_configs.quiz.is_active %}checked{% endif %}
+                                                   style="width: 18px; height: 18px; margin-right: 0.5rem; cursor: pointer;">
+                                            <span style="font-weight: 600; color: #374151;">Active</span>
+                                        </label>
+                                    </div>
+                                    <button type="submit" class="btn-save" style="width: 100%; padding: 0.75rem; background: #667eea; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                                        <i class='bx bx-save'></i> Update Quiz Cooldown
+                                    </button>
+                                    {% if game_configs.quiz.cooldown_hours == 0 and game_configs.quiz.cooldown_minutes == 0 and not game_configs.quiz.is_active %}
+                                    <div style="margin-top: 1rem; padding: 0.75rem; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px;">
+                                        <small style="color: #92400e; display: block;">
+                                            <strong><i class='bx bx-info-circle'></i> Status:</strong> Not configured - Games unrestricted
+                                        </small>
+                                    </div>
+                                    {% else %}
+                                    <div style="margin-top: 1rem; padding: 0.75rem; background: #f3f4f6; border-radius: 6px;">
+                                        <small style="color: #6b7280; display: block;">
+                                            <strong>Current:</strong> {{ game_configs.quiz.get_formatted_duration }}
+                                        </small>
+                                    </div>
+                                    {% endif %}
+                                </form>
+                            </div>
+                            
+                            <!-- Drag & Drop Game Cooldown -->
+                            <div class="cooldown-config-card" style="background: white; border: 2px solid #e5e7eb; border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                <h4 style="color: #10b981; margin-bottom: 1rem;">
+                                    <i class='bx bx-move'></i> Drag & Drop Game
+                                </h4>
+                                <form id="dragdrop-cooldown-form">
+                                    {% csrf_token %}
+                                    <div style="margin-bottom: 1rem;">
+                                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">Hours (0-168)</label>
+                                        <input type="number" class="form-control choice-input" 
+                                               name="cooldown_hours" 
+                                               value="{{ game_configs.drag_drop.cooldown_hours }}"
+                                               placeholder="Enter hours (e.g., 48)"
+                                               min="0" max="168" required
+                                               style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem;">
+                                    </div>
+                                    <div style="margin-bottom: 1rem;">
+                                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">Minutes (0-59)</label>
+                                        <input type="number" class="form-control choice-input" 
+                                               name="cooldown_minutes" 
+                                               value="{{ game_configs.drag_drop.cooldown_minutes }}"
+                                               placeholder="Enter minutes (e.g., 0)"
+                                               min="0" max="59" required
+                                               style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem;">
+                                    </div>
+                                    <div style="margin-bottom: 1.5rem;">
+                                        <label style="display: flex; align-items: center; cursor: pointer;">
+                                            <input type="checkbox" name="is_active" 
+                                                   {% if game_configs.drag_drop.is_active %}checked{% endif %}
+                                                   style="width: 18px; height: 18px; margin-right: 0.5rem; cursor: pointer;">
+                                            <span style="font-weight: 600; color: #374151;">Active</span>
+                                        </label>
+                                    </div>
+                                    <button type="submit" class="btn-save" style="width: 100%; padding: 0.75rem; background: #10b981; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                                        <i class='bx bx-save'></i> Update Drag & Drop Cooldown
+                                    </button>
+                                    {% if game_configs.drag_drop.cooldown_hours == 0 and game_configs.drag_drop.cooldown_minutes == 0 and not game_configs.drag_drop.is_active %}
+                                    <div style="margin-top: 1rem; padding: 0.75rem; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px;">
+                                        <small style="color: #92400e; display: block;">
+                                            <strong><i class='bx bx-info-circle'></i> Status:</strong> Not configured - Games unrestricted
+                                        </small>
+                                    </div>
+                                    {% else %}
+                                    <div style="margin-top: 1rem; padding: 0.75rem; background: #f3f4f6; border-radius: 6px;">
+                                        <small style="color: #6b7280; display: block;">
+                                            <strong>Current:</strong> {{ game_configs.drag_drop.get_formatted_duration }}
+                                        </small>
+                                    </div>
+                                    {% endif %}
+                                </form>
+                            </div>
+                            
+                            <!-- Default Cooldown -->
+                            <div class="cooldown-config-card" style="background: white; border: 2px solid #e5e7eb; border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                <h4 style="color: #f59e0b; margin-bottom: 1rem;">
+                                    <i class='bx bx-game'></i> Default (All Games)
+                                </h4>
+                                <form id="default-cooldown-form">
+                                    {% csrf_token %}
+                                    <div style="margin-bottom: 1rem;">
+                                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">Hours (0-168)</label>
+                                        <input type="number" class="form-control choice-input" 
+                                               name="cooldown_hours" 
+                                               value="{{ game_configs.all.cooldown_hours }}"
+                                               placeholder="Enter hours (e.g., 24)"
+                                               min="0" max="168" required
+                                               style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem;">
+                                    </div>
+                                    <div style="margin-bottom: 1rem;">
+                                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">Minutes (0-59)</label>
+                                        <input type="number" class="form-control choice-input" 
+                                               name="cooldown_minutes" 
+                                               value="{{ game_configs.all.cooldown_minutes }}"
+                                               placeholder="Enter minutes (e.g., 0)"
+                                               min="0" max="59" required
+                                               style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem;">
+                                    </div>
+                                    <div style="margin-bottom: 1.5rem;">
+                                        <label style="display: flex; align-items: center; cursor: pointer;">
+                                            <input type="checkbox" name="is_active" 
+                                                   {% if game_configs.all.is_active %}checked{% endif %}
+                                                   style="width: 18px; height: 18px; margin-right: 0.5rem; cursor: pointer;">
+                                            <span style="font-weight: 600; color: #374151;">Active</span>
+                                        </label>
+                                    </div>
+                                    <button type="submit" class="btn-save" style="width: 100%; padding: 0.75rem; background: #f59e0b; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                                        <i class='bx bx-save'></i> Update Default Cooldown
+                                    </button>
+                                    {% if game_configs.all.cooldown_hours == 0 and game_configs.all.cooldown_minutes == 0 and not game_configs.all.is_active %}
+                                    <div style="margin-top: 1rem; padding: 0.75rem; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px;">
+                                        <small style="color: #92400e; display: block;">
+                                            <strong><i class='bx bx-info-circle'></i> Status:</strong> Not configured - Games unrestricted
+                                        </small>
+                                    </div>
+                                    {% else %}
+                                    <div style="margin-top: 1rem; padding: 0.75rem; background: #f3f4f6; border-radius: 6px;">
+                                        <small style="color: #6b7280; display: block;">
+                                            <strong>Current:</strong> {{ game_configs.all.get_formatted_duration }}
+                                        </small>
+                                    </div>
+                                    {% endif %}
+                                </form>
+                            </div>
+                        </div>
+                        
+                        <!-- Info Section -->
+                        <div style="margin-top: 2rem; padding: 1.5rem; background: #eff6ff; border-left: 4px solid #3b82f6; border-radius: 6px;">
+                            <h5 style="color: #1e40af; margin-bottom: 0.75rem;">
+                                <i class='bx bx-info-circle'></i> How It Works
+                            </h5>
+                            <ul style="color: #1e40af; margin: 0; padding-left: 1.5rem; line-height: 1.6;">
+                                <li>Set individual cooldown periods for Quiz and Drag & Drop games</li>
+                                <li>The Default cooldown applies to all games that don't have a specific configuration</li>
+                                <li>Maximum cooldown is 168 hours (1 week)</li>
+                                <li>Changes take effect immediately for new game sessions</li>
+                                <li>Users in the mobile app will see the updated cooldown times</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </section>
+
+    <script src="{% static 'script.js' %}"></script>
+    
+    <!-- Pass Django URLs to JavaScript -->
+    <script>
+        window.DJANGO_URLS = {
+            addCategory: '{% url "cenro:add_category" %}',
+            addItem: '{% url "cenro:add_item" %}',
+            addQuestion: '{% url "cenro:add_question" %}',
+            deleteCategory: '/delete_category/0/', // Will replace 0 with actual ID in JS
+            deleteItem: '/delete_item/0/', // Will replace 0 with actual ID in JS
+            deleteQuestion: '/delete_question/0/' // Will replace 0 with actual ID in JS
+        };
+        window.CSRF_TOKEN = '{{ csrf_token }}';
+    </script>
+    
+        
+    <script src="{% static 'js/tab-persistence.js' %}?v={{ timestamp }}"></script>
+    <script src="{% static 'js/admingames.js' %}?v={{ timestamp }}"></script>
+    <script src="{% static 'js/games-excel-upload.js' %}?v={{ timestamp }}"></script>
+    <script src="{% static 'js/points-input-handler.js' %}?v={{ timestamp }}"></script>
+	<script src="{% static 'js/admin_notifications.js' %}"></script>
+    
+    <!-- Game Cooldown Configuration Script -->
+    <script>
+        // Handle cooldown form submissions
+        function setupCooldownForm(formId, gameType, buttonColor) {
+            const form = document.getElementById(formId);
+            if (!form) return;
+            
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                formData.append('game_type', gameType);
+                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+                
+                // Get the submit button
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                
+                // Show loading state
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="bx bx-loader bx-spin"></i> Updating...';
+                
+                try {
+                    const response = await fetch('{% url "cenro:update_game_cooldown" %}', {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        credentials: 'same-origin',  // Include cookies in the request
+                        body: formData
+                    });
+                    
+                    // Log response for debugging
+                    const contentType = response.headers.get('content-type');
+                    console.log('Response status:', response.status);
+                    console.log('Content-Type:', contentType);
+                    
+                    // Check if response is JSON
+                    if (!contentType || !contentType.includes('application/json')) {
+                        const text = await response.text();
+                        console.error('Non-JSON response:', text.substring(0, 200));
+                        throw new Error('Server returned HTML instead of JSON. Please ensure you are logged in as admin.');
+                    }
+                    
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        // Show success message
+                        const successMsg = document.createElement('div');
+                        successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 9999; animation: slideIn 0.3s ease-out;';
+                        successMsg.innerHTML = '<i class="bx bx-check-circle"></i> Game cooldown updated successfully!';
+                        document.body.appendChild(successMsg);
+                        
+                        // Remove success message after 3 seconds
+                        setTimeout(() => {
+                            successMsg.style.animation = 'slideOut 0.3s ease-out';
+                            setTimeout(() => successMsg.remove(), 300);
+                        }, 3000);
+                        
+                        // Reload page to show updated values
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        // Show error notification
+                        const errorMsg = document.createElement('div');
+                        errorMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #ef4444; color: white; padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 9999; animation: slideIn 0.3s ease-out;';
+                        errorMsg.innerHTML = '<i class="bx bx-error-circle"></i> Error: ' + (data.error || 'Failed to update cooldown');
+                        document.body.appendChild(errorMsg);
+                        setTimeout(() => {
+                            errorMsg.style.animation = 'slideOut 0.3s ease-out';
+                            setTimeout(() => errorMsg.remove(), 300);
+                        }, 3000);
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = originalText;
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    const errorMsg = document.createElement('div');
+                    errorMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #ef4444; color: white; padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 9999; animation: slideIn 0.3s ease-out;';
+                    errorMsg.innerHTML = '<i class="bx bx-error-circle"></i> Failed to update cooldown: ' + error.message;
+                    document.body.appendChild(errorMsg);
+                    setTimeout(() => {
+                        errorMsg.style.animation = 'slideOut 0.3s ease-out';
+                        setTimeout(() => errorMsg.remove(), 300);
+                    }, 3000);
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                }
+            });
+        }
+        
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes slideOut {
+                from {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                to {
+                    transform: translateX(400px);
+                    opacity: 0;
+                }
+            }
+            .btn-save:hover {
+                opacity: 0.9;
+                transform: translateY(-1px);
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            }
+            .cooldown-config-card {
+                transition: transform 0.2s, box-shadow 0.2s;
+            }
+            .cooldown-config-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Initialize forms when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            setupCooldownForm('quiz-cooldown-form', 'quiz', '#667eea');
+            setupCooldownForm('dragdrop-cooldown-form', 'drag_drop', '#10b981');
+            setupCooldownForm('default-cooldown-form', 'all', '#f59e0b');
+        });
+    </script>
+
+    <!-- Unified Confirmation Modal -->
+    <div class="modal-overlay" id="confirmationModal" style="display: none; z-index: 10001;">
+      <div class="modal-content" style="padding: 35px; max-width: 500px;">
+        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 25px;">
+          <div>
+            <h3 style="margin: 0 0 8px 0; font-size: 1.5rem; color: #1f2937; display: flex; align-items: center; gap: 10px;">
+              <i class='bx bx-check-circle' style="color: #667eea; font-size: 1.6rem;" id="confirmIcon"></i>
+              <span id="confirmTitle">Confirm Action</span>
+            </h3>
+            <p style="color: #6b7280; margin: 0; font-size: 0.9rem;" id="confirmSubtitle">Please review your changes</p>
+          </div>
+          <button type="button" onclick="closeConfirmation()" style="background: #f3f4f6; border: none; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#e5e7eb'; this.style.transform='rotate(90deg)'" onmouseout="this.style.background='#f3f4f6'; this.style.transform='rotate(0deg)'">
+            <i class='bx bx-x' style="font-size: 1.6rem; color: #6b7280;"></i>
+          </button>
+        </div>
+        
+        <div style="background: #f0f9ff; border: 2px solid #bae6fd; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+          <div style="display: flex; align-items: start; gap: 12px;">
+            <i class='bx bx-info-circle' style="font-size: 1.5rem; color: #0284c7; flex-shrink: 0; margin-top: 2px;"></i>
+            <div>
+              <h4 style="color: #0c4a6e; margin: 0 0 8px 0; font-size: 1rem; font-weight: 600;">Confirm Changes</h4>
+              <p style="color: #075985; margin: 0; font-size: 0.9rem; line-height: 1.5;" id="confirmMessage">Are you sure you want to proceed with this action?</p>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 12px; justify-content: flex-end;">
+          <button type="button" onclick="closeConfirmation()" style="padding: 14px 24px; border-radius: 10px; font-weight: 600; background: #f3f4f6; border: 2px solid #e5e7eb; color: #6b7280; transition: all 0.2s; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.95rem;">
+            <i class='bx bx-x' style="font-size: 1.2rem;"></i> Cancel
+          </button>
+          <button type="button" onclick="confirmAction()" id="confirmButton" style="padding: 14px 24px; border-radius: 10px; font-weight: 600; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white; box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4); transition: all 0.2s; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.95rem;">
+            <i class='bx bx-check' style="font-size: 1.2rem;"></i> Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="{% static 'js/unified-modal.js' %}"></script>
+</body>
+</html>

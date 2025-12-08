@@ -1,0 +1,295 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <title>E-KOLEK - Sustainable Waste Management</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='45' fill='%23166534'/><path d='M30 50 L45 65 L70 35' stroke='white' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  />
+  <link rel="stylesheet" href="{% static 'css/home.css' %}?v=3.3.0">
+  
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="max-w-7xl flex">
+    <!-- Logo -->
+    <div class="logo-container">
+      <img src="{% static 'image/logo.png' %}" alt="E-KOLEK Logo" class="header-logo">
+      <h1 class="logo-title">E-KOLEK</h1>
+    </div>
+
+    <!-- Navigation -->
+    <nav style="margin-left:auto;">
+      <a href="{% url 'login_page' %}">Log In</a>
+      <a href="{% url 'register' %}">Sign Up</a>
+      <button onclick="handleGetStarted()">Get Started</button>
+    </nav>
+  </div>
+</header>
+
+<!-- Hero Section -->
+<section class="hero">
+  <div class="hero-container">
+    <!-- Left Text -->
+    <div class="hero-text">
+      <h2>
+        Rewarding Communities for
+        Sustainable Waste
+        Management
+      </h2>
+      <p>
+        E-KOLEK incentivizes proper waste disposal and recycling through a points-based reward system. Join us in creating a greener future!
+      </p>
+      <div class="hero-buttons">
+        <button onclick="handleGetStarted()" class="btn-primary">Get Started</button>
+        <a href="#benefits" class="btn-secondary">Learn More</a>
+      </div>
+    </div>
+
+    <!-- Right Card -->
+    <div class="hero-card" role="region" aria-label="How It Works">
+      <!-- Icon Symbol -->
+      <div class="icon-bg" aria-hidden="true">
+        <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 22s8-6 8-12a8 8 0 0 0-16 0c0 6 8 12 8 12z"/>
+          <path d="M12 6v10"/>
+          <path d="M8 10l4 2 4-2"/>
+        </svg>
+      </div>
+
+      <h3>How It Works</h3>
+      <p>
+        Scan your family QR code to track waste disposal <br class="hidden-sm"> and earn rewards.
+      </p>
+      
+      <ul>
+        <li>
+          <span class="icon" aria-hidden="true">
+            <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+              <path d="M5 13l4 4L19 7" />
+            </svg>
+          </span>
+          <span>Collect and segregate recyclables</span>
+        </li>
+        <li>
+          <span class="icon" aria-hidden="true">
+            <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+              <path d="M5 13l4 4L19 7" />
+            </svg>
+          </span>
+          <span>Submit waste on scheduled collection days</span>
+        </li>
+        <li>
+          <span class="icon" aria-hidden="true">
+            <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+              <path d="M5 13l4 4L19 7" />
+            </svg>
+          </span>
+          <span>Earn points for every successful submission</span>
+        </li>
+        <li>
+          <span class="icon" aria-hidden="true">
+            <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+              <path d="M5 13l4 4L19 7" />
+            </svg>
+          </span>
+          <span>Redeem points for rewards and items</span>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- Mobile App Promotion Section -->
+<section class="mobile-app-promo">
+  <div class="app-promo-container">
+    <!-- Left Side - App Preview Image -->
+    <div class="app-preview">
+      <div class="app-image-wrapper">
+        <img src="{% static 'image/app.jpg' %}" alt="E-KOLEK Mobile App" class="app-screenshot">
+        <div class="app-glow"></div>
+      </div>
+    </div>
+
+    <!-- Right Side - Content -->
+    <div class="app-content">
+      <div class="app-badge">
+        <i class="fas fa-mobile-alt"></i>
+        <span>NOW AVAILABLE</span>
+      </div>
+      
+      <h2 class="app-title">
+        Take E-KOLEK <span class="highlight-text">Anywhere</span>
+      </h2>
+      
+      <p class="app-description">
+        Download the E-KOLEK mobile app and join thousands of eco-warriors making a difference. 
+        Track your impact, earn rewards, play games, and compete with your community—all from your smartphone!
+      </p>
+
+      <div class="app-features">
+        <div class="feature-item">
+          <div class="feature-icon">
+            <i class="fas fa-video"></i>
+          </div>
+          <div class="feature-text">
+            <h4>Watch & Learn</h4>
+            <p>Educational videos & waste management tips</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">
+            <i class="fas fa-gamepad"></i>
+          </div>
+          <div class="feature-text">
+            <h4>Play & Compete</h4>
+            <p>Fun eco-games, quizzes & leaderboards</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div class="feature-text">
+            <h4>Track Your Impact</h4>
+            <p>Monitor points, levels, and collection schedules</p>
+          </div>
+        </div>
+
+        <div class="feature-item">
+          <div class="feature-icon">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <div class="feature-text">
+            <h4>Secure & Easy</h4>
+            <p>Biometric login & referral rewards</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- <div class="app-download-buttons">
+        <a href="#" class="download-btn app-store" aria-label="Download on the App Store">
+          <i class="fab fa-apple"></i>
+          <div class="btn-text">
+            <span class="small-text">Download on the</span>
+            <span class="large-text">App Store</span>
+          </div>
+        </a>
+        
+        <a href="#" class="download-btn google-play" aria-label="Get it on Google Play">
+          <i class="fab fa-google-play"></i>
+          <div class="btn-text">
+            <span class="small-text">GET IT ON</span>
+            <span class="large-text">Google Play</span>
+          </div>
+        </a>
+      </div> -->
+
+      <div class="app-stats">
+        <div class="stat-item">
+          <div class="stat-number">{{ active_users|default:"100" }}+</div>
+          <div class="stat-label">Active Users</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-number">{{ app_rating|default:"4.8" }}★</div>
+          <div class="stat-label">App Rating</div>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <div class="stat-number">{% if total_points > 999 %}{{ total_points|floatformat:0|slice:"-3:" }}K+{% else %}{{ total_points|default:"0" }}+{% endif %}</div>
+          <div class="stat-label">Points Earned</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Benefits Section -->
+<section id="benefits">
+  <h2>Program Benefits</h2>
+  <div class="benefits-grid">
+    <!-- Reduced Waste -->
+    <div class="benefit-card">
+      <div class="benefit-icon" aria-hidden="true">
+        <i class="fa-solid fa-trash-can"></i>
+      </div>
+      <h3 class="benefit-title">Reduced Waste</h3>
+      <p class="benefit-desc">Encourages proper waste segregation and recycling, helping reduce landfill accumulation.</p>
+    </div>
+
+    <!-- Valuable Rewards -->
+    <div class="benefit-card">
+      <div class="benefit-icon" aria-hidden="true">
+        <i class="fa-solid fa-award"></i>
+      </div>
+      <h3 class="benefit-title">Valuable Rewards</h3>
+      <p class="benefit-desc">Earn points and redeem them for eco-friendly rewards that support sustainable living.</p>
+    </div>
+
+    <!-- Community Building -->
+    <div class="benefit-card">
+      <div class="benefit-icon" aria-hidden="true">
+        <i class="fa-solid fa-users"></i>
+      </div>
+      <h3 class="benefit-title">Community Building</h3>
+      <p class="benefit-desc">Foster community involvement and cooperation for a cleaner, greener environment.</p>
+    </div>
+
+    <!-- Gamification Features -->
+    <div class="benefit-card">
+      <div class="benefit-icon" aria-hidden="true">
+        <i class="fa-solid fa-trophy"></i>
+      </div>
+      <h3 class="benefit-title">Leaderboards & Competition</h3>
+      <p class="benefit-desc">Compete with families and barangays on leaderboards, climb the ranks, and become the top eco-warrior!</p>
+    </div>
+
+    <!-- Learning & Games -->
+    <div class="benefit-card">
+      <div class="benefit-icon" aria-hidden="true">
+        <i class="fa-solid fa-gamepad"></i>
+      </div>
+      <h3 class="benefit-title">Educational Games</h3>
+      <p class="benefit-desc">Learn about waste management through interactive games and quizzes while earning bonus points.</p>
+    </div>
+
+    <!-- Achievement System -->
+    <div class="benefit-card">
+      <div class="benefit-icon" aria-hidden="true">
+        <i class="fa-solid fa-medal"></i>
+      </div>
+      <h3 class="benefit-title">Achievements & Badges</h3>
+      <p class="benefit-desc">Unlock achievements, earn badges, and showcase your commitment to environmental sustainability.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer style="background: linear-gradient(135deg, #1f2937 0%, #111827 100%); color: #e5e7eb; padding: 2.5rem 2rem;">
+  <p style="color: #d1d5db;">© 2025 E-KOLEK. All rights reserved.</p>
+  <p style="color: #d1d5db;">
+    <a href="{% url 'privacy_policy' %}" style="color: #10b981; text-decoration: none; font-weight: 500; margin: 0 0.5rem;">Privacy Policy</a> | <a href="{% url 'terms_of_service' %}" style="color: #10b981; text-decoration: none; font-weight: 500; margin: 0 0.5rem;">Terms of Service</a>
+  </p>
+  <p style="color: #d1d5db; font-size: 0.9rem; opacity: 0.8;">Powered By E-KOLEK</p>
+</footer>
+
+<script>
+  window.CSRF_TOKEN = '{{ csrf_token }}';
+</script>
+
+<script src="{% static 'js/app_common.js' %}"></script>
+<script src="{% static 'js/home.js' %}"></script>
+
+
+</body>
+</html>

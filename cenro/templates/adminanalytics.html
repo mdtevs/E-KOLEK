@@ -1,0 +1,1028 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="{% static 'style.css' %}">
+  <link rel="stylesheet" href="{% static 'css/adminanalytics.css' %}?v={{ timestamp }}">
+  <title>Waste Analytics - CENRO Admin</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <section id="sidebar">
+    <a href="#" class="brand">
+      <i class='bx bxs-group'></i>
+      <span class="text">CENRO Admin</span>
+    </a>
+    <ul class="side-menu top">
+      <li>
+				<a href="{% url 'cenro:dashboard' %}">
+					<i class='bx bxs-dashboard'></i>
+					<span class="text">Dashboard</span>
+				</a>
+			</li>
+      {% if can_manage_users %}
+      <li>
+        <a href="{% url 'cenro:adminuser' %}">
+          <i class='bx bxs-user-detail'></i>
+          <span class="text">User Management</span>
+        </a>
+      </li>
+      {% endif %}
+
+      {% if admin_user.role == 'super_admin' %}
+      <li>
+        <a href="{% url 'cenro:admin_management' %}">
+          <i class='bx bxs-user-detail'></i>
+          <span class="text">Admin Management</span>
+        </a>
+      </li>
+      {% endif %}
+      
+      {% if can_manage_controls %}
+      <li>
+        <a href="{% url 'cenro:admincontrol' %}">
+          <i class='bx bxs-component'></i>
+          <span class="text">Controls Management</span>
+        </a>
+      </li>
+      {% endif %}
+      
+      {% if can_manage_points %}
+      <li>
+        <a href="{% url 'cenro:adminpoints' %}">
+          <i class='bx bxs-star'></i>
+          <span class="text">Points Management</span>
+        </a>
+      </li>
+      {% endif %}
+      
+      {% if can_manage_rewards %}
+      <li>
+        <a href="{% url 'cenro:adminrewards' %}">
+          <i class='bx bxs-gift'></i>
+          <span class="text">Rewards Management</span>
+        </a>
+      </li>
+      {% endif %}
+
+      {% if can_manage_schedules %}
+      <li>
+        <a href="{% url 'cenro:adminschedule' %}">
+          <i class='bx bxs-calendar'></i>
+          <span class="text">Schedule Management</span>
+        </a>
+      </li>
+      {% endif %}
+
+      {% if can_manage_security %}
+      <li>
+        <a href="{% url 'cenro:security_dashboard' %}">
+          <i class='bx bxs-shield'></i>
+          <span class="text">Security Management</span>
+        </a>
+      </li>
+      {% endif %}
+
+      {% if can_manage_learning %}
+      <li>
+        <a href="{% url 'cenro:adminlearn' %}">
+          <i class='bx bxs-book-content'></i>
+          <span class="text">Learning Management</span>
+        </a>
+      </li>
+      {% endif %}
+
+      {% if can_manage_games %}
+      <li>
+        <a href="{% url 'cenro:admingames' %}">
+          <i class='bx bxs-game'></i>
+          <span class="text">Games Management</span>
+        </a>
+      </li>
+      {% endif %}
+      
+      <li class="active">
+        <a href="{% url 'cenro:waste_analytics' %}">
+          <i class='bx bxs-bar-chart-alt-2'></i>
+          <span class="text">Waste Analytics</span>
+        </a>
+      </li>
+    </ul>
+    <ul class="side-menu">
+      <li>
+        <a href="{% url 'cenro:admin_logout' %}" class="logout">
+          <i class='bx bxs-log-out-circle'></i>
+          <span class="text">Logout</span>
+        </a>
+      </li>
+    </ul>
+  </section>
+
+  <!-- CONTENT -->
+  <section id="content">
+    <!-- NAVBAR -->
+    <nav>
+      <i class='bx bx-menu'></i>
+      
+      {% if admin_user %}
+      <div class="profile" style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+				<!-- Admin Notification Bell -->
+				{% include 'includes/notification_bell.html' %}
+				
+				<div class="admin-info" style="text-align: right; margin-right: 10px;">
+          <span style="display: block; font-weight: 600; color: #333;">{{ admin_user.full_name }}</span>
+          <span style="display: block; font-size: 0.8rem; color: #666;">{{ admin_user.get_role_display }}</span>
+        </div>
+        <i class='bx bxs-user-circle' style="font-size: 2rem; color: #667eea;"></i>
+      </div>
+      {% endif %}
+    </nav>
+
+    <!-- MAIN -->
+    <main>
+      <div class="head-title">
+        <div class="left">
+          <h1><i class='bx bxs-bar-chart-alt-2'></i> Waste Collection Analytics</h1>
+          <ul class="breadcrumb">
+            <li><a href="#">Analytics</a></li>
+            <li><i class='bx bx-chevron-right'></i></li>
+            <li><a class="active" href="#">Waste Dashboard</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="analytics-container">
+        
+        <!-- Summary Statistics -->
+        <div class="stats-grid">
+          <div class="stat-card info">
+            <i class='bx bxs-collection'></i>
+            <h3>{{ total_transactions|floatformat:0 }}</h3>
+            <p>Total Transactions</p>
+            <small style="color: #9ca3af; display: block; margin-top: 5px;">From {{ unique_users }} users</small>
+          </div>
+          <div class="stat-card success">
+            <i class='bx bxs-package'></i>
+            <h3>{{ total_weight|floatformat:2 }} kg</h3>
+            <p>Total Waste Collected</p>
+            <small style="color: #9ca3af; display: block; margin-top: 5px;">~{{ co2_saved|floatformat:1 }} kg CO₂ saved</small>
+          </div>
+          <div class="stat-card warning">
+            <i class='bx bxs-star'></i>
+            <h3>{{ total_points|floatformat:0 }}</h3>
+            <p>Total Points Awarded</p>
+            <small style="color: #9ca3af; display: block; margin-top: 5px;">Across {{ unique_barangays }} barangays</small>
+          </div>
+          <div class="stat-card danger">
+            <i class='bx bxs-leaf'></i>
+            <h3>{{ trees_equivalent|floatformat:1 }}</h3>
+            <p>Trees Equivalent Impact</p>
+            <small style="color: #9ca3af; display: block; margin-top: 5px;">Environmental contribution</small>
+          </div>
+        </div>
+
+        <!-- Insights Section -->
+        {% if most_popular_waste or most_active_barangay %}
+        <div class="filter-section" style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);">
+          <h3><i class='bx bxs-bulb'></i> Key Insights</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 15px; margin-top: 15px;">
+            {% if most_popular_waste %}
+            <div style="background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #10b981;">
+              <h4 style="color: #10b981; margin-bottom: 8px; font-size: 0.9rem;">
+                <i class='bx bxs-crown'></i> Most Collected Waste Type
+              </h4>
+              <p style="font-size: 1.1rem; font-weight: 600; color: #1f2937; margin: 0;">
+                {{ most_popular_waste.waste_type__name }}
+              </p>
+              <small style="color: #6b7280;">
+                {{ most_popular_waste.total_weight|floatformat:1 }} kg collected in {{ most_popular_waste.count }} transactions
+              </small>
+            </div>
+            {% endif %}
+            {% if most_active_barangay %}
+            <div style="background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #3b82f6;">
+              <h4 style="color: #3b82f6; margin-bottom: 8px; font-size: 0.9rem;">
+                <i class='bx bxs-award'></i> Most Active Barangay
+              </h4>
+              <p style="font-size: 1.1rem; font-weight: 600; color: #1f2937; margin: 0;">
+                {{ most_active_barangay.barangay__name }}
+              </p>
+              <small style="color: #6b7280;">
+                {{ most_active_barangay.total_weight|floatformat:1 }} kg collected in {{ most_active_barangay.count }} transactions
+              </small>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Filter Section -->
+        <div class="filter-section">
+          <h3><i class='bx bx-filter-alt'></i> Data Filters</h3>
+          
+          <!-- Modern Year Selection with Dropdown -->
+          <div style="background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%); padding: 25px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #e5e7eb;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+              <div>
+                <h4 style="color: #374151; font-size: 1rem; font-weight: 700; margin: 0 0 5px 0; display: flex; align-items: center; gap: 8px;">
+                  <i class='bx bx-calendar' style="color: #667eea; font-size: 1.3rem;"></i>
+                  Time Period Selection
+                </h4>
+                <p style="color: #6b7280; font-size: 0.85rem; margin: 0;">Choose a year or compare multiple periods</p>
+              </div>
+              <button type="button" class="btn btn-primary" onclick="openComparisonModal()" style="display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border: none; padding: 10px 20px; border-radius: 8px; font-weight: 600; box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);">
+                <i class='bx bx-git-compare'></i>
+                Compare Years
+              </button>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr auto; gap: 15px; align-items: end;">
+              <!-- Year Selector Dropdown -->
+              <div class="year-selector-container">
+                <button type="button" class="year-selector-trigger" onclick="toggleYearDropdown()">
+                  <span style="display: flex; align-items: center; gap: 8px;">
+                    <i class='bx bx-calendar-alt' style="font-size: 1.2rem;"></i>
+                    <span id="selectedYearText">
+                      {% if filters.year_filter == 'current' %}Current Year (2025)
+                      {% elif filters.year_filter == '2024' %}Year 2024
+                      {% elif filters.year_filter == '2023' %}Year 2023
+                      {% elif filters.year_filter == '2022' %}Year 2022
+                      {% elif filters.year_filter == 'all' %}All Time
+                      {% else %}Current Year (2025){% endif %}
+                    </span>
+                  </span>
+                  <i class='bx bx-chevron-down' id="yearDropdownIcon" style="font-size: 1.3rem; transition: transform 0.3s;"></i>
+                </button>
+                
+                <div class="year-selector-dropdown" id="yearDropdown">
+                  <div class="year-option {% if filters.year_filter == 'current' or not filters.year_filter %}selected{% endif %}" onclick="selectYear('current', 'Current Year (2025)')">
+                    <span class="year-option-icon"><i class='bx bx-calendar-check'></i></span>
+                    <div>
+                      <div style="font-weight: 600;">Current Year (2025)</div>
+                      <div style="font-size: 0.75rem; color: #6b7280;">January - December 2025</div>
+                    </div>
+                  </div>
+                  
+                  <div class="year-option {% if filters.year_filter == '2024' %}selected{% endif %}" onclick="selectYear('2024', 'Year 2024')">
+                    <span class="year-option-icon"><i class='bx bx-calendar'></i></span>
+                    <div>
+                      <div style="font-weight: 600;">Year 2024</div>
+                      <div style="font-size: 0.75rem; color: #6b7280;">Full year data</div>
+                    </div>
+                  </div>
+                  
+                  <div class="year-option {% if filters.year_filter == '2023' %}selected{% endif %}" onclick="selectYear('2023', 'Year 2023')">
+                    <span class="year-option-icon"><i class='bx bx-calendar'></i></span>
+                    <div>
+                      <div style="font-weight: 600;">Year 2023</div>
+                      <div style="font-size: 0.75rem; color: #6b7280;">Full year data</div>
+                    </div>
+                  </div>
+                  
+                  <div class="year-option {% if filters.year_filter == '2022' %}selected{% endif %}" onclick="selectYear('2022', 'Year 2022')">
+                    <span class="year-option-icon"><i class='bx bx-calendar'></i></span>
+                    <div>
+                      <div style="font-weight: 600;">Year 2022</div>
+                      <div style="font-size: 0.75rem; color: #6b7280;">Full year data</div>
+                    </div>
+                  </div>
+                  
+                  <div style="height: 1px; background: #e5e7eb; margin: 8px 0;"></div>
+                  
+                  <div class="year-option {% if filters.year_filter == 'all' %}selected{% endif %}" onclick="selectYear('all', 'All Time')">
+                    <span class="year-option-icon"><i class='bx bx-globe'></i></span>
+                    <div>
+                      <div style="font-weight: 600;">All Time</div>
+                      <div style="font-size: 0.75rem; color: #6b7280;">Complete historical data</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Quick Actions -->
+              <div style="display: flex; gap: 10px;">
+                <button type="button" class="btn btn-secondary" onclick="clearYearFilter()" style="padding: 10px 16px; border-radius: 8px; display: flex; align-items: center; gap: 6px;">
+                  <i class='bx bx-reset'></i>
+                  Reset
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <form method="GET" action="{% url 'cenro:waste_analytics' %}" id="filterForm">
+            <input type="hidden" id="year_filter" name="year_filter" value="{{ filters.year_filter }}">
+            
+            <div class="filter-grid">
+              <div class="filter-group">
+                <label for="start_date">Start Date</label>
+                <input type="date" id="start_date" name="start_date" value="{{ filters.start_date }}">
+              </div>
+              <div class="filter-group">
+                <label for="end_date">End Date</label>
+                <input type="date" id="end_date" name="end_date" value="{{ filters.end_date }}">
+              </div>
+              <div class="filter-group">
+                <label for="barangay">Barangay</label>
+                <select id="barangay" name="barangay">
+                  <option value="">All Barangays</option>
+                  {% for barangay in all_barangays %}
+                  <option value="{{ barangay.id }}" {% if filters.barangay_id == barangay.id|stringformat:"s" %}selected{% endif %}>
+                    {{ barangay.name }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="filter-group">
+                <label for="waste_type">Waste Type</label>
+                <select id="waste_type" name="waste_type">
+                  <option value="">All Waste Types</option>
+                  {% for waste_type in all_waste_types %}
+                  <option value="{{ waste_type.id }}" {% if filters.waste_type_id == waste_type.id|stringformat:"s" %}selected{% endif %}>
+                    {{ waste_type.name }}
+                  </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="filter-actions">
+              <button type="submit" class="btn btn-primary">
+                <i class='bx bx-filter'></i> Apply Filters
+              </button>
+              <a href="{% url 'cenro:waste_analytics' %}" class="btn btn-secondary">
+                <i class='bx bx-reset'></i> Clear Filters
+              </a>
+              <a href="{% url 'cenro:export_waste_data_excel' %}?{{ request.GET.urlencode }}" class="btn btn-success">
+                <i class='bx bx-download'></i> Export Excel
+              </a>
+              <a href="{% url 'cenro:export_waste_data_pdf' %}?{{ request.GET.urlencode }}" class="btn btn-danger">
+                <i class='bx bxs-file-pdf'></i> Export PDF
+              </a>
+            </div>
+          </form>
+        </div>
+
+        <!-- Year-over-Year Comparison Section (Only show when compare mode active) -->
+        {% if year_comparison %}
+        <div class="filter-section" style="background: linear-gradient(135deg, #3b82f615 0%, #2563eb15 100%); border: 2px solid #3b82f6;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="color: #1f2937; margin: 0; display: flex; align-items: center; gap: 10px;">
+              <i class='bx bx-git-compare' style="color: #3b82f6; font-size: 1.6rem;"></i>
+              Year-over-Year Performance Comparison
+            </h3>
+            <span style="background: #3b82f6; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">
+              {{ year_comparison.year1 }} vs {{ year_comparison.year2 }}
+            </span>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            <!-- Total Weight Comparison -->
+            <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.07);">
+              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 10px; border-radius: 10px;">
+                  <i class='bx bx-trending-up' style="font-size: 1.5rem; color: white;"></i>
+                </div>
+                <div>
+                  <p style="font-size: 0.75rem; color: #6b7280; margin: 0; font-weight: 600; text-transform: uppercase;">Total Weight</p>
+                  <p style="font-size: 1.1rem; font-weight: 800; color: #1f2937; margin: 0;">Growth</p>
+                </div>
+              </div>
+              <div style="text-align: center; padding: 15px; background: #f9fafb; border-radius: 8px;">
+                <p style="margin: 0 0 5px 0; color: #6b7280; font-size: 0.8rem;">{{ year_comparison.year1 }}: <strong>{{ year_comparison.year1_weight|floatformat:1 }} kg</strong></p>
+                <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 0.8rem;">{{ year_comparison.year2 }}: <strong>{{ year_comparison.year2_weight|floatformat:1 }} kg</strong></p>
+                <p class="{% if year_comparison.weight_change >= 0 %}growth-positive{% else %}growth-negative{% endif %}" style="margin: 0; font-size: 1.8rem; font-weight: 800;">
+                  {% if year_comparison.weight_change >= 0 %}+{% endif %}{{ year_comparison.weight_change|floatformat:1 }}%
+                </p>
+              </div>
+            </div>
+
+            <!-- Transactions Comparison -->
+            <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.07);">
+              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); padding: 10px; border-radius: 10px;">
+                  <i class='bx bx-receipt' style="font-size: 1.5rem; color: white;"></i>
+                </div>
+                <div>
+                  <p style="font-size: 0.75rem; color: #6b7280; margin: 0; font-weight: 600; text-transform: uppercase;">Transactions</p>
+                  <p style="font-size: 1.1rem; font-weight: 800; color: #1f2937; margin: 0;">Growth</p>
+                </div>
+              </div>
+              <div style="text-align: center; padding: 15px; background: #f9fafb; border-radius: 8px;">
+                <p style="margin: 0 0 5px 0; color: #6b7280; font-size: 0.8rem;">{{ year_comparison.year1 }}: <strong>{{ year_comparison.year1_count }}</strong></p>
+                <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 0.8rem;">{{ year_comparison.year2 }}: <strong>{{ year_comparison.year2_count }}</strong></p>
+                <p class="{% if year_comparison.count_change >= 0 %}growth-positive{% else %}growth-negative{% endif %}" style="margin: 0; font-size: 1.8rem; font-weight: 800;">
+                  {% if year_comparison.count_change >= 0 %}+{% endif %}{{ year_comparison.count_change|floatformat:1 }}%
+                </p>
+              </div>
+            </div>
+
+            <!-- Points Comparison -->
+            <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.07);">
+              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 10px; border-radius: 10px;">
+                  <i class='bx bx-star' style="font-size: 1.5rem; color: white;"></i>
+                </div>
+                <div>
+                  <p style="font-size: 0.75rem; color: #6b7280; margin: 0; font-weight: 600; text-transform: uppercase;">Points Awarded</p>
+                  <p style="font-size: 1.1rem; font-weight: 800; color: #1f2937; margin: 0;">Growth</p>
+                </div>
+              </div>
+              <div style="text-align: center; padding: 15px; background: #f9fafb; border-radius: 8px;">
+                <p style="margin: 0 0 5px 0; color: #6b7280; font-size: 0.8rem;">{{ year_comparison.year1 }}: <strong>{{ year_comparison.year1_points|floatformat:0 }}</strong></p>
+                <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 0.8rem;">{{ year_comparison.year2 }}: <strong>{{ year_comparison.year2_points|floatformat:0 }}</strong></p>
+                <p class="{% if year_comparison.points_change >= 0 %}growth-positive{% else %}growth-negative{% endif %}" style="margin: 0; font-size: 1.8rem; font-weight: 800;">
+                  {% if year_comparison.points_change >= 0 %}+{% endif %}{{ year_comparison.points_change|floatformat:1 }}%
+                </p>
+              </div>
+            </div>
+
+            <!-- Participation Comparison -->
+            <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.07);">
+              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <div style="background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); padding: 10px; border-radius: 10px;">
+                  <i class='bx bx-group' style="font-size: 1.5rem; color: white;"></i>
+                </div>
+                <div>
+                  <p style="font-size: 0.75rem; color: #6b7280; margin: 0; font-weight: 600; text-transform: uppercase;">Active Users</p>
+                  <p style="font-size: 1.1rem; font-weight: 800; color: #1f2937; margin: 0;">Growth</p>
+                </div>
+              </div>
+              <div style="text-align: center; padding: 15px; background: #f9fafb; border-radius: 8px;">
+                <p style="margin: 0 0 5px 0; color: #6b7280; font-size: 0.8rem;">{{ year_comparison.year1 }}: <strong>{{ year_comparison.year1_users }}</strong></p>
+                <p style="margin: 0 0 10px 0; color: #6b7280; font-size: 0.8rem;">{{ year_comparison.year2 }}: <strong>{{ year_comparison.year2_users }}</strong></p>
+                <p class="{% if year_comparison.users_change >= 0 %}growth-positive{% else %}growth-negative{% endif %}" style="margin: 0; font-size: 1.8rem; font-weight: 800;">
+                  {% if year_comparison.users_change >= 0 %}+{% endif %}{{ year_comparison.users_change|floatformat:1 }}%
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Excel Upload Section -->
+        <div class="upload-section">
+          <h3><i class='bx bx-upload'></i> Bulk Data Upload</h3>
+          <div class="filter-actions" style="margin-top: 15px;">
+            <a href="{% url 'cenro:download_excel_template' %}" class="btn btn-primary">
+              <i class='bx bx-download'></i> Download Excel Template
+            </a>
+            <button type="button" class="btn btn-success" onclick="document.getElementById('excelFileInput').click()">
+              <i class='bx bx-upload'></i> Upload Excel File
+            </button>
+          </div>
+          <div class="file-upload" id="fileUploadArea">
+            <i class='bx bx-cloud-upload'></i>
+            <p><strong>Drag and drop your Excel file here</strong></p>
+            <p>or click to browse</p>
+            <input type="file" id="excelFileInput" accept=".xlsx,.xls">
+          </div>
+          <div class="progress-bar" id="uploadProgress">
+            <div class="progress-bar-fill" id="uploadProgressFill"></div>
+          </div>
+          <div id="uploadMessage"></div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+          <div class="chart-card">
+            <h3><i class='bx bxs-pie-chart-alt-2'></i> Waste Type Distribution</h3>
+            <div style="position: relative; margin-bottom: 15px;">
+              <canvas id="wasteTypeChart"></canvas>
+            </div>
+            <div class="insight-box" style="border-left-color: #667eea; background: linear-gradient(135deg, #ede9fe 0%, #ddd6fe 100%); margin-top: 15px;">
+              <h5 style="color: #667eea; font-size: 0.85rem; margin: 0 0 8px 0;">
+                <i class='bx bx-info-circle'></i> Understanding This Chart
+              </h5>
+              <p style="margin: 0; font-size: 0.8rem; line-height: 1.5;">
+                {% if waste_type_stats %}
+                  {% with first=waste_type_stats.0 %}
+                    The results show that <strong>{{ first.waste_type__name }}</strong> has the highest collection volume with 
+                    <strong>{{ first.total_weight|floatformat:2 }} kg</strong> ({% widthratio first.total_weight total_weight 100 %}% of total), 
+                    followed by {% if waste_type_stats.1 %}<strong>{{ waste_type_stats.1.waste_type__name }}</strong> 
+                    at <strong>{{ waste_type_stats.1.total_weight|floatformat:2 }} kg</strong>{% endif %}{% if waste_type_stats.2 %} 
+                    and <strong>{{ waste_type_stats.2.waste_type__name }}</strong> at <strong>{{ waste_type_stats.2.total_weight|floatformat:2 }} kg</strong>{% endif %}. 
+                    This distribution reveals which waste types dominate your collection program.
+                  {% endwith %}
+                {% else %}
+                  No waste type data available for the selected filters.
+                {% endif %}
+              </p>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h3><i class='bx bxs-map'></i> Collection by Barangay</h3>
+            <div style="position: relative; margin-bottom: 15px;">
+              <canvas id="barangayChart"></canvas>
+            </div>
+            <div class="insight-box" style="border-left-color: #f59e0b; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); margin-top: 15px;">
+              <h5 style="color: #f59e0b; font-size: 0.85rem; margin: 0 0 8px 0;">
+                <i class='bx bx-info-circle'></i> Understanding This Chart
+              </h5>
+              <p style="margin: 0; font-size: 0.8rem; line-height: 1.5;">
+                {% if barangay_stats %}
+                  {% with first=barangay_stats.0 %}
+                    The results show that <strong>{{ first.barangay__name|default:"Unknown Barangay" }}</strong> has the highest 
+                    collection performance with <strong>{{ first.total_weight|floatformat:2 }} kg</strong> collected across 
+                    <strong>{{ first.count }}</strong> transactions. {% if barangay_stats.1 %}This is followed by 
+                    <strong>{{ barangay_stats.1.barangay__name|default:"Unknown" }}</strong> with 
+                    <strong>{{ barangay_stats.1.total_weight|floatformat:2 }} kg</strong>{% endif %}{% if barangay_stats.2 %} and 
+                    <strong>{{ barangay_stats.2.barangay__name|default:"Unknown" }}</strong> with 
+                    <strong>{{ barangay_stats.2.total_weight|floatformat:2 }} kg</strong>{% endif %}.
+                  {% endwith %}
+                {% else %}
+                  No barangay data available for the selected filters.
+                {% endif %}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-card" style="margin-bottom: 30px;">
+          <h3><i class='bx bxs-bar-chart-square'></i> Waste Type Comparison</h3>
+          <div style="position: relative; margin-bottom: 15px;">
+            <canvas id="wasteTypeBarChart"></canvas>
+          </div>
+          <div class="insight-box" style="border-left-color: #10b981; background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); margin-top: 15px;">
+            <h5 style="color: #10b981; font-size: 0.85rem; margin: 0 0 8px 0;">
+              <i class='bx bx-info-circle'></i> Understanding This Chart
+            </h5>
+            <p style="margin: 0; font-size: 0.8rem; line-height: 1.5;">
+              {% if waste_type_stats %}
+                {% with first=waste_type_stats.0 %}
+                  The comparison reveals that <strong>{{ first.waste_type__name }}</strong> leads in both total weight 
+                  (<strong>{{ first.total_weight|floatformat:2 }} kg</strong>) and transactions (<strong>{{ first.count }}</strong>). 
+                  {% if waste_type_stats.1 %}<strong>{{ waste_type_stats.1.waste_type__name }}</strong> follows with 
+                  <strong>{{ waste_type_stats.1.total_weight|floatformat:2 }} kg</strong> across 
+                  <strong>{{ waste_type_stats.1.count }}</strong> transactions{% endif %}. This dual view shows which waste types 
+                  contribute the most volume and which generate the most collection activity.
+                {% endwith %}
+              {% else %}
+                No waste type comparison data available for the selected filters.
+              {% endif %}
+            </p>
+          </div>
+        </div>
+
+        <!-- Monthly Waste Type Tracking Chart (ENHANCED) -->
+        <div class="chart-card chart-card-featured" style="grid-column: 1 / -1; margin-bottom: 30px;">
+          <div style="border-bottom: 2px solid #e5e7eb; padding-bottom: 15px; margin-bottom: 20px;">
+            <h3 style="margin: 0; display: flex; align-items: center; gap: 10px;">
+              <i class='bx bx-line-chart' style="color: #667eea; font-size: 1.5rem;"></i>
+              Monthly Waste Collection Trends by Type
+            </h3>
+            <p style="color: #6b7280; font-size: 0.9rem; margin: 8px 0 0 0; padding-left: 34px;">
+              Comprehensive time-series analysis showing collection patterns and seasonal variations
+            </p>
+          </div>
+          
+          <!-- Chart Canvas with better container -->
+          <div style="position: relative; background: white; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <canvas id="monthlyTrackingChart" style="max-height: 450px;"></canvas>
+          </div>
+          
+          <!-- Interactive Legend/Summary -->
+          <div style="background: #f9fafb; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
+            <h4 style="color: #374151; font-size: 0.95rem; font-weight: 700; margin: 0 0 12px 0; display: flex; align-items: center; gap: 8px;">
+              <i class='bx bx-palette' style="color: #667eea;"></i>
+              Waste Type Legend & Summary
+            </h4>
+            <div id="monthlyChartLegend" style="display: flex; flex-wrap: wrap; gap: 8px;">
+              <!-- Generated dynamically by JavaScript -->
+            </div>
+          </div>
+          
+          <!-- How to Read This Chart (Collapsible) -->
+          <div class="insight-box collapsible collapsed" style="border-left-color: #3b82f6; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);" onclick="toggleCollapse(this)">
+            <h5 style="color: #3b82f6; font-size: 0.9rem;">
+              <i class='bx bx-book-reader'></i>
+              How to Read This Chart
+            </h5>
+            <div class="collapsible-content">
+              <p style="font-size: 0.85rem; line-height: 1.6; margin-top: 10px;">
+                <strong>X-Axis:</strong> Time periods by month (e.g., Jan 2025). <strong>Y-Axis:</strong> Weight in kilograms.<br>
+                <strong>Colored Lines:</strong> Each represents a waste type's collection trend over time. Hover dots for exact values.<br>
+                <strong>Shaded Areas:</strong> Help visually distinguish between different waste types.
+              </p>
+            </div>
+          </div>
+          
+          <!-- Key Findings (Collapsible) -->
+          <div class="insight-box collapsible collapsed" style="border-left-color: #10b981;" onclick="toggleCollapse(this)">
+            <h5 style="color: #10b981; font-size: 0.9rem;">
+              <i class='bx bx-bulb'></i>
+              Key Patterns to Look For
+            </h5>
+            <div class="collapsible-content">
+              <p style="font-size: 0.85rem; line-height: 1.6; margin-top: 10px;">
+                <strong>Upward Lines:</strong> Increasing collections (positive impact). <strong>Downward:</strong> Declining participation.<br>
+                <strong>Flat Lines:</strong> Stable community engagement. <strong>Peaks/Valleys:</strong> Seasonal waste patterns.<br>
+                <strong>Converging Lines:</strong> Waste types with similar collection volumes.
+              </p>
+            </div>
+          </div>
+          
+          <!-- Actionable Insights (Collapsible) -->
+          <div class="insight-box collapsible collapsed" style="border-left-color: #f59e0b;" onclick="toggleCollapse(this)">
+            <h5 style="color: #f59e0b; font-size: 0.9rem;">
+              <i class='bx bx-target-lock'></i>
+              Action Steps
+            </h5>
+            <div class="collapsible-content">
+              <p style="font-size: 0.85rem; line-height: 1.6; margin-top: 10px;">
+                <strong>Plan Resources:</strong> Allocate more staff/storage during peak months.<br>
+                <strong>Launch Campaigns:</strong> Target awareness efforts before predicted low periods.<br>
+                <strong>Adjust Incentives:</strong> Increase points for underperforming waste types to boost participation.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Monthly Insights Explanation (DATA-SPECIFIC & IMPROVED) -->
+        {% if monthly_insights.total_months > 0 %}
+        <div class="filter-section" style="background: linear-gradient(135deg, #10b98115 0%, #34d39915 100%); margin-bottom: 30px; border: 1px solid #d1fae5;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid #10b981;">
+            <h3 style="color: #1f2937; margin: 0; display: flex; align-items: center; gap: 10px;">
+              <i class='bx bx-bulb' style="color: #10b981; font-size: 1.6rem;"></i>
+              Monthly Collection Insights & Analytics
+            </h3>
+            <span style="background: #10b981; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.85rem; font-weight: 600;">
+              {{ monthly_insights.total_months }} Month{{ monthly_insights.total_months|pluralize }} Analyzed
+            </span>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 20px;">
+            
+            <!-- Peak Month Card (Data-Specific) -->
+            {% if monthly_insights.peak_month %}
+            <div style="background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%); padding: 20px; border-radius: 12px; border: 2px solid #10b981; box-shadow: 0 4px 6px rgba(0,0,0,0.07); transition: all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 12px rgba(16,185,129,0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.07)'">
+              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 10px; border-radius: 10px;">
+                  <i class='bx bx-trophy' style="font-size: 1.8rem; color: white;"></i>
+                </div>
+                <div style="flex: 1;">
+                  <p style="font-size: 0.8rem; color: #6b7280; margin: 0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Peak Collection Month</p>
+                  <p style="font-size: 1.5rem; font-weight: 800; color: #1f2937; margin: 0; line-height: 1.2;">{{ monthly_insights.peak_month }}</p>
+                </div>
+              </div>
+              <div style="background: white; padding: 12px; border-radius: 8px; border-left: 3px solid #10b981;">
+                <p style="font-size: 0.85rem; color: #6b7280; margin: 0 0 6px 0;">
+                  <strong style="color: #10b981; font-size: 1.3rem;">{{ monthly_insights.peak_month_weight|floatformat:1 }} kg</strong> collected
+                </p>
+                <p style="font-size: 0.75rem; color: #9ca3af; margin: 0;">
+                  {% widthratio monthly_insights.peak_month_weight total_weight 100 %}% of total collections occurred in this month
+                </p>
+              </div>
+            </div>
+            {% endif %}
+            
+            <!-- Collection Trend Card (Data-Specific) -->
+            <div class="trend-card-{{ monthly_insights.trend }}" style="padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.07); transition: all 0.3s;" 
+                 onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 12px rgba(0,0,0,0.12)'" 
+                 onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.07)'">
+              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <div class="trend-icon-bg-{{ monthly_insights.trend }}" style="padding: 10px; border-radius: 10px;">
+                  <i class='bx {% if monthly_insights.trend == "increasing" %}bx-trending-up{% elif monthly_insights.trend == "decreasing" %}bx-trending-down{% else %}bx-minus{% endif %}' 
+                     style="font-size: 1.8rem; color: white;"></i>
+                </div>
+                <div style="flex: 1;">
+                  <p style="font-size: 0.8rem; color: #6b7280; margin: 0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Overall Trend</p>
+                  <p style="font-size: 1.5rem; font-weight: 800; color: #1f2937; margin: 0; line-height: 1.2; text-transform: capitalize;">
+                    {{ monthly_insights.trend }}
+                  </p>
+                </div>
+              </div>
+              <div class="trend-border-{{ monthly_insights.trend }}" style="background: white; padding: 12px; border-radius: 8px;">
+                {% if monthly_insights.growth_rate > 0 %}
+                <p style="font-size: 0.85rem; color: #6b7280; margin: 0 0 6px 0;">
+                  <strong class="trend-color-{{ monthly_insights.trend }}" style="font-size: 1.3rem;">{{ monthly_insights.growth_rate|floatformat:1 }}%</strong> 
+                  {% if monthly_insights.trend == 'increasing' %}growth{% elif monthly_insights.trend == 'decreasing' %}decline{% else %}change{% endif %}
+                </p>
+                {% endif %}
+                <p style="font-size: 0.75rem; color: #9ca3af; margin: 0;">
+                  {% if monthly_insights.trend == "increasing" %}
+                    Collections increased from early months to recent months 📈
+                  {% elif monthly_insights.trend == "decreasing" %}
+                    Collections decreased from early months to recent months 📉
+                  {% else %}
+                    Collections remained consistent across the period 📊
+                  {% endif %}
+                </p>
+              </div>
+            </div>
+            
+            <!-- Most Consistent Type Card (Data-Specific) -->
+            {% if monthly_insights.most_consistent_type %}
+            <div style="background: linear-gradient(135deg, #ffffff 0%, #eff6ff 100%); padding: 20px; border-radius: 12px; border: 2px solid #3b82f6; box-shadow: 0 4px 6px rgba(0,0,0,0.07); transition: all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 12px rgba(59,130,246,0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.07)'">
+              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <div style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); padding: 10px; border-radius: 10px;">
+                  <i class='bx bx-check-circle' style="font-size: 1.8rem; color: white;"></i>
+                </div>
+                <div style="flex: 1;">
+                  <p style="font-size: 0.8rem; color: #6b7280; margin: 0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Most Reliable</p>
+                  <p style="font-size: 1.3rem; font-weight: 800; color: #1f2937; margin: 0; line-height: 1.2;">{{ monthly_insights.most_consistent_type }}</p>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+            
+            <!-- Most Variable Type Card (Data-Specific) -->
+            {% if monthly_insights.most_variable_type %}
+            <div style="background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%); padding: 20px; border-radius: 12px; border: 2px solid #f59e0b; box-shadow: 0 4px 6px rgba(0,0,0,0.07); transition: all 0.3s;" onmouseover="this.style.transform='translateY(-4px)'; this.style.boxShadow='0 8px 12px rgba(245,158,11,0.15)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 6px rgba(0,0,0,0.07)'">
+              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 10px; border-radius: 10px;">
+                  <i class='bx bx-bar-chart-alt-2' style="font-size: 1.8rem; color: white;"></i>
+                </div>
+                <div style="flex: 1;">
+                  <p style="font-size: 0.8rem; color: #6b7280; margin: 0; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Most Fluctuating</p>
+                  <p style="font-size: 1.3rem; font-weight: 800; color: #1f2937; margin: 0; line-height: 1.2;">{{ monthly_insights.most_variable_type }}</p>
+                </div>
+              </div>
+            </div>
+            {% endif %}
+            
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Tabbed Data Tables Section -->
+        <div class="tabbed-data-container">
+          <!-- Tab Header -->
+          <div class="tab-header">
+            <button class="tab-button active" onclick="switchTab(event, 'topCollectors')">
+              <i class='bx bxs-trophy'></i>
+              <span>Top Collectors</span>
+            </button>
+            <button class="tab-button" onclick="switchTab(event, 'wasteTypes')">
+              <i class='bx bxs-category'></i>
+              <span>Waste Types</span>
+            </button>
+            <button class="tab-button" onclick="switchTab(event, 'barangays')">
+              <i class='bx bxs-map'></i>
+              <span>Barangays</span>
+            </button>
+            <button class="tab-button" onclick="switchTab(event, 'recentTransactions')">
+              <i class='bx bxs-time'></i>
+              <span>Recent Activity</span>
+            </button>
+          </div>
+
+          <!-- Tab Content: Top Collectors -->
+          <div id="topCollectors" class="tab-content active">
+            <h4><i class='bx bxs-trophy'></i> Top Collectors Leaderboard</h4>
+            <p class="tab-description">
+              This table recognizes the top 10 most active waste collectors based on total weight collected.
+              These champions are leading the way in environmental conservation!
+            </p>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>User Name</th>
+                  <th>Family Code</th>
+                  <th>Total Weight (kg)</th>
+                  <th>Total Points</th>
+                  <th>Transactions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for collector in top_collectors %}
+                <tr>
+                  <td><span class="badge badge-info">#{{ forloop.counter }}</span></td>
+                  <td>{{ collector.user__full_name }}</td>
+                  <td>{{ collector.user__family__family_code|default:"N/A" }}</td>
+                  <td>{{ collector.total_weight|floatformat:2 }}</td>
+                  <td>{{ collector.total_points|floatformat:0 }}</td>
+                  <td>{{ collector.count }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="6" style="text-align: center; padding: 40px; color: #9ca3af;">
+                    <i class='bx bx-info-circle' style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                    No data available
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Tab Content: Waste Type Statistics -->
+          <div id="wasteTypes" class="tab-content">
+            <h4><i class='bx bxs-category'></i> Waste Type Detailed Statistics</h4>
+            <p class="tab-description">
+              Comprehensive breakdown of each waste type showing total weight, points awarded, and transaction count.
+              The percentage column shows each type's contribution to the total waste collected.
+            </p>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Waste Type</th>
+                  <th>Total Weight (kg)</th>
+                  <th>Total Points</th>
+                  <th>Transactions</th>
+                  <th>Percentage</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for stat in waste_type_stats %}
+                <tr>
+                  <td><span class="badge badge-success">{{ stat.waste_type__name }}</span></td>
+                  <td>{{ stat.total_weight|floatformat:2 }}</td>
+                  <td>{{ stat.total_points|floatformat:0 }}</td>
+                  <td>{{ stat.count }}</td>
+                  <td>
+                    {% widthratio stat.total_weight total_weight 100 %}%
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="5" style="text-align: center; padding: 40px; color: #9ca3af;">
+                    <i class='bx bx-info-circle' style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                    No data available
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Tab Content: Barangay Statistics -->
+          <div id="barangays" class="tab-content">
+            <h4><i class='bx bxs-map'></i> Barangay Performance Overview</h4>
+            <p class="tab-description">
+              Compare waste collection performance across all barangays. This data helps identify
+              high-performing communities and areas that may need additional support or engagement.
+            </p>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Barangay</th>
+                  <th>Total Weight (kg)</th>
+                  <th>Total Points</th>
+                  <th>Transactions</th>
+                  <th>Percentage</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for stat in barangay_stats %}
+                <tr>
+                  <td><span class="badge badge-warning">{{ stat.barangay__name|default:"Unknown" }}</span></td>
+                  <td>{{ stat.total_weight|floatformat:2 }}</td>
+                  <td>{{ stat.total_points|floatformat:0 }}</td>
+                  <td>{{ stat.count }}</td>
+                  <td>
+                    {% widthratio stat.total_weight total_weight 100 %}%
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="5" style="text-align: center; padding: 40px; color: #9ca3af;">
+                    <i class='bx bx-info-circle' style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                    No data available
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Tab Content: Recent Transactions -->
+          <div id="recentTransactions" class="tab-content">
+            <h4><i class='bx bxs-time'></i> Recent Transaction History</h4>
+            <p class="tab-description">
+              View the latest 20 waste collection transactions. This real-time feed shows current
+              collection activity including user details, waste types, and points awarded.
+            </p>
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>User</th>
+                  <th>Waste Type</th>
+                  <th>Weight (kg)</th>
+                  <th>Points</th>
+                  <th>Barangay</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for transaction in recent_transactions %}
+                <tr>
+                  <td>{{ transaction.transaction_date|date:"M d, Y" }}</td>
+                  <td>{{ transaction.user.full_name }}</td>
+                  <td><span class="badge badge-success">{{ transaction.waste_type.name }}</span></td>
+                  <td>{{ transaction.waste_kg|floatformat:2 }}</td>
+                  <td>{{ transaction.total_points|floatformat:0 }}</td>
+                  <td>{{ transaction.barangay.name|default:"N/A" }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="6" style="text-align: center; padding: 40px; color: #9ca3af;">
+                    <i class='bx bx-info-circle' style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                    No transactions available
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </section>
+  
+  <script src="{% static 'script.js' %}"></script>
+  
+  <!-- Pass Django data to JavaScript -->
+  <script>
+    // Chart data from Django templates
+    window.WASTE_TYPE_DATA = JSON.parse('{{ waste_type_chart_data|safe }}');
+    window.BARANGAY_DATA = JSON.parse('{{ barangay_chart_data|safe }}');
+    window.WASTE_TYPE_BAR_DATA = JSON.parse('{{ waste_type_bar_data|safe }}');
+    window.MONTHLY_TRACKING_DATA = JSON.parse('{{ monthly_tracking_data|safe }}');
+    
+    // Upload URL for file handling
+    window.UPLOAD_URL = '{% url "cenro:upload_waste_data_excel" %}';
+  </script>
+  
+  <!-- Load external JavaScript modules -->
+  <script src="{% static 'js/tab-persistence.js' %}?v={{ timestamp }}"></script>
+  <script src="{% static 'js/adminanalytics.js' %}?v={{ timestamp }}"></script>
+  <script src="{% static 'js/adminanalytics-charts.js' %}?v={{ timestamp }}"></script>
+
+  <!-- Comparison Modal -->
+  <div class="comparison-modal" id="comparisonModal" style="display: none;">
+    <div class="comparison-modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 25px;">
+        <div>
+          <h3 style="margin: 0 0 8px 0; font-size: 1.5rem; color: #1f2937; display: flex; align-items: center; gap: 10px;">
+            <i class='bx bx-git-compare' style="color: #667eea; font-size: 1.6rem;"></i>
+            Compare Years
+          </h3>
+          <p style="color: #6b7280; margin: 0; font-size: 0.9rem;">Select two years to compare waste collection data side by side</p>
+        </div>
+        <button type="button" onclick="closeComparisonModal()" style="background: #f3f4f6; border: none; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#e5e7eb'; this.style.transform='rotate(90deg)'" onmouseout="this.style.background='#f3f4f6'; this.style.transform='rotate(0deg)'">
+          <i class='bx bx-x' style="font-size: 1.6rem; color: #6b7280; transition: color 0.2s;"></i>
+        </button>
+      </div>
+      
+      <form method="GET" action="" id="comparisonForm">
+        <div class="comparison-year-grid">
+          <div>
+            <label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+              <i class='bx bx-calendar-alt' style="color: #667eea; font-size: 1.1rem;"></i> First Year
+            </label>
+            <select name="compare_year1" id="compareYear1" class="comparison-year-select" required>
+              <option value="">Select first year</option>
+              <option value="2025">2025 (Current)</option>
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+              <option value="2022">2022</option>
+              <option value="2021">2021</option>
+              <option value="2020">2020</option>
+            </select>
+          </div>
+          
+          <div>
+            <label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+              <i class='bx bx-calendar-alt' style="color: #764ba2; font-size: 1.1rem;"></i> Second Year
+            </label>
+            <select name="compare_year2" id="compareYear2" class="comparison-year-select" required>
+              <option value="">Select second year</option>
+              <option value="2025">2025 (Current)</option>
+              <option value="2024">2024</option>
+              <option value="2023">2023</option>
+              <option value="2022">2022</option>
+              <option value="2021">2021</option>
+              <option value="2020">2020</option>
+            </select>
+          </div>
+        </div>
+        
+        <!-- Preserve other filters -->
+        {% if filters.barangay %}
+        <input type="hidden" name="barangay" value="{{ filters.barangay }}">
+        {% endif %}
+        {% if filters.waste_type %}
+        <input type="hidden" name="waste_type" value="{{ filters.waste_type }}">
+        {% endif %}
+        <input type="hidden" name="year_filter" value="compare">
+        
+        <div style="margin-top: 30px; display: flex; gap: 12px; justify-content: flex-end;">
+          <button type="button" onclick="closeComparisonModal()" class="btn btn-secondary" style="padding: 13px 26px; border-radius: 10px; font-weight: 600; background: #f3f4f6; border: 2px solid #e5e7eb; color: #6b7280; transition: all 0.2s; display: flex; align-items: center; gap: 8px;">
+            <i class='bx bx-x' style="font-size: 1.2rem;"></i> Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" style="padding: 13px 26px; border-radius: 10px; font-weight: 600; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4); transition: all 0.2s; display: flex; align-items: center; gap: 8px;">
+            <i class='bx bx-git-compare' style="font-size: 1.2rem;"></i> Compare Years
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+	<script src="{% static 'js/admin_notifications.js' %}"></script>
+</body>
+</html>

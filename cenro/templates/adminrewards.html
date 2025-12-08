@@ -1,0 +1,741 @@
+{% load static %}
+{% load points_filters %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="csrf-token" content="{{ csrf_token }}">
+
+	<!-- Boxicons from multiple CDNs for reliability -->
+	<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+	<link href='https://cdn.jsdelivr.net/npm/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+	<!-- My CSS -->
+	<link rel="stylesheet" href="{% static 'style.css' %}">
+	<link rel="stylesheet" href="{% static 'css/adminrewards.css' %}?v={{ timestamp }}">
+	<link rel="stylesheet" href="{% static 'css/unified-modal.css' %}">
+	<!-- Favicon -->
+	<link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
+
+	<title>AdminPanel</title>
+</head>
+<body>
+
+
+	<!-- SIDEBAR -->
+	<section id="sidebar">
+		<a href="#" class="brand">
+			<i class='bx bxs-group' ></i>
+			<span class="text">CENRO Admin</span>
+		</a>
+		<ul class="side-menu top">
+			<!-- Dashboard/Home -->
+			<li>
+				<a href="{% url 'cenro:dashboard' %}">
+					<i class='bx bxs-dashboard'></i>
+					<span class="text">Dashboard</span>
+				</a>
+			</li>
+
+			{% if can_manage_users %}
+			<li>
+				<a href="{% url 'cenro:adminuser' %}">
+					<i class='bx bxs-user-detail' ></i>
+					<span class="text">User Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% if admin_user.role == 'super_admin' %}
+			<li>
+				<a href="{% url 'cenro:admin_management' %}">
+					<i class='bx bxs-user-detail' ></i>
+					<span class="text">Admin Management</span>
+				</a>
+			</li>
+			{% endif %}
+			
+			{% if can_manage_controls %}
+			<li>
+				<a href="{% url 'cenro:admincontrol' %}">
+					<i class='bx bxs-component' ></i>
+					<span class="text">Controls Management</span>
+				</a>
+			</li>
+			{% endif %}
+			
+			{% if can_manage_points %}
+			<li>
+				<a href="{% url 'cenro:adminpoints' %}">
+					<i class='bx bxs-star'  ></i>
+					<span class="text">Points Management</span>
+				</a>
+			</li>
+			{% endif %}
+			
+			{% if can_manage_rewards %}
+			<li class="active">
+				<a href="{% url 'cenro:adminrewards' %}">
+					<i class='bx bxs-gift'></i>
+					<span class="text">Rewards Management</span>
+				</a>
+			</li>
+			{% endif %}
+
+			{% if can_manage_schedules %}
+			<li>
+				<a href="{% url 'cenro:adminschedule' %}">
+					<i class='bx bxs-calendar' ></i>
+					<span class="text">Schedule Management</span>
+				</a>
+			</li>
+			{% endif %}
+			
+			{% if can_manage_security %}
+			<li>
+<a href="{% url 'cenro:security_dashboard' %}">
+<i class='bx bxs-shield' ></i>
+<span class="text">Security Management</span>
+</a>
+</li>
+			{% endif %}
+			
+			{% if can_manage_learning %}
+			<li>
+				<a href="{% url 'cenro:adminlearn' %}">
+					<i class='bx bxs-book-content' ></i>
+					<span class="text">Learning Management</span>
+				</a>
+			</li>
+			{% endif %}
+			
+			{% if can_manage_games %}
+			<li>
+				<a href="{% url 'cenro:admingames' %}">
+				<i class='bx bxs-game' ></i>
+				<span class="text">Games Management</span>
+				</a>      
+      <li>
+        <a href="{% url 'cenro:waste_analytics' %}">
+          <i class='bx bxs-bar-chart-alt-2' ></i>
+          <span class="text">Waste Analytics</span>
+        </a>
+      </li>
+      
+			</li>
+			{% endif %}
+			
+			<!-- Security Analyst Special Dashboard -->
+			{% if admin_role == 'security_analyst' %}
+			<li>
+				<a href="{% url 'cenro:adminsecurity' %}">
+					<i class='bx bxs-dashboard' ></i>
+					<span class="text">Security Dashboard</span>
+				</a>
+			</li>
+			{% endif %}
+
+		</ul>
+		<ul class="side-menu">
+			<li>
+				<a href="{% url 'cenro:admin_logout' %}" class="logout">
+					<i class='bx bxs-log-out-circle' ></i>
+					<span class="text">Logout</span>
+				</a>
+			</li>
+		</ul>
+	</section>
+	<!-- SIDEBAR -->
+
+
+
+	<!-- CONTENT -->
+	<section id="content">
+		<!-- NAVBAR -->
+		<nav>
+			<i class='bx bx-menu' ></i>
+			
+			<!-- Admin User Profile Section -->
+			{% if is_admin_authenticated %}
+			<div class="profile" style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+				<!-- Admin Notification Bell -->
+				{% include 'includes/notification_bell.html' %}
+				
+				<div class="admin-info" style="text-align: right; margin-right: 10px;">
+					<span style="display: block; font-weight: 600; color: #333;">{{ admin_full_name }}</span>
+					<span style="display: block; font-size: 0.8rem; color: #666;">{{ admin_role_display }}</span>
+				</div>
+				<i class='bx bxs-user-circle' style="font-size: 2rem; color: #667eea;"></i>
+			</div>
+			{% else %}
+			<div class="profile" style="margin-left: auto;">
+				<a href="{% url 'cenro:admin_login' %}" style="color: #667eea; text-decoration: none;">
+					<i class='bx bx-log-in' style="font-size: 1.5rem;"></i>
+					<span>Login</span>
+				</a>
+			</div>
+			{% endif %}
+		</nav>
+		<!-- NAVBAR -->
+
+		<!-- MAIN -->
+		<main>
+			<div class="head-title">
+				<div class="left">
+					<h1>Rewards</h1>
+					<ul class="breadcrumb">
+						<li>
+							<a href="#">Rewards</a>
+						</li>
+						<li><i class='bx bx-chevron-right' ></i></li>
+						<li>
+							<a class="active" href="#">Home</a>
+						</li>
+					</ul>
+				</div>
+				
+			</div>
+
+
+			<!-- Reward Management Section -->
+
+
+			<div class="reward-container">
+				<div class="reward-header">
+					<h3 style="color: #000000 !important;">Reward Management</h3>
+					<div class="reward-icons">
+					<input type="text" id="rewardsSearchInput" placeholder="Search rewards..." style="padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 8px; width: 250px; font-size: 0.9rem; margin-right: 10px;">
+					<button class="add-reward-btn" onclick="openAddRewardModal()">+ Add Reward</button>
+					<button class="add-reward-btn" onclick="openAddStockModal()" style="background-color: #10b981; margin-left: 10px;">+ Add Stock</button>
+					<button class="add-reward-btn" onclick="openRemoveStockModal()" style="background-color: #ef4444; margin-left: 10px;">- Remove Stock</button>
+					</div>
+				</div>
+
+				<div class="reward-table-wrapper" style="max-height: 500px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px;">
+					<table class="reward-table">
+					<thead>
+						<tr style="position: sticky; top: 0; z-index: 10; background: #f9fafb;">
+						<th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">ID</th>
+						<th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">Name</th>
+						<th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">Category</th>
+						<th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">Points</th>
+						<th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">Stock</th>
+						<th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; max-width: 200px;">Description</th>
+						<th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">Image URL</th>
+						<th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+					{% for reward in rewards %}
+					<tr>
+						<td style="padding: 12px; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">{{ forloop.counter }}</td>
+						<td style="padding: 12px; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">{{ reward.name }}</td>
+						<td style="padding: 12px; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">{{ reward.category }}</td>
+						<td style="padding: 12px; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">{{ reward.points_required|smart_points }}</td>
+						<td style="padding: 12px; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">{{ reward.stock }}</td>
+						<td style="padding: 12px; border-bottom: 1px solid #e5e7eb; max-width: 200px; word-wrap: break-word;">{{ reward.description }}</td>
+						<td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+					{% if reward.image %}
+						<a href="https://drive.google.com/file/d/{{ reward.image }}/view" target="_blank" title="Click to view full size image">
+							<img src="{{ reward.image_url }}" alt="{{ reward.name }}" style="width:60px;height:60px;object-fit:cover;cursor:pointer;border:1px solid #e5e7eb;border-radius:4px;" onerror="this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27100%27 height=%27100%27%3E%3Crect fill=%27%23f3f4f6%27 width=%27100%27 height=%27100%27/%3E%3Ctext fill=%27%236b7280%27 font-family=%27Arial%27 font-size=%2714%27 x=%2750%25%27 y=%2750%25%27 text-anchor=%27middle%27 dy=%27.3em%27%3ENo Image%3C/text%3E%3C/svg%3E'; this.style.width='60px'; this.style.height='60px';">
+						</a>
+					{% else %}
+						<span style="color: #6b7280; font-size: 12px;">No image</span>
+					{% endif %}
+					</td>
+						<td class="reward-actions" style="padding: 12px; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">
+						<button class="reward-action-btn"
+						onclick="openEditRewardModal(
+							'{{ reward.id }}',
+							'{{ reward.name|escapejs }}',
+							'{{ reward.category.id }}',  
+							'{{ reward.points_required }}',
+							'{{ reward.description|escapejs }}',
+							'{{ reward.image_url|escapejs }}'
+						)">✎</button>
+						<button class="reward-action-btn" onclick="openDeleteRewardModal('{{ reward.id }}')">🗑</button>
+						</td>
+					</tr>
+					{% endfor %}
+					</tbody>
+					</table>
+				</div>
+			</div>
+
+			<!-- Recent History Section -->
+			<div class="reward-container" style="margin-top: 30px;">
+				<div class="reward-header">
+					<h3 style="color: #000000 !important;">Recent Activity</h3>
+					<div class="reward-icons">
+						<a href="{% url 'cenro:reward_history' %}" class="add-reward-btn" style="background-color: #6366f1;">View Full History</a>
+					</div>
+				</div>
+				<div class="history-table-wrapper" style="max-height: 400px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px;">
+					<table class="history-table" style="width: 100%; border-collapse: collapse;">
+						<thead>
+							<tr style="background: #f9fafb; position: sticky; top: 0; z-index: 10;">
+								<th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">Date</th>
+								<th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">Reward</th>
+								<th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">Action</th>
+								<th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">Change</th>
+								<th style="padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">By</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for history in recent_history %}
+							<tr>
+								<td style="padding: 12px; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">{{ history.timestamp|date:"M d, H:i" }}</td>
+								<td style="padding: 12px; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">{{ history.reward.name }}</td>
+								<td style="padding: 12px; border-bottom: 1px solid #e5e7eb;">
+									<span class="action-badge action-{{ history.action }}">
+										{{ history.get_action_display }}
+									</span>
+								</td>
+								<td style="padding: 12px; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">
+									{% if history.stock_change != 0 %}
+										<span class="stock-change {% if history.stock_change > 0 %}positive{% else %}negative{% endif %}">
+											{% if history.stock_change > 0 %}+{% endif %}{{ history.stock_change }}
+										</span>
+									{% else %}
+										-
+									{% endif %}
+								</td>
+								<td style="padding: 12px; border-bottom: 1px solid #e5e7eb; white-space: nowrap;">
+									{% if history.action == 'stock_redeemed' %}
+										{{ history.user.full_name|default:"Unknown User" }}
+									{% else %}
+										{{ history.admin_user.full_name|default:"System" }}
+									{% endif %}
+								</td>
+							</tr>
+							{% empty %}
+							<tr>
+								<td colspan="5" style="padding: 20px; text-align: center; color: #6b7280;">
+									No recent activity found.
+								</td>
+							</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<!-- Add Reward Modal -->
+		<div class="modal-overlay" id="addRewardModal" style="display: none;">
+		<div class="modal-content" style="padding: 35px; max-width: 600px;">
+			<div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 25px;">
+				<div>
+					<h3 style="margin: 0 0 8px 0; font-size: 1.5rem; color: #1f2937; display: flex; align-items: center; gap: 10px;">
+						<i class='bx bx-gift' style="color: #667eea; font-size: 1.6rem;"></i>
+						Add New Reward
+					</h3>
+					<p style="color: #6b7280; margin: 0; font-size: 0.9rem;">Create a new reward item for the redemption catalog</p>
+				</div>
+				<button type="button" onclick="closeAddRewardModal()" style="background: #f3f4f6; border: none; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#e5e7eb'; this.style.transform='rotate(90deg)'" onmouseout="this.style.background='#f3f4f6'; this.style.transform='rotate(0deg)'">
+					<i class='bx bx-x' style="font-size: 1.6rem; color: #6b7280;"></i>
+				</button>
+			</div>
+			<form id="addRewardForm" enctype="multipart/form-data">
+			{% csrf_token %}
+			<div style="margin-bottom: 20px;">
+				<label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+					<i class='bx bx-package' style="color: #667eea; font-size: 1.1rem;"></i> Reward Name
+				</label>
+				<input type="text" id="rewardName" name="name" required style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease;" placeholder="e.g., Eco-Friendly Water Bottle">
+			</div>
+
+			<div style="margin-bottom: 20px;">
+				<label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+					<i class='bx bx-category' style="color: #667eea; font-size: 1.1rem;"></i> Category
+				</label>
+				<select id="rewardCategory" name="category" required style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease; background: white; cursor: pointer;">
+					<option value="" disabled selected>Select category</option>
+					{% for cat in categories %}
+						<option value="{{ cat.id }}">{{ cat.name }}</option>
+					{% endfor %}
+				</select>
+			</div>
+
+			<div style="margin-bottom: 20px;">
+				<label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+					<i class='bx bx-star' style="color: #667eea; font-size: 1.1rem;"></i> Points Required
+				</label>
+				<input type="number" id="rewardPoints" name="points" class="points-input" min="0" step="0.01" required style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease;" placeholder="e.g., 500">
+			</div>
+
+			<div style="margin-bottom: 20px;">
+				<label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+					<i class='bx bx-message-detail' style="color: #667eea; font-size: 1.1rem;"></i> Description
+				</label>
+				<textarea id="rewardDescription" name="description" rows="3" required style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease; resize: vertical;" placeholder="Describe the reward..."></textarea>
+			</div>
+
+			<div style="margin-bottom: 20px;">
+				<label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+					<i class='bx bx-image' style="color: #667eea; font-size: 1.1rem;"></i> Image
+				</label>
+				<input type="file" id="rewardImage" name="image" accept="image/*" required style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease; cursor: pointer;">
+				<div class="upload-progress" id="addRewardProgress">
+					<div class="upload-progress-bar" id="addRewardProgressBar"></div>
+				</div>
+				<small id="addRewardProgressText" style="display: none; color: #6b7280; margin-top: 4px;">Uploading to Google Drive...</small>
+			</div>
+
+			<div style="margin-bottom: 25px;">
+				<label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+					<i class='bx bx-package' style="color: #667eea; font-size: 1.1rem;"></i> Initial Stock
+				</label>
+				<input type="number" id="rewardStock" name="stock" min="1" step="1" required style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease;" placeholder="e.g., 50">
+			</div>
+
+			<div style="margin-top: 30px; display: flex; gap: 12px; justify-content: flex-end;">
+				<button type="button" onclick="closeAddRewardModal()" style="padding: 13px 26px; border-radius: 10px; font-weight: 600; background: #f3f4f6; border: 2px solid #e5e7eb; color: #6b7280; transition: all 0.2s; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+					<i class='bx bx-x' style="font-size: 1.2rem;"></i> Cancel
+				</button>
+				<button type="submit" id="addRewardSubmitBtn" style="padding: 13px 26px; border-radius: 10px; font-weight: 600; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white; box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4); transition: all 0.2s; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+					<span class="btn-text"><i class='bx bx-save' style="font-size: 1.2rem;"></i> Save Reward</span>
+					<span class="btn-loading" style="display: none;">
+						<i class='bx bx-loader-alt bx-spin'></i> Uploading...
+					</span>
+				</button>
+			</div>
+			</form>
+		</div>
+		</div>
+
+		<!-- Edit Reward Modal -->
+<div class="modal-overlay" id="editRewardModal" style="display: none;">
+  <div class="modal-content" style="padding: 35px; max-width: 600px;">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 25px;">
+      <div>
+        <h3 style="margin: 0 0 8px 0; font-size: 1.5rem; color: #1f2937; display: flex; align-items: center; gap: 10px;">
+          <i class='bx bx-edit' style="color: #667eea; font-size: 1.6rem;"></i>
+          Edit Reward
+        </h3>
+        <p style="color: #6b7280; margin: 0; font-size: 0.9rem;">Update reward information and availability</p>
+      </div>
+      <button type="button" onclick="closeEditRewardModal()" style="background: #f3f4f6; border: none; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#e5e7eb'; this.style.transform='rotate(90deg)'" onmouseout="this.style.background='#f3f4f6'; this.style.transform='rotate(0deg)'">
+        <i class='bx bx-x' style="font-size: 1.6rem; color: #6b7280;"></i>
+      </button>
+    </div>
+    <form id="editRewardForm" enctype="multipart/form-data">
+      {% csrf_token %}
+      <input type="hidden" id="editRewardId" />
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+          <i class='bx bx-package' style="color: #667eea; font-size: 1.1rem;"></i> Reward Name
+        </label>
+        <input type="text" id="editRewardName" name="name" required style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease;">
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+          <i class='bx bx-category' style="color: #667eea; font-size: 1.1rem;"></i> Category
+        </label>
+        <select id="editRewardCategory" name="category" required style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease; background: white; cursor: pointer;">
+          <option value="" disabled>Select category</option>
+          {% for cat in categories %}
+            <option value="{{ cat.id }}">{{ cat.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+          <i class='bx bx-star' style="color: #667eea; font-size: 1.1rem;"></i> Points Required
+        </label>
+        <input type="number" id="editRewardPoints" name="points" class="points-input" min="0" step="0.01" required style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease;">
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+          <i class='bx bx-message-detail' style="color: #667eea; font-size: 1.1rem;"></i> Description
+        </label>
+        <textarea id="editRewardDescription" name="description" rows="3" required style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease; resize: vertical;"></textarea>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+          <i class='bx bx-image' style="color: #667eea; font-size: 1.1rem;"></i> Image
+        </label>
+        
+        <!-- Current Image Preview -->
+        <div id="editCurrentImagePreview" style="margin-bottom: 10px; display: none;">
+          <small style="color: #6b7280; font-weight: 500;">Current Image:</small>
+          <br>
+          <img id="editCurrentImage" src="" alt="Current image" style="width: 100px; height: auto; border: 1px solid #e5e7eb; border-radius: 4px; margin-top: 4px;">
+          <br>
+          <small style="color: #9ca3af; font-size: 11px;">Leave the field below empty to keep the current image</small>
+        </div>
+        
+        <input type="file" id="editRewardImage" name="image" accept="image/*" style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease; cursor: pointer;">
+        <div class="upload-progress" id="editRewardProgress">
+          <div class="upload-progress-bar" id="editRewardProgressBar"></div>
+        </div>
+        <small id="editRewardProgressText" style="display: none; color: #6b7280; margin-top: 4px;">Uploading to Google Drive...</small>
+      </div>
+
+      <div style="margin-top: 30px; display: flex; gap: 12px; justify-content: flex-end;">
+        <button type="button" onclick="closeEditRewardModal()" style="padding: 13px 26px; border-radius: 10px; font-weight: 600; background: #f3f4f6; border: 2px solid #e5e7eb; color: #6b7280; transition: all 0.2s; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <i class='bx bx-x' style="font-size: 1.2rem;"></i> Cancel
+        </button>
+        <button type="submit" id="editRewardSubmitBtn" style="padding: 13px 26px; border-radius: 10px; font-weight: 600; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white; box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4); transition: all 0.2s; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <span class="btn-text"><i class='bx bx-save' style="font-size: 1.2rem;"></i> Update</span>
+          <span class="btn-loading" style="display: none;">
+            <i class='bx bx-loader-alt bx-spin'></i> Updating...
+          </span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Reward Modal -->
+<div class="modal-overlay" id="deleteRewardModal" style="display: none;">
+  <div class="modal-content" style="padding: 35px;">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 25px;">
+      <div>
+        <h3 style="margin: 0 0 8px 0; font-size: 1.5rem; color: #1f2937; display: flex; align-items: center; gap: 10px;">
+          <i class='bx bx-trash' style="color: #ef4444; font-size: 1.6rem;"></i>
+          Delete Reward
+        </h3>
+        <p style="color: #6b7280; margin: 0; font-size: 0.9rem;">This action cannot be undone</p>
+      </div>
+      <button type="button" onclick="closeDeleteRewardModal()" style="background: #f3f4f6; border: none; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#e5e7eb'; this.style.transform='rotate(90deg)'" onmouseout="this.style.background='#f3f4f6'; this.style.transform='rotate(0deg)'">
+        <i class='bx bx-x' style="font-size: 1.6rem; color: #6b7280;"></i>
+      </button>
+    </div>
+    <div style="padding: 20px; background: #fee2e2; border: 2px solid #ef4444; border-radius: 10px; margin-bottom: 25px;">
+      <p style="margin: 0; color: #991b1b; font-weight: 600; display: flex; align-items: center; gap: 8px;">
+        <i class='bx bx-error-circle' style="font-size: 1.3rem;"></i>
+        Are you sure you want to delete this reward? This action is permanent.
+      </p>
+    </div>
+    <div style="margin-top: 30px; display: flex; gap: 12px; justify-content: flex-end;">
+      <button type="button" onclick="closeDeleteRewardModal()" style="padding: 13px 26px; border-radius: 10px; font-weight: 600; background: #f3f4f6; border: 2px solid #e5e7eb; color: #6b7280; transition: all 0.2s; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+        <i class='bx bx-x' style="font-size: 1.2rem;"></i> Cancel
+      </button>
+      <button type="button" onclick="confirmDeleteReward()" style="padding: 13px 26px; border-radius: 10px; font-weight: 600; background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%); border: none; color: white; box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4); transition: all 0.2s; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+        <i class='bx bx-trash' style="font-size: 1.2rem;"></i> Delete Reward
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Stock Modal -->
+<div class="modal-overlay" id="addStockModal" style="display: none;">
+  <div class="modal-content" style="padding: 35px;">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 25px;">
+      <div>
+        <h3 style="margin: 0 0 8px 0; font-size: 1.5rem; color: #1f2937; display: flex; align-items: center; gap: 10px;">
+          <i class='bx bx-plus-circle' style="color: #10b981; font-size: 1.6rem;"></i>
+          Add Stock
+        </h3>
+        <p style="color: #6b7280; margin: 0; font-size: 0.9rem;">Increase the inventory for a reward item</p>
+      </div>
+      <button type="button" onclick="closeAddStockModal()" style="background: #f3f4f6; border: none; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#e5e7eb'; this.style.transform='rotate(90deg)'" onmouseout="this.style.background='#f3f4f6'; this.style.transform='rotate(0deg)'">
+        <i class='bx bx-x' style="font-size: 1.6rem; color: #6b7280;"></i>
+      </button>
+    </div>
+    <form id="addStockForm">
+      {% csrf_token %}
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+          <i class='bx bx-gift' style="color: #10b981; font-size: 1.1rem;"></i> Select Reward
+        </label>
+        <select id="stockRewardSelect" name="reward_id" required style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease; background: white; cursor: pointer;">
+          <option value="" disabled selected>Choose a reward</option>
+          {% for reward in rewards %}
+            <option value="{{ reward.id }}">{{ reward.name }} (Current: {{ reward.stock }})</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+          <i class='bx bx-package' style="color: #10b981; font-size: 1.1rem;"></i> Quantity to Add
+        </label>
+        <input type="number" id="stockQuantity" name="quantity" min="1" step="1" required style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease;" placeholder="e.g., 20">
+      </div>
+
+      <div style="margin-bottom: 25px;">
+        <label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+          <i class='bx bx-note' style="color: #10b981; font-size: 1.1rem;"></i> Notes (Optional)
+        </label>
+        <textarea id="stockNotes" name="notes" placeholder="Reason for adding stock..." rows="3" style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease; resize: vertical;"></textarea>
+      </div>
+
+      <div style="margin-top: 30px; display: flex; gap: 12px; justify-content: flex-end;">
+        <button type="button" onclick="closeAddStockModal()" style="padding: 13px 26px; border-radius: 10px; font-weight: 600; background: #f3f4f6; border: 2px solid #e5e7eb; color: #6b7280; transition: all 0.2s; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <i class='bx bx-x' style="font-size: 1.2rem;"></i> Cancel
+        </button>
+        <button type="submit" style="padding: 13px 26px; border-radius: 10px; font-weight: 600; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; color: white; box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4); transition: all 0.2s; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <i class='bx bx-check' style="font-size: 1.2rem;"></i> Add Stock
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Remove Stock Modal -->
+<div class="modal-overlay" id="removeStockModal" style="display: none;">
+  <div class="modal-content" style="padding: 35px;">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 25px;">
+      <div>
+        <h3 style="margin: 0 0 8px 0; font-size: 1.5rem; color: #1f2937; display: flex; align-items: center; gap: 10px;">
+          <i class='bx bx-minus-circle' style="color: #f59e0b; font-size: 1.6rem;"></i>
+          Remove Stock
+        </h3>
+        <p style="color: #6b7280; margin: 0; font-size: 0.9rem;">Decrease the inventory for a reward item</p>
+      </div>
+      <button type="button" onclick="closeRemoveStockModal()" style="background: #f3f4f6; border: none; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#e5e7eb'; this.style.transform='rotate(90deg)'" onmouseout="this.style.background='#f3f4f6'; this.style.transform='rotate(0deg)'">
+        <i class='bx bx-x' style="font-size: 1.6rem; color: #6b7280;"></i>
+      </button>
+    </div>
+    <form id="removeStockForm">
+      {% csrf_token %}
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+          <i class='bx bx-gift' style="color: #f59e0b; font-size: 1.1rem;"></i> Select Reward
+        </label>
+        <select id="removeStockRewardSelect" name="reward_id" required style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease; background: white; cursor: pointer;">
+          <option value="" disabled selected>Choose a reward</option>
+          {% for reward in rewards %}
+            <option value="{{ reward.id }}">{{ reward.name }} (Current: {{ reward.stock }})</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+          <i class='bx bx-package' style="color: #f59e0b; font-size: 1.1rem;"></i> Quantity to Remove
+        </label>
+        <input type="number" id="removeStockQuantity" name="quantity" min="1" step="1" required style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease;" placeholder="e.g., 10">
+      </div>
+
+      <div style="margin-bottom: 25px;">
+        <label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
+          <i class='bx bx-note' style="color: #f59e0b; font-size: 1.1rem;"></i> Notes (Optional)
+        </label>
+        <textarea id="removeStockNotes" name="notes" placeholder="Reason for removing stock..." rows="3" style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease; resize: vertical;"></textarea>
+      </div>
+
+      <div style="margin-top: 30px; display: flex; gap: 12px; justify-content: flex-end;">
+        <button type="button" onclick="closeRemoveStockModal()" style="padding: 13px 26px; border-radius: 10px; font-weight: 600; background: #f3f4f6; border: 2px solid #e5e7eb; color: #6b7280; transition: all 0.2s; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <i class='bx bx-x' style="font-size: 1.2rem;"></i> Cancel
+        </button>
+        <button type="submit" style="padding: 13px 26px; border-radius: 10px; font-weight: 600; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border: none; color: white; box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4); transition: all 0.2s; display: flex; align-items: center; gap: 8px; cursor: pointer;">
+          <i class='bx bx-check' style="font-size: 1.2rem;"></i> Remove Stock
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="successMessage" style="display:none;position:fixed;top:40%;left:50%;transform:translate(-50%,-50%);background:#22c55e;color:white;padding:18px 36px;border-radius:8px;z-index:9999;box-shadow:0 2px 8px rgba(0,0,0,0.15);font-size:1.1rem;">
+  Success!
+</div>
+
+		</main>
+		<!-- MAIN -->
+	</section>
+	<!-- CONTENT -->
+	
+
+	<script src="{% static 'script.js' %}"></script>
+	<script src="{% static 'js/admin_common.js' %}?v={{ timestamp }}"></script>
+	<script src="{% static 'js/adminrewards.js' %}?v={{ timestamp }}"></script>
+	 <!-- Pass Django URLs and data to JavaScript -->
+    <script>
+        // Django URLs for JavaScript
+        window.DJANGO_URLS = {
+            addReward: '{% url "cenro:add_reward" %}',
+            editReward: '{% url "cenro:edit_reward" %}',
+            deleteReward: '{% url "cenro:delete_reward" %}',
+            addStock: '{% url "cenro:add_stock" %}',
+            removeStock: '{% url "cenro:remove_stock" %}'
+        };
+        
+        // CSRF Token
+        window.CSRF_TOKEN = '{{ csrf_token }}';
+    </script>
+
+<!-- Universal Confirmation Modal -->
+<div class="modal-overlay" id="confirmationModal" style="display: none; z-index: 10001;">
+  <div class="modal-content" style="padding: 35px; max-width: 500px;">
+    <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 25px;">
+      <div>
+        <h3 style="margin: 0 0 8px 0; font-size: 1.5rem; color: #1f2937; display: flex; align-items: center; gap: 10px;">
+          <i class='bx bx-check-circle' style="color: #667eea; font-size: 1.6rem;" id="confirmIcon"></i>
+          <span id="confirmTitle">Confirm Action</span>
+        </h3>
+        <p style="color: #6b7280; margin: 0; font-size: 0.9rem;" id="confirmSubtitle">Please review your changes</p>
+      </div>
+      <button type="button" onclick="closeConfirmation()" style="background: #f3f4f6; border: none; width: 40px; height: 40px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#e5e7eb'; this.style.transform='rotate(90deg)'" onmouseout="this.style.background='#f3f4f6'; this.style.transform='rotate(0deg)'">
+        <i class='bx bx-x' style="font-size: 1.6rem; color: #6b7280;"></i>
+      </button>
+    </div>
+    
+    <div style="background: #f0f9ff; border: 2px solid #bae6fd; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+      <div style="display: flex; align-items: start; gap: 12px;">
+        <i class='bx bx-info-circle' style="font-size: 1.5rem; color: #0284c7; flex-shrink: 0; margin-top: 2px;"></i>
+        <div>
+          <h4 style="color: #0c4a6e; margin: 0 0 8px 0; font-size: 1rem; font-weight: 600;">Confirm Changes</h4>
+          <p style="color: #075985; margin: 0; font-size: 0.9rem; line-height: 1.5;" id="confirmMessage">Are you sure you want to proceed with this action?</p>
+        </div>
+      </div>
+    </div>
+
+    <div style="display: flex; gap: 12px; justify-content: flex-end;">
+      <button type="button" onclick="closeConfirmation()" style="padding: 14px 24px; border-radius: 10px; font-weight: 600; background: #f3f4f6; border: 2px solid #e5e7eb; color: #6b7280; transition: all 0.2s; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.95rem;">
+        <i class='bx bx-x' style="font-size: 1.2rem;"></i> Cancel
+      </button>
+      <button type="button" onclick="confirmAction()" id="confirmButton" style="padding: 14px 24px; border-radius: 10px; font-weight: 600; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; color: white; box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4); transition: all 0.2s; display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.95rem;">
+        <i class='bx bx-check' style="font-size: 1.2rem;"></i> Confirm
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'js/unified-modal.js' %}"></script>
+<script src="{% static 'js/points-input-handler.js' %}?v={{ timestamp }}"></script>
+
+	<script src="{% static 'js/admin_notifications.js' %}"></script>
+
+<script>
+// Search functionality for Rewards table
+document.getElementById('rewardsSearchInput').addEventListener('input', function(e) {
+  const searchTerm = e.target.value.toLowerCase();
+  const table = document.querySelector('.reward-table tbody');
+  const rows = table.querySelectorAll('tr');
+  let visibleCount = 0;
+  
+  rows.forEach(row => {
+    const text = row.textContent.toLowerCase();
+    if (text.includes(searchTerm)) {
+      row.style.display = '';
+      visibleCount++;
+    } else {
+      row.style.display = 'none';
+    }
+  });
+  
+  // Show "no results" message if needed
+  let noResults = table.querySelector('.no-results-row');
+  if (visibleCount === 0) {
+    if (!noResults) {
+      noResults = document.createElement('tr');
+      noResults.className = 'no-results-row';
+      noResults.innerHTML = '<td colspan="8" style="text-align: center; padding: 40px; color: #6b7280;">No rewards found matching your search.</td>';
+      table.appendChild(noResults);
+    }
+  } else {
+    if (noResults) noResults.remove();
+  }
+});
+</script>
+
+</body>
+</html>

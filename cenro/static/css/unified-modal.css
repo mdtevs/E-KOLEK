@@ -1,0 +1,689 @@
+/* 
+ * Unified Modal System CSS
+ * Based on the modern design from analytics comparison modal
+ * Apply this styling to all modals across the Django project
+ */
+
+/* ==================== MODAL OVERLAY ==================== */
+.modal-overlay,
+.reward-modal,
+.user-modal,
+.comparison-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  animation: modalFadeIn 0.3s ease;
+}
+
+.modal-overlay.show,
+.reward-modal.show,
+.user-modal.show,
+.comparison-modal.show {
+  display: flex !important;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ==================== MODAL CONTENT ==================== */
+.modal-content,
+.reward-modal-content,
+.user-modal-content,
+.comparison-modal-content {
+  background: white;
+  border-radius: 20px;
+  padding: 0;
+  max-width: 550px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.25), 0 0 1px rgba(0, 0, 0, 0.1);
+  animation: modalSlideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  position: relative;
+}
+
+.modal-content.large,
+.reward-modal-content.large,
+.user-modal-content.large {
+  max-width: 700px;
+}
+
+.modal-content.small,
+.reward-modal-content.small,
+.user-modal-content.small {
+  max-width: 450px;
+}
+
+@keyframes modalSlideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ==================== MODAL HEADER ==================== */
+.modal-header,
+.reward-modal-header,
+.user-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  padding: 35px 35px 25px 35px;
+  border-bottom: none;
+}
+
+.modal-header h2,
+.modal-header h3,
+.reward-modal-header h2,
+.reward-modal-header h3,
+.user-modal-header h2,
+.user-modal-header h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #1f2937;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-header h2 i,
+.modal-header h3 i,
+.reward-modal-header h2 i,
+.reward-modal-header h3 i,
+.user-modal-header h2 i,
+.user-modal-header h3 i {
+  color: #667eea;
+  font-size: 1.6rem;
+}
+
+.modal-header p,
+.reward-modal-header p,
+.user-modal-header p {
+  color: #6b7280;
+  margin: 8px 0 0 0;
+  font-size: 0.9rem;
+}
+
+/* ==================== CLOSE BUTTON ==================== */
+.modal-close,
+.reward-close,
+.close-btn,
+.modal-header .close-btn,
+.reward-modal-header .close-btn,
+.user-modal-header .close-btn {
+  background: #f3f4f6;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  position: absolute;
+  top: 30px;
+  right: 30px;
+  font-size: 1.6rem;
+  color: #6b7280;
+}
+
+.modal-close:hover,
+.reward-close:hover,
+.close-btn:hover,
+.modal-header .close-btn:hover,
+.reward-modal-header .close-btn:hover,
+.user-modal-header .close-btn:hover {
+  background: #e5e7eb;
+  transform: rotate(90deg);
+}
+
+.modal-close i,
+.reward-close i,
+.close-btn i {
+  transition: color 0.2s;
+}
+
+/* ==================== MODAL BODY ==================== */
+.modal-body,
+.reward-modal-body,
+.user-modal-body {
+  padding: 0 35px 30px 35px;
+}
+
+/* ==================== FORM ELEMENTS ==================== */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 700;
+  color: #1f2937;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.form-group label i {
+  color: #667eea;
+  font-size: 1.1rem;
+}
+
+.form-group label .required,
+.form-group label span[style*="color: #ef4444"] {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="password"],
+.form-group input[type="number"],
+.form-group input[type="date"],
+.form-group input[type="time"],
+.form-group input[type="url"],
+.form-group textarea,
+.form-group select,
+.modal-body input[type="text"],
+.modal-body input[type="email"],
+.modal-body input[type="password"],
+.modal-body input[type="number"],
+.modal-body input[type="date"],
+.modal-body input[type="time"],
+.modal-body input[type="url"],
+.modal-body textarea,
+.modal-body select,
+.reward-modal-content input[type="text"],
+.reward-modal-content input[type="email"],
+.reward-modal-content input[type="password"],
+.reward-modal-content input[type="number"],
+.reward-modal-content input[type="date"],
+.reward-modal-content input[type="time"],
+.reward-modal-content input[type="url"],
+.reward-modal-content textarea,
+.reward-modal-content select,
+.user-modal-content input[type="text"],
+.user-modal-content input[type="email"],
+.user-modal-content input[type="password"],
+.user-modal-content input[type="number"],
+.user-modal-content input[type="date"],
+.user-modal-content input[type="time"],
+.user-modal-content input[type="url"],
+.user-modal-content textarea,
+.user-modal-content select {
+  width: 100%;
+  padding: 14px 18px;
+  padding-right: 45px;
+  border: 2px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #374151;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  box-sizing: border-box;
+}
+
+.form-group select,
+.modal-body select,
+.reward-modal-content select,
+.user-modal-content select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath fill='%23667eea' d='M13.293 5.293L8 10.586 2.707 5.293A1 1 0 001.293 6.707l6 6a1 1 0 001.414 0l6-6a1 1 0 10-1.414-1.414z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 16px;
+}
+
+.form-group textarea,
+.modal-body textarea,
+.reward-modal-content textarea,
+.user-modal-content textarea {
+  padding-right: 18px;
+  min-height: 100px;
+  resize: vertical;
+}
+
+.form-group input:hover,
+.form-group textarea:hover,
+.form-group select:hover,
+.modal-body input:hover,
+.modal-body textarea:hover,
+.modal-body select:hover,
+.reward-modal-content input:hover,
+.reward-modal-content textarea:hover,
+.reward-modal-content select:hover,
+.user-modal-content input:hover,
+.user-modal-content textarea:hover,
+.user-modal-content select:hover {
+  border-color: #667eea;
+  background-color: #f9fafb;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+  transform: translateY(-1px);
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus,
+.modal-body input:focus,
+.modal-body textarea:focus,
+.modal-body select:focus,
+.reward-modal-content input:focus,
+.reward-modal-content textarea:focus,
+.reward-modal-content select:focus,
+.user-modal-content input:focus,
+.user-modal-content textarea:focus,
+.user-modal-content select:focus {
+  outline: none;
+  border-color: #667eea;
+  background-color: white;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.15), 0 4px 12px rgba(102, 126, 234, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Info boxes */
+.info-box,
+.modal-body .info-box,
+.reward-modal-body .info-box,
+.user-modal-body .info-box {
+  background-color: #eff6ff;
+  border: 1px solid #3b82f6;
+  border-left: 4px solid #3b82f6;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+}
+
+.info-box p,
+.modal-body .info-box p,
+.reward-modal-body .info-box p,
+.user-modal-body .info-box p {
+  margin: 0;
+  color: #1e40af;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.info-box i,
+.modal-body .info-box i,
+.reward-modal-body .info-box i,
+.user-modal-body .info-box i {
+  font-size: 1.1rem;
+  vertical-align: middle;
+  margin-right: 6px;
+}
+
+.warning-box {
+  background-color: #fef3c7;
+  border: 1px solid #f59e0b;
+  border-left: 4px solid #f59e0b;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+}
+
+.warning-box p {
+  margin: 0;
+  color: #92400e;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.danger-box {
+  background-color: #fee2e2;
+  border: 1px solid #ef4444;
+  border-left: 4px solid #ef4444;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+}
+
+.danger-box p {
+  margin: 0;
+  color: #991b1b;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+/* ==================== MODAL ACTIONS/FOOTER ==================== */
+.modal-actions,
+.modal-footer,
+.reward-modal-actions,
+.user-modal-actions {
+  padding: 20px 35px 35px 35px;
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  border-top: none;
+}
+
+.modal-actions button,
+.modal-footer button,
+.reward-modal-actions button,
+.user-modal-actions button {
+  padding: 13px 26px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+}
+
+.modal-actions button i,
+.modal-footer button i,
+.reward-modal-actions button i,
+.user-modal-actions button i {
+  font-size: 1.2rem;
+}
+
+/* Button variants */
+.btn-cancel,
+.cancel-btn,
+.btn-secondary,
+.modal-actions .btn-secondary,
+.reward-modal-actions .btn-secondary,
+.user-modal-actions .btn-secondary {
+  background: #f3f4f6;
+  border: 2px solid #e5e7eb;
+  color: #6b7280;
+}
+
+.btn-cancel:hover,
+.cancel-btn:hover,
+.btn-secondary:hover,
+.modal-actions .btn-secondary:hover,
+.reward-modal-actions .btn-secondary:hover,
+.user-modal-actions .btn-secondary:hover {
+  background: #e5e7eb !important;
+  border-color: #d1d5db !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-primary,
+.btn-save,
+.save-btn,
+.modal-actions .btn-primary,
+.reward-modal-actions .btn-primary,
+.user-modal-actions .btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 16px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:hover,
+.btn-save:hover,
+.save-btn:hover,
+.modal-actions .btn-primary:hover,
+.reward-modal-actions .btn-primary:hover,
+.user-modal-actions .btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5) !important;
+}
+
+.btn-danger,
+.btn-delete,
+.delete-btn,
+.modal-actions .btn-danger,
+.reward-modal-actions .btn-danger,
+.user-modal-actions .btn-danger {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.4);
+}
+
+.btn-danger:hover,
+.btn-delete:hover,
+.delete-btn:hover,
+.modal-actions .btn-danger:hover,
+.reward-modal-actions .btn-danger:hover,
+.user-modal-actions .btn-danger:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5) !important;
+}
+
+.btn-success,
+.modal-actions .btn-success,
+.reward-modal-actions .btn-success,
+.user-modal-actions .btn-success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
+}
+
+.btn-success:hover,
+.modal-actions .btn-success:hover,
+.reward-modal-actions .btn-success:hover,
+.user-modal-actions .btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.5) !important;
+}
+
+.btn-warning,
+.modal-actions .btn-warning,
+.reward-modal-actions .btn-warning,
+.user-modal-actions .btn-warning {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  border: none;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
+}
+
+.btn-warning:hover,
+.modal-actions .btn-warning:hover,
+.reward-modal-actions .btn-warning:hover,
+.user-modal-actions .btn-warning:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5) !important;
+}
+
+/* Active state for all buttons */
+.modal-actions button:active,
+.modal-footer button:active,
+.reward-modal-actions button:active,
+.user-modal-actions button:active {
+  transform: translateY(0) !important;
+}
+
+/* ==================== RESPONSIVE DESIGN ==================== */
+@media (max-width: 768px) {
+  .modal-content,
+  .reward-modal-content,
+  .user-modal-content,
+  .comparison-modal-content {
+    width: 95%;
+    max-width: none;
+    border-radius: 16px;
+  }
+
+  .modal-header,
+  .reward-modal-header,
+  .user-modal-header {
+    padding: 25px 25px 20px 25px;
+  }
+
+  .modal-header h2,
+  .modal-header h3,
+  .reward-modal-header h2,
+  .reward-modal-header h3,
+  .user-modal-header h2,
+  .user-modal-header h3 {
+    font-size: 1.25rem;
+  }
+
+  .modal-close,
+  .reward-close,
+  .close-btn {
+    top: 20px;
+    right: 20px;
+    width: 36px;
+    height: 36px;
+  }
+
+  .modal-body,
+  .reward-modal-body,
+  .user-modal-body {
+    padding: 0 25px 25px 25px;
+  }
+
+  .modal-actions,
+  .modal-footer,
+  .reward-modal-actions,
+  .user-modal-actions {
+    padding: 20px 25px 25px 25px;
+    flex-direction: column;
+  }
+
+  .modal-actions button,
+  .modal-footer button,
+  .reward-modal-actions button,
+  .user-modal-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ==================== ACCESSIBILITY ==================== */
+.modal-overlay:focus,
+.reward-modal:focus,
+.user-modal:focus {
+  outline: none;
+}
+
+.modal-content:focus,
+.reward-modal-content:focus,
+.user-modal-content:focus {
+  outline: 2px solid #667eea;
+  outline-offset: 2px;
+}
+
+/* ==================== ANIMATIONS ==================== */
+.modal-overlay.closing,
+.reward-modal.closing,
+.user-modal.closing {
+  animation: modalFadeOut 0.3s ease forwards;
+}
+
+.modal-overlay.closing .modal-content,
+.modal-overlay.closing .reward-modal-content,
+.modal-overlay.closing .user-modal-content,
+.reward-modal.closing .modal-content,
+.reward-modal.closing .reward-modal-content,
+.reward-modal.closing .user-modal-content,
+.user-modal.closing .modal-content,
+.user-modal.closing .reward-modal-content,
+.user-modal.closing .user-modal-content {
+  animation: modalSlideDown 0.3s ease forwards;
+}
+
+@keyframes modalFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes modalSlideDown {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+}
+
+/* ==================== FILE UPLOAD STYLING ==================== */
+.file-upload-area {
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+  padding: 30px;
+  text-align: center;
+  transition: all 0.3s;
+  cursor: pointer;
+  background: #f9fafb;
+}
+
+.file-upload-area:hover {
+  border-color: #667eea;
+  background: #eef2ff;
+}
+
+.file-upload-area.dragging {
+  border-color: #667eea;
+  background: #eef2ff;
+  transform: scale(1.02);
+}
+
+.file-upload-area i {
+  font-size: 3rem;
+  color: #667eea;
+  margin-bottom: 10px;
+}
+
+.file-upload-area p {
+  color: #6b7280;
+  margin: 10px 0;
+}
+
+/* ==================== CUSTOM SCROLLBAR ==================== */
+.modal-content::-webkit-scrollbar,
+.reward-modal-content::-webkit-scrollbar,
+.user-modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track,
+.reward-modal-content::-webkit-scrollbar-track,
+.user-modal-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb,
+.reward-modal-content::-webkit-scrollbar-thumb,
+.user-modal-content::-webkit-scrollbar-thumb {
+  background: #667eea;
+  border-radius: 10px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover,
+.reward-modal-content::-webkit-scrollbar-thumb:hover,
+.user-modal-content::-webkit-scrollbar-thumb:hover {
+  background: #5568d3;
+}
