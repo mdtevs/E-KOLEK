@@ -240,27 +240,19 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # EMAIL CONFIGURATION  
 # ==============================================================================
 
-# RAILWAY SOLUTION: Console Email Backend
-# Railway blocks ALL SMTP ports, so we use console backend for development/testing
-# Emails are printed to Railway logs where you can see the OTP codes
-# This is FREE and works perfectly for testing!
+# SendGrid SMTP Configuration (FREE - 100 emails/day)
+# Works perfectly on Railway - no port blocking!
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
 
-# To switch to real email later (when you have budget):
-# 1. Sign up for paid email service (SendGrid, Mailgun, etc.)
-# 2. Change EMAIL_BACKEND to their API backend
-# 3. Add their API key to Railway variables
-
-EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
-
-# Gmail SMTP Configuration (kept for reference - Railway blocks these ports)
-EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
-EMAIL_PORT = config('EMAIL_PORT', default=465, cast=int)
-EMAIL_USE_SSL = config('EMAIL_USE_SSL', default=True, cast=bool)
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=False, cast=bool)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-EMAIL_TIMEOUT = config('EMAIL_TIMEOUT', default=60, cast=int)
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='ekolekcenro@gmail.com')
+# SendGrid SMTP Settings
+EMAIL_HOST = config('EMAIL_HOST', default='smtp.sendgrid.net')
+EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
+EMAIL_USE_SSL = config('EMAIL_USE_SSL', default=False, cast=bool)
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='apikey')  # Literal string "apikey"
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')  # SendGrid API Key
+EMAIL_TIMEOUT = config('EMAIL_TIMEOUT', default=30, cast=int)
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@sendgrid.net')
 
 
 # ==============================================================================
