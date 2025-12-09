@@ -240,17 +240,26 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # EMAIL CONFIGURATION  
 # ==============================================================================
 
-# Use Django's built-in SMTP backend with Gmail
-EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+# RAILWAY SOLUTION: Console Email Backend
+# Railway blocks ALL SMTP ports, so we use console backend for development/testing
+# Emails are printed to Railway logs where you can see the OTP codes
+# This is FREE and works perfectly for testing!
 
-# Gmail SMTP Configuration (FREE - no external services needed!)
+# To switch to real email later (when you have budget):
+# 1. Sign up for paid email service (SendGrid, Mailgun, etc.)
+# 2. Change EMAIL_BACKEND to their API backend
+# 3. Add their API key to Railway variables
+
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.console.EmailBackend')
+
+# Gmail SMTP Configuration (kept for reference - Railway blocks these ports)
 EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
-EMAIL_PORT = config('EMAIL_PORT', default=465, cast=int)  # Using SSL port 465 instead of TLS 587
-EMAIL_USE_SSL = config('EMAIL_USE_SSL', default=True, cast=bool)  # SSL enabled for port 465
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=False, cast=bool)  # TLS disabled when using SSL
+EMAIL_PORT = config('EMAIL_PORT', default=465, cast=int)
+EMAIL_USE_SSL = config('EMAIL_USE_SSL', default=True, cast=bool)
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=False, cast=bool)
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-EMAIL_TIMEOUT = config('EMAIL_TIMEOUT', default=60, cast=int)  # Increased timeout
+EMAIL_TIMEOUT = config('EMAIL_TIMEOUT', default=60, cast=int)
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='ekolekcenro@gmail.com')
 
 
