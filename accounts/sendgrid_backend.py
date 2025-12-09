@@ -138,12 +138,12 @@ class SendGridBackend(BaseEmailBackend):
                                     
                                     # Create SendGrid attachment WITHOUT FileName for inline display
                                     # FileName causes Gmail to show it as a downloadable attachment
-                                    sg_attachment = Attachment(
-                                        FileContent(encoded_file),
-                                        FileType(content_type),
-                                        Disposition('inline'),
-                                        ContentId(content_id)
-                                    )
+                                    sg_attachment = Attachment()
+                                    sg_attachment.file_content = FileContent(encoded_file)
+                                    sg_attachment.file_type = FileType(content_type)
+                                    sg_attachment.disposition = Disposition('inline')
+                                    sg_attachment.content_id = ContentId(content_id)
+                                    
                                     mail.add_attachment(sg_attachment)
                                     
                                     print(f"  ✅ Attached: inline image (CID: {content_id}, {len(file_data)} bytes)")
