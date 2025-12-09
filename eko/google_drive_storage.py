@@ -72,24 +72,32 @@ class GoogleDriveStorage(Storage):
             file = self.service.files().create(
                 body=file_metadata,
                 media_body=media,
-                fields='id,name,webViewLink,parents'
+                fields='id,name,webViewLink,webContentLink,parents'
             ).execute()
             
             # Verify the file was created in the correct folder
             if self.folder_id not in file.get('parents', []):
                 logger.warning(f"File may not be in the correct folder: {file}")
             
-            # Set file permissions to be publicly viewable
+            # Set file permissions to be publicly viewable - CRITICAL for images to display
             try:
-                self.service.permissions().create(
+                permission = self.service.permissions().create(
                     fileId=file['id'],
-                    body={'role': 'reader', 'type': 'anyone'},
-                    supportsAllDrives=True
+                    body={
+                        'role': 'reader',
+                        'type': 'anyone',
+                        'allowFileDiscovery': False
+                    },
+                    supportsAllDrives=True,
+                    fields='id'
                 ).execute()
+                logger.info(f"✅ Public permission set for file: {file['id']} (Permission ID: {permission.get('id')})")
             except Exception as perm_error:
-                logger.warning(f"Could not set public permissions: {perm_error}")
+                logger.error(f"❌ Failed to set public permissions: {perm_error}")
+                # This is critical - if permissions fail, the image won't be viewable
             
             logger.info(f"File uploaded to Google Drive: {name} (ID: {file['id']}) in folder {self.folder_id}")
+            logger.info(f"WebContentLink: {file.get('webContentLink', 'N/A')}")
             return file['id']  # Return file ID as the "name"
             
         except Exception as e:
@@ -145,19 +153,21 @@ class GoogleDriveStorage(Storage):
             return 0
     
     def url(self, name):
-        """Get public URL for full-size image direct download"""
+        """Get public URL for full-size image"""
         try:
-            # Use Google Drive direct download URL - displays full resolution image
-            # Format: https://drive.google.com/uc?export=view&id={file_id}
-            # This loads the actual full-size image file, not a thumbnail
+            # Use Google Drive's file view URL format
+            # This works with public files and loads in img tags
+            # Format: https://drive.google.com/file/d/{file_id}/view
+            # Or use the uc format with id parameter which is more reliable for embedding
             if name and len(name) > 10:  # Likely a file ID
-                return f"https://drive.google.com/uc?export=view&id={name}"
+                # This format works best for embedding images
+                return f"https://lh3.googleusercontent.com/d/{name}"
             
-            return f"https://drive.google.com/uc?export=view&id={name}"
+            return f"https://lh3.googleusercontent.com/d/{name}"
             
         except Exception as e:
             logger.error(f"Error getting URL for file {name}: {e}")
-            return f"https://drive.google.com/uc?export=view&id={name}"
+            return f"https://lh3.googleusercontent.com/d/{name}"
     
     def get_available_name(self, name, max_length=None):
         """
