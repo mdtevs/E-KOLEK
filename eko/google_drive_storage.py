@@ -3,6 +3,8 @@ import io
 import json
 import mimetypes
 from google.oauth2.service_account import Credentials
+from google.oauth2.credentials import Credentials as OAuthCredentials
+from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseUpload
 from django.core.files.storage import Storage
@@ -22,6 +24,12 @@ class GoogleDriveStorage(Storage):
     def __init__(self, credentials_file=None, folder_id=None):
         self.credentials_file = credentials_file or getattr(settings, 'GOOGLE_DRIVE_CREDENTIALS_FILE', None)
         self.credentials_json = getattr(settings, 'GOOGLE_DRIVE_CREDENTIALS_JSON', None)
+        
+        # OAuth credentials (preferred over service account)
+        self.oauth_refresh_token = getattr(settings, 'GOOGLE_DRIVE_OAUTH_REFRESH_TOKEN', None)
+        self.oauth_client_id = getattr(settings, 'GOOGLE_DRIVE_OAUTH_CLIENT_ID', None)
+        self.oauth_client_secret = getattr(settings, 'GOOGLE_DRIVE_OAUTH_CLIENT_SECRET', None)
+        
         self.folder_id = folder_id or getattr(settings, 'GOOGLE_DRIVE_FOLDER_ID', None)
         self._service = None
         
@@ -30,49 +38,54 @@ class GoogleDriveStorage(Storage):
         """Get or create Google Drive service"""
         if self._service is None:
             try:
-                # Try credentials JSON string first (for Railway env vars)
-                if self.credentials_json:
+                credentials = None
+                
+                # PREFERRED: Try OAuth first (more reliable than service accounts)
+                if self.oauth_refresh_token and self.oauth_client_id and self.oauth_client_secret:
+                    logger.info("🔐 Using OAuth credentials")
                     try:
-                        # Parse the JSON string
+                        credentials = OAuthCredentials(
+                            None,  # No access token initially
+                            refresh_token=self.oauth_refresh_token,
+                            token_uri='https://oauth2.googleapis.com/token',
+                            client_id=self.oauth_client_id,
+                            client_secret=self.oauth_client_secret,
+                            scopes=['https://www.googleapis.com/auth/drive.file']
+                        )
+                        
+                        # Refresh to get a new access token
+                        logger.info("🔄 Refreshing OAuth access token...")
+                        credentials.refresh(Request())
+                        logger.info("✅ OAuth credentials refreshed successfully")
+                    except Exception as e:
+                        logger.error(f"❌ OAuth authentication failed: {e}")
+                        credentials = None
+                
+                # FALLBACK: Try service account credentials JSON
+                if credentials is None and self.credentials_json:
+                    logger.info("🔧 Falling back to service account credentials")
+                    try:
                         credentials_dict = json.loads(self.credentials_json)
-                        
-                        # CRITICAL FIX: Ensure private_key has proper newlines
-                        # Railway/environment variables may escape \n differently
-                        if 'private_key' in credentials_dict:
-                            private_key = credentials_dict['private_key']
-                            # Replace literal \n with actual newlines if needed
-                            if '\\n' in private_key:
-                                credentials_dict['private_key'] = private_key.replace('\\n', '\n')
-                            # Ensure the key has proper formatting
-                            elif '\n' not in private_key and 'BEGIN PRIVATE KEY' in private_key:
-                                # Key is on one line without newlines - add them
-                                logger.warning("Private key appears to be on one line - fixing format")
-                                credentials_dict['private_key'] = private_key.replace('-----BEGIN PRIVATE KEY-----', '-----BEGIN PRIVATE KEY-----\n').replace('-----END PRIVATE KEY-----', '\n-----END PRIVATE KEY-----\n')
-                        
-                        logger.info("📝 Parsed credentials JSON successfully")
-                        logger.info(f"🔑 Private key length: {len(credentials_dict.get('private_key', ''))} characters")
                         
                         credentials = Credentials.from_service_account_info(
                             credentials_dict,
                             scopes=['https://www.googleapis.com/auth/drive.file']
                         )
-                        logger.info("✅ Credentials object created successfully")
-                    except json.JSONDecodeError as e:
-                        logger.error(f"❌ Failed to parse credentials JSON: {e}")
-                        raise Exception(f"Invalid JSON in GOOGLE_DRIVE_CREDENTIALS_JSON: {e}")
+                        logger.info("✅ Service account credentials created")
                     except Exception as e:
-                        logger.error(f"❌ Failed to create credentials from JSON: {e}")
-                        raise
-                # Fall back to file path (for local development)
-                elif self.credentials_file and os.path.exists(self.credentials_file):
+                        logger.error(f"❌ Service account authentication failed: {e}")
+                        credentials = None
+                
+                # FALLBACK: Try credentials file
+                if credentials is None and self.credentials_file and os.path.exists(self.credentials_file):
                     logger.info(f"📁 Using credentials file: {self.credentials_file}")
                     credentials = Credentials.from_service_account_file(
                         self.credentials_file,
                         scopes=['https://www.googleapis.com/auth/drive.file']
                     )
-                else:
-                    logger.error("Google Drive credentials not found - neither JSON nor file path configured")
-                    raise Exception("Google Drive credentials not configured")
+                
+                if credentials is None:
+                    raise Exception("No valid Google Drive credentials found")
                 
                 # Build the service
                 self._service = build('drive', 'v3', credentials=credentials)

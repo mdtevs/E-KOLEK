@@ -211,8 +211,15 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 USE_GOOGLE_DRIVE = config('USE_GOOGLE_DRIVE', default=False, cast=bool)
 
 if USE_GOOGLE_DRIVE:
-    # Using service account credentials (simpler for Railway deployment)
+    # OAuth credentials (PREFERRED - more reliable than service accounts)
+    GOOGLE_DRIVE_OAUTH_REFRESH_TOKEN = config('GOOGLE_DRIVE_OAUTH_REFRESH_TOKEN', default=None)
+    GOOGLE_DRIVE_OAUTH_CLIENT_ID = config('GOOGLE_DRIVE_OAUTH_CLIENT_ID', default=None)
+    GOOGLE_DRIVE_OAUTH_CLIENT_SECRET = config('GOOGLE_DRIVE_OAUTH_CLIENT_SECRET', default=None)
+    
+    # Service account credentials (fallback)
     GOOGLE_DRIVE_CREDENTIALS_JSON = config('GOOGLE_DRIVE_CREDENTIALS_JSON', default=None)
+    
+    # Folder where files will be uploaded
     GOOGLE_DRIVE_FOLDER_ID = config('GOOGLE_DRIVE_FOLDER_ID')
     
     STORAGES = {
