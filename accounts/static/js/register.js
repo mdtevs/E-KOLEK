@@ -239,9 +239,26 @@ if (sendOtpBtn) {
       sendOtpBtn.textContent = 'OTP Sent';
       sendOtpBtn.style.background = '#059669';
       
-      // Disable phone input to prevent changes
-      phoneInput.readOnly = true;
-      phoneInput.style.background = '#f3f4f6';
+      // Keep phone input editable - add warning styling
+      phoneInput.style.background = '#fef3c7'; // Light yellow background
+      phoneInput.style.borderColor = '#f59e0b';
+      
+      // Add change listener to reset OTP state if phone is modified
+      phoneInput.addEventListener('input', function resetPhoneOtpState() {
+        // Reset verification state
+        document.getElementById('otp_verified').value = 'false';
+        document.getElementById('otpVerificationSection').style.display = 'none';
+        document.getElementById('id_otp_code').value = '';
+        sendOtpBtn.textContent = 'Send OTP';
+        sendOtpBtn.style.background = '#6366f1';
+        sendOtpBtn.disabled = false;
+        phoneInput.style.background = '';
+        phoneInput.style.borderColor = '#e5e7eb';
+        updateSubmitButtonState();
+        showMessage('Phone number changed. Please send OTP again.', 'warning');
+        // Remove this listener after first trigger
+        phoneInput.removeEventListener('input', resetPhoneOtpState);
+      }, { once: true });
       
       // Start countdown timer
       startOtpTimer();
@@ -433,7 +450,12 @@ function startOtpTimer() {
 // Show message helper
 function showMessage(message, type) {
   const statusDiv = document.getElementById('otpStatusMessage');
-  statusDiv.innerHTML = `<p style="color: ${type === 'success' ? '#059669' : '#dc2626'}; font-weight: 600; font-size: 0.9rem;">${message}</p>`;
+  const colors = {
+    success: '#059669',
+    error: '#dc2626',
+    warning: '#f59e0b'
+  };
+  statusDiv.innerHTML = `<p style="color: ${colors[type] || colors.error}; font-weight: 600; font-size: 0.9rem;">${message}</p>`;
   
   // Clear message after 5 seconds
   setTimeout(() => {

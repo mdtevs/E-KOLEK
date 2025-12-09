@@ -55,9 +55,26 @@ document.addEventListener('DOMContentLoaded', function() {
           sendBtn.textContent = 'OTP Sent';
           sendBtn.style.background = '#059669';
         
-          // Disable email input to prevent changes
-          emailInput.readOnly = true;
-          emailInput.style.background = '#f3f4f6';
+          // Keep email input editable - add warning styling
+          emailInput.style.background = '#fef3c7'; // Light yellow background
+          emailInput.style.borderColor = '#f59e0b';
+        
+          // Add change listener to reset OTP state if email is modified
+          emailInput.addEventListener('input', function resetEmailOtpState() {
+            // Reset verification state
+            document.getElementById('email_otp_verified').value = 'false';
+            document.getElementById('emailOtpVerificationSection').style.display = 'none';
+            document.getElementById('id_email_otp_code').value = '';
+            sendBtn.textContent = 'Send OTP';
+            sendBtn.style.background = '#6366f1';
+            sendBtn.disabled = false;
+            emailInput.style.background = '';
+            emailInput.style.borderColor = '#e5e7eb';
+            updateSubmitButtonState();
+            showEmailMessage('Email address changed. Please send OTP again.', 'warning');
+            // Remove this listener after first trigger
+            emailInput.removeEventListener('input', resetEmailOtpState);
+          }, { once: true });
         
           // Start countdown timer
           startEmailOtpTimer();
@@ -225,15 +242,18 @@ document.addEventListener('DOMContentLoaded', function() {
   // Show email message helper
   function showEmailMessage(message, type) {
     const statusDiv = document.getElementById('emailOtpStatusMessage');
-    statusDiv.innerHTML = `<p style="color: ${type === 'success' ? '#059669' : '#dc2626'}; font-weight: 600; font-size: 0.9rem;">${message}</p>`;
-  
+    const colors = {
+      success: '#059669',
+      error: '#dc2626',
+      warning: '#f59e0b'
+    };
+    statusDiv.innerHTML = `<p style="color: ${colors[type] || colors.error}; font-weight: 600; font-size: 0.9rem;">${message}</p>`;
+    
     // Clear message after 5 seconds
     setTimeout(() => {
       statusDiv.innerHTML = '';
     }, 5000);
-  }
-
-  // Check if both phone and email are verified
+  }  // Check if both phone and email are verified
   function checkBothVerifications() {
     const phoneVerified = document.getElementById('otp_verified').value === 'true';
     const emailVerified = document.getElementById('email_otp_verified').value === 'true';
