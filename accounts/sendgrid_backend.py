@@ -5,10 +5,11 @@ This backend uses SendGrid's HTTP API instead of SMTP because Railway blocks SMT
 Compatible with Django's email system - drop-in replacement for SMTP backend.
 """
 import logging
+import base64
 from django.conf import settings
 from django.core.mail.backends.base import BaseEmailBackend
 from sendgrid import SendGridAPIClient
-from sendgrid.helpers.mail import Mail, Email, To, Content
+from sendgrid.helpers.mail import Mail, Email, To, Content, Attachment, FileContent, FileName, FileType, Disposition, ContentId
 
 logger = logging.getLogger(__name__)
 
@@ -118,6 +119,39 @@ class SendGridBackend(BaseEmailBackend):
                             for i, img_url in enumerate(img_tags, 1):
                                 print(f"  {i}. {img_url}")
                             print()
+                    
+                    # Handle inline attachments (for cid: references)
+                    if hasattr(message, 'attachments') and message.attachments:
+                        print(f"\n📎 PROCESSING {len(message.attachments)} ATTACHMENTS...")
+                        for attachment in message.attachments:
+                            try:
+                                # Check if it's a MIMEImage or tuple
+                                if hasattr(attachment, 'get_content_type'):
+                                    # MIMEBase object (like MIMEImage)
+                                    content_type = attachment.get_content_type()
+                                    content_id = attachment.get('Content-ID', '').strip('<>')
+                                    filename = attachment.get_filename() or 'attachment'
+                                    file_data = attachment.get_payload(decode=True)
+                                    
+                                    # Convert to base64 for SendGrid
+                                    encoded_file = base64.b64encode(file_data).decode()
+                                    
+                                    # Create SendGrid attachment
+                                    sg_attachment = Attachment(
+                                        FileContent(encoded_file),
+                                        FileName(filename),
+                                        FileType(content_type),
+                                        Disposition('inline'),
+                                        ContentId(content_id)
+                                    )
+                                    mail.add_attachment(sg_attachment)
+                                    
+                                    print(f"  ✅ Attached: {filename} (CID: {content_id}, {len(file_data)} bytes)")
+                                    logger.info(f"Inline attachment added: {filename} (CID: {content_id})")
+                                    
+                            except Exception as e:
+                                print(f"  ⚠️ Failed to process attachment: {str(e)}")
+                                logger.warning(f"Failed to process attachment: {str(e)}")
                     
                     # Send via HTTP API
                     logger.info(f"📧 Sending email via SendGrid HTTP API to: {to_email}")
