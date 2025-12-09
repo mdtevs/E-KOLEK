@@ -145,19 +145,19 @@ class GoogleDriveStorage(Storage):
             return 0
     
     def url(self, name):
-        """Get public URL for file - using thumbnail format for reliable image display"""
+        """Get public URL for full-size image direct download"""
         try:
-            # Use Google Drive thumbnail API - works reliably with public permissions
-            # Format: https://drive.google.com/thumbnail?id={file_id}&sz=w1000
-            # This provides optimized images for web display
+            # Use Google Drive direct download URL - displays full resolution image
+            # Format: https://drive.google.com/uc?export=view&id={file_id}
+            # This loads the actual full-size image file, not a thumbnail
             if name and len(name) > 10:  # Likely a file ID
-                return f"https://drive.google.com/thumbnail?id={name}&sz=w1000"
+                return f"https://drive.google.com/uc?export=view&id={name}"
             
-            return f"https://drive.google.com/thumbnail?id={name}&sz=w1000"
+            return f"https://drive.google.com/uc?export=view&id={name}"
             
         except Exception as e:
             logger.error(f"Error getting URL for file {name}: {e}")
-            return f"https://drive.google.com/thumbnail?id={name}&sz=w1000"
+            return f"https://drive.google.com/uc?export=view&id={name}"
     
     def get_available_name(self, name, max_length=None):
         """

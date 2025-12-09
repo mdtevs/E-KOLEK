@@ -141,10 +141,11 @@ class GoogleDriveOAuthStorage(Storage):
             return False
     
     def url(self, name):
-        """Get public URL for file that works with HTML img tags"""
-        # Use thumbnail format - works reliably with public permissions
-        # Provides optimized images for web display
-        return f"https://drive.google.com/thumbnail?id={name}&sz=w1000"
+        """Get public URL for full-size image that works with HTML img tags"""
+        # Use direct view URL - displays full resolution image
+        # Format: https://drive.google.com/uc?export=view&id={file_id}
+        # This provides the actual full-size image file
+        return f"https://drive.google.com/uc?export=view&id={name}"
     
     def size(self, name):
         """Get file size"""
