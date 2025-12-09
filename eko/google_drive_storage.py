@@ -143,17 +143,24 @@ class GoogleDriveStorage(Storage):
             )
             
             # Upload file to your shared folder
+            print(f"  ⬆️  Uploading to Google Drive...")
             file = self.service.files().create(
                 body=file_metadata,
                 media_body=media,
                 fields='id,name,webViewLink,webContentLink,parents'
             ).execute()
             
+            print(f"  ✅ Upload successful!")
+            print(f"  📄 File ID: {file['id']}")
+            print(f"  📁 In folder: {file.get('parents', [])}")
+            
             # Verify the file was created in the correct folder
             if self.folder_id not in file.get('parents', []):
+                print(f"  ⚠️  WARNING: File may not be in correct folder!")
                 logger.warning(f"File may not be in the correct folder: {file}")
             
             # Set file permissions to be publicly viewable - CRITICAL for images to display
+            print(f"  🔓 Setting public permissions...")
             try:
                 permission = self.service.permissions().create(
                     fileId=file['id'],
@@ -165,11 +172,14 @@ class GoogleDriveStorage(Storage):
                     supportsAllDrives=True,
                     fields='id'
                 ).execute()
+                print(f"  ✅ PUBLIC PERMISSION SET! Permission ID: {permission.get('id')}")
                 logger.info(f"✅ Public permission set for file: {file['id']} (Permission ID: {permission.get('id')})")
             except Exception as perm_error:
+                print(f"  ❌ PERMISSION FAILED: {perm_error}")
                 logger.error(f"❌ Failed to set public permissions: {perm_error}")
                 # This is critical - if permissions fail, the image won't be viewable
             
+            print(f"  🔗 Google CDN URL: https://lh3.googleusercontent.com/d/{file['id']}")
             logger.info(f"File uploaded to Google Drive: {name} (ID: {file['id']}) in folder {self.folder_id}")
             logger.info(f"WebContentLink: {file.get('webContentLink', 'N/A')}")
             return file['id']  # Return file ID as the "name"

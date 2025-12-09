@@ -105,7 +105,7 @@ E-KOLEK Team
                                 <!-- Reward Image (if available) -->
                                 {f'''<div style="text-align: center; margin-bottom: 25px;">
                                     <img src="{reward_data['image_url']}" alt="{reward_data['name']}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                                </div>''' if reward_data.get('image_url') else ''}
+                                </div>''' if reward_data.get('image_url') else '<!-- No image URL provided -->'}
                                 
                                 <!-- Reward Name -->
                                 <div style="text-align: center; margin-bottom: 30px;">
@@ -215,6 +215,19 @@ E-KOLEK Team
     """
     
     from_email = f"E-KOLEK System <{settings.DEFAULT_FROM_EMAIL}>"
+    
+    # Debug: Show a snippet of the HTML to verify image tag is included
+    if reward_data.get('image_url'):
+        print(f"\n📧 EMAIL HTML CHECK:")
+        print(f"  Image URL in data: {reward_data['image_url']}")
+        # Find the img tag in html_message
+        import re
+        img_match = re.search(r'<img[^>]+src="([^"]+)"', html_message)
+        if img_match:
+            print(f"  ✅ <img> tag found with src: {img_match.group(1)}")
+        else:
+            print(f"  ❌ NO <img> tag found in HTML!")
+        print()
     
     # Send to all users
     for i, email in enumerate(user_emails, 1):
