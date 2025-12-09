@@ -326,7 +326,8 @@ def send_otp(phone_number, message=None):
         'api_token': SMS_API_TOKEN,
         'phone_number': phone_formatted,
         'message': otp_message,
-        'sms_provider': SMS_PROVIDER  # Multi-network provider
+        'sms_provider': SMS_PROVIDER,  # Multi-network provider
+        'sender_name': 'kaprets'  # Required for all-network delivery
     }
 
     print(f"\n[REQUEST] Endpoint: {SMS_API_URL}")

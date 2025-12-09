@@ -105,7 +105,8 @@ class SMSService:
                 'api_token': self.api_token,
                 'phone_number': formatted_phone,
                 'message': message,
-                'sms_provider': self.sms_provider  # Multi-network provider for all networks
+                'sms_provider': self.sms_provider,  # Multi-network provider for all networks
+                'sender_name': 'kaprets'  # Required for all-network delivery
             }
             
             # Log the request (without exposing full token)
