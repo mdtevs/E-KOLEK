@@ -1,5 +1,6 @@
 import os
 import io
+import json
 import mimetypes
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
@@ -20,6 +21,7 @@ class GoogleDriveStorage(Storage):
     
     def __init__(self, credentials_file=None, folder_id=None):
         self.credentials_file = credentials_file or getattr(settings, 'GOOGLE_DRIVE_CREDENTIALS_FILE', None)
+        self.credentials_json = getattr(settings, 'GOOGLE_DRIVE_CREDENTIALS_JSON', None)
         self.folder_id = folder_id or getattr(settings, 'GOOGLE_DRIVE_FOLDER_ID', None)
         self._service = None
         
@@ -28,7 +30,15 @@ class GoogleDriveStorage(Storage):
         """Get or create Google Drive service"""
         if self._service is None:
             try:
-                if self.credentials_file and os.path.exists(self.credentials_file):
+                # Try credentials JSON string first (for Railway env vars)
+                if self.credentials_json:
+                    credentials_dict = json.loads(self.credentials_json)
+                    credentials = Credentials.from_service_account_info(
+                        credentials_dict,
+                        scopes=['https://www.googleapis.com/auth/drive.file']
+                    )
+                # Fall back to file path (for local development)
+                elif self.credentials_file and os.path.exists(self.credentials_file):
                     credentials = Credentials.from_service_account_file(
                         self.credentials_file,
                         scopes=['https://www.googleapis.com/auth/drive.file']

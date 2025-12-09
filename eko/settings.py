@@ -211,13 +211,13 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 USE_GOOGLE_DRIVE = config('USE_GOOGLE_DRIVE', default=False, cast=bool)
 
 if USE_GOOGLE_DRIVE:
-    GOOGLE_DRIVE_OAUTH_CREDENTIALS_FILE = config('GOOGLE_DRIVE_OAUTH_CREDENTIALS_FILE')
-    GOOGLE_DRIVE_TOKEN_FILE = config('GOOGLE_DRIVE_TOKEN_FILE')
+    # Using service account credentials (simpler for Railway deployment)
+    GOOGLE_DRIVE_CREDENTIALS_JSON = config('GOOGLE_DRIVE_CREDENTIALS_JSON', default=None)
     GOOGLE_DRIVE_FOLDER_ID = config('GOOGLE_DRIVE_FOLDER_ID')
     
     STORAGES = {
         "default": {
-            "BACKEND": "eko.google_drive_oauth_storage.GoogleDriveOAuthStorage",
+            "BACKEND": "eko.google_drive_storage.GoogleDriveStorage",
         },
         "staticfiles": {
             "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
