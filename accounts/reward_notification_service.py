@@ -289,7 +289,8 @@ E-KOLEK Team
                 from email.mime.image import MIMEImage
                 img = MIMEImage(image_data, _subtype=image_content_type.split('/')[-1])
                 img.add_header('Content-ID', '<reward_image>')
-                img.add_header('Content-Disposition', 'inline', filename=image_filename)
+                # Set Content-Disposition to inline WITHOUT filename to prevent it showing as downloadable attachment
+                img.add_header('Content-Disposition', 'inline')
                 msg.attach(img)
             
             # Send email
