@@ -25,7 +25,7 @@
     /* Header */
     header {
       margin-top: 0;
-      padding: 1rem;
+      padding: 0.75rem 1rem;
       background: white;
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
       position: sticky;
@@ -37,6 +37,7 @@
       align-items: center;
       justify-content: space-between;
       flex-wrap: nowrap;
+      gap: 1rem;
     }
 
     /* Logo area */
@@ -45,36 +46,74 @@
       align-items: center;
       gap: 0.5rem;
       flex-shrink: 0;
+      min-width: 0;
     }
 
     .header-logo {
-      width: 5rem;
-      height: 5rem;
+      width: 3.5rem;
+      height: 3.5rem;
       object-fit: contain;
       flex-shrink: 0;
     }
 
     .logo-title {
-      font-size: 1.25rem; /* xl */
+      font-size: 1.25rem;
       font-weight: 700;
       color: #166534;
       margin: 0;
       white-space: nowrap;
     }
 
-    /* Navigation */
-    nav {
+    /* Hamburger Menu Button (Hidden on desktop) */
+    .hamburger-menu {
+      display: none;
+      flex-direction: column;
+      justify-content: space-around;
+      width: 2rem;
+      height: 2rem;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      z-index: 10;
+    }
+
+    .hamburger-menu span {
+      width: 2rem;
+      height: 0.25rem;
+      background: #166534;
+      border-radius: 10px;
+      transition: all 0.3s linear;
+      position: relative;
+      transform-origin: 1px;
+    }
+
+    .hamburger-menu.active span:nth-child(1) {
+      transform: rotate(45deg);
+    }
+
+    .hamburger-menu.active span:nth-child(2) {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+
+    .hamburger-menu.active span:nth-child(3) {
+      transform: rotate(-45deg);
+    }
+
+    /* Desktop Navigation */
+    .desktop-nav {
       display: flex;
       align-items: center;
       gap: 0.75rem;
       flex-shrink: 0;
     }
 
-    nav a {
+    .desktop-nav a {
       color: black;
       padding: 0.5rem 1rem;
       border-radius: 0.5rem;
-      border: 1px solid #d1d5db; /* gray-300 */
+      border: 1px solid #d1d5db;
       box-shadow: 0 1px 2px rgba(0,0,0,0.05);
       text-decoration: none;
       transition: all 0.2s ease;
@@ -83,12 +122,13 @@
       white-space: nowrap;
     }
 
-    nav a:hover {
+    .desktop-nav a:hover {
       box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      background-color: #f9fafb;
     }
 
-    nav button {
-      background-color: #16a34a; /* green-600 */
+    .desktop-nav button {
+      background-color: #16a34a;
       color: white;
       font-weight: 600;
       padding: 0.5rem 1rem;
@@ -100,8 +140,59 @@
       font-size: 0.875rem;
       white-space: nowrap;
     }
-    nav button:hover {
-      background-color: #15803d; /* green-700 */
+    .desktop-nav button:hover {
+      background-color: #15803d;
+    }
+
+    /* Mobile Navigation (Hidden by default) */
+    .mobile-nav {
+      display: none;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 1rem;
+      background: white;
+      border-top: 1px solid #e5e7eb;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .mobile-nav.active {
+      display: flex;
+    }
+
+    .mobile-nav a {
+      color: black;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      border: 1px solid #d1d5db;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      font-weight: 500;
+      font-size: 1rem;
+      text-align: center;
+    }
+
+    .mobile-nav a:hover {
+      background-color: #f9fafb;
+    }
+
+    .mobile-nav button {
+      background-color: #16a34a;
+      color: white;
+      font-weight: 600;
+      padding: 0.75rem 1rem;
+      border-radius: 0.5rem;
+      border: 2px solid #16a34a;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-size: 1rem;
+      text-align: center;
+    }
+    .mobile-nav button:hover {
+      background-color: #15803d;
     }
 
     /* Hero Section */
@@ -748,8 +839,60 @@
     }
 
     /* =====================================================
-       MOBILE PHONES - COMPREHENSIVE FIX
+       MOBILE RESPONSIVE - COMPREHENSIVE FIX
        ===================================================== */
+
+    /* Mobile and Tablet - Show hamburger menu */
+    @media (max-width: 1024px) {
+      .desktop-nav {
+        display: none;
+      }
+
+      .hamburger-menu {
+        display: flex;
+      }
+
+      header {
+        padding: 0.75rem 1rem;
+      }
+
+      .header-logo {
+        width: 3rem;
+        height: 3rem;
+      }
+
+      .logo-title {
+        font-size: 1.125rem;
+      }
+    }
+
+    /* Tablets (641px to 1024px) */
+    @media (min-width: 641px) and (max-width: 1024px) {
+      .header-logo {
+        width: 3.5rem;
+        height: 3.5rem;
+      }
+
+      .logo-title {
+        font-size: 1.25rem;
+      }
+    }
+
+    /* Large Desktop - Full navigation */
+    @media (min-width: 1025px) {
+      .hamburger-menu {
+        display: none;
+      }
+
+      .mobile-nav {
+        display: none !important;
+      }
+
+      .header-logo {
+        width: 4rem;
+        height: 4rem;
+      }
+    }
 
     /* Tiny Phones - 320px (Smallest devices) */
     @media (max-width: 320px) {
@@ -762,28 +905,28 @@
         padding-right: 0.5rem;
       }
 
+      .header-logo {
+        width: 2.5rem;
+        height: 2.5rem;
+      }
+
       .logo-title {
         font-size: 0.875rem;
-        display: none; /* Hide logo text on very small screens */
+      }
+
+      .hamburger-menu {
+        width: 1.75rem;
+        height: 1.75rem;
+      }
+
+      .hamburger-menu span {
+        width: 1.75rem;
+        height: 0.2rem;
       }
 
       .icon-circle {
         width: 1.5rem;
         height: 1.5rem;
-      }
-
-      nav {
-        gap: 0.25rem;
-      }
-
-      nav a {
-        font-size: 0.625rem;
-        padding: 0.35rem 0.5rem;
-      }
-
-      nav button {
-        font-size: 0.625rem;
-        padding: 0.35rem 0.5rem;
       }
     }
 

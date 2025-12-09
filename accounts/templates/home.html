@@ -25,12 +25,28 @@
       <h1 class="logo-title">E-KOLEK</h1>
     </div>
 
-    <!-- Navigation -->
-    <nav style="margin-left:auto;">
+    <!-- Hamburger Menu Button (Mobile) -->
+    <button class="hamburger-menu" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <!-- Navigation (Desktop) -->
+    <nav class="desktop-nav" style="margin-left:auto;">
       <a href="{% url 'login_page' %}">Log In</a>
       <a href="{% url 'register' %}">Sign Up</a>
       <button onclick="handleGetStarted()">Get Started</button>
     </nav>
+  </div>
+
+  <!-- Mobile Navigation Menu -->
+  <div class="mobile-nav" id="mobileNav">
+    <a href="{% url 'home' %}">Home</a>
+    <a href="#benefits">Benefits</a>
+    <a href="{% url 'login_page' %}">Log In</a>
+    <a href="{% url 'register' %}">Sign Up</a>
+    <button onclick="handleGetStarted()">Get Started</button>
   </div>
 </header>
 

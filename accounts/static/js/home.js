@@ -72,11 +72,45 @@
   }
 
   /**
-   * Initialize mobile menu toggle (if needed in future)
+   * Initialize mobile menu toggle
    */
   function initMobileMenu() {
-    // Placeholder for future mobile menu functionality
-    // Can be expanded if hamburger menu is added
+    const hamburger = document.querySelector('.hamburger-menu');
+    const mobileNav = document.querySelector('.mobile-nav');
+    
+    if (hamburger && mobileNav) {
+      // Toggle menu visibility
+      window.toggleMobileMenu = function() {
+        hamburger.classList.toggle('active');
+        mobileNav.classList.toggle('active');
+        
+        // Prevent body scroll when menu is open
+        if (mobileNav.classList.contains('active')) {
+          document.body.style.overflow = 'hidden';
+        } else {
+          document.body.style.overflow = '';
+        }
+      };
+      
+      // Close menu when clicking a link
+      mobileNav.querySelectorAll('a, button').forEach(item => {
+        item.addEventListener('click', function() {
+          hamburger.classList.remove('active');
+          mobileNav.classList.remove('active');
+          document.body.style.overflow = '';
+        });
+      });
+      
+      // Close menu when clicking outside
+      document.addEventListener('click', function(event) {
+        const isClickInside = hamburger.contains(event.target) || mobileNav.contains(event.target);
+        if (!isClickInside && mobileNav.classList.contains('active')) {
+          hamburger.classList.remove('active');
+          mobileNav.classList.remove('active');
+          document.body.style.overflow = '';
+        }
+      });
+    }
   }
 
   /**
