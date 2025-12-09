@@ -237,36 +237,21 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # ==============================================================================
-# EMAIL CONFIGURATION
+# EMAIL CONFIGURATION  
 # ==============================================================================
 
-# Resend API Email Backend (Railway-compatible - no SMTP ports needed!)
-# Uses HTTP API instead of SMTP, works on all cloud platforms
-EMAIL_BACKEND = config('EMAIL_BACKEND', default='accounts.resend_backend.ResendEmailBackend')
+# Use Django's built-in SMTP backend with Gmail
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
 
-# Resend API Key (get free key at https://resend.com)
-RESEND_API_KEY = config('RESEND_API_KEY', default='')
-
-# From email (must be a verified domain on Resend)
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@yourdomain.com')
-
-# Legacy SMTP settings (kept for reference, not used with Resend backend)
+# Gmail SMTP Configuration (FREE - no external services needed!)
 EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
-EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
-EMAIL_USE_SSL = config('EMAIL_USE_SSL', default=False, cast=bool)
+EMAIL_PORT = config('EMAIL_PORT', default=465, cast=int)  # Using SSL port 465 instead of TLS 587
+EMAIL_USE_SSL = config('EMAIL_USE_SSL', default=True, cast=bool)  # SSL enabled for port 465
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=False, cast=bool)  # TLS disabled when using SSL
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-EMAIL_TIMEOUT = config('EMAIL_TIMEOUT', default=30, cast=int)
-
-# Legacy SMTP settings (kept for reference, not used with Resend backend)
-EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
-EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
-EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
-EMAIL_USE_SSL = config('EMAIL_USE_SSL', default=False, cast=bool)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-EMAIL_TIMEOUT = config('EMAIL_TIMEOUT', default=30, cast=int)
+EMAIL_TIMEOUT = config('EMAIL_TIMEOUT', default=60, cast=int)  # Increased timeout
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='ekolekcenro@gmail.com')
 
 
 # ==============================================================================
