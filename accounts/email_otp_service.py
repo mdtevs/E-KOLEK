@@ -24,19 +24,29 @@ except ImportError:
 
 
 def check_celery_worker_running():
-    """Check if Celery worker is actually running"""
+    """
+    Check if Celery is configured and should be used.
+    
+    In production (Railway), Celery worker is always started by start.sh,
+    so we trust that if CELERY_AVAILABLE=True and Redis is configured,
+    then we should use Celery for email tasks.
+    
+    This is critical because Railway blocks direct SMTP connections,
+    but allows Celery tasks to send emails through the broker queue.
+    """
     if not CELERY_AVAILABLE:
         return False
     
+    # Check if Redis/broker is configured (indicates production environment)
     try:
-        from eko.celery import app
-        # Try to inspect active workers
-        inspect = app.control.inspect()
-        stats = inspect.stats()
-        if stats:
+        from django.conf import settings
+        broker_url = getattr(settings, 'CELERY_BROKER_URL', None)
+        if broker_url and ('redis://' in broker_url or 'rediss://' in broker_url):
+            # Redis is configured, assume Celery worker is running
+            logger.info("✅ Celery configuration detected - using task queue for emails")
             return True
     except Exception as e:
-        logger.debug(f"Celery worker check failed: {str(e)}")
+        logger.debug(f"Celery config check failed: {str(e)}")
     
     return False
 
@@ -233,9 +243,17 @@ E-KOLEK Team
         # Check if we should try Celery
         use_celery = CELERY_AVAILABLE and check_celery_worker_running()
         
+        print(f"\n{'='*80}")
+        print(f"[EMAIL OTP] Email: {email}")
+        print(f"[EMAIL OTP] CELERY_AVAILABLE: {CELERY_AVAILABLE}")
+        print(f"[EMAIL OTP] use_celery: {use_celery}")
+        print(f"{'='*80}\n")
+        
         if use_celery:
-            # Production: Use Celery task queue (recommended)
+            # Production: Use Celery task queue (REQUIRED for Railway)
+            # Railway blocks direct SMTP, but Celery tasks work!
             logger.info(f"📧 Queuing email task via Celery for: {email}")
+            print(f"[EMAIL OTP] ✅ Using Celery task queue (Railway-compatible)")
             
             try:
                 task = send_otp_email_task.delay(
@@ -246,6 +264,8 @@ E-KOLEK Team
                 )
                 
                 logger.info(f"✅ Email task queued successfully | Task ID: {task.id}")
+                print(f"[EMAIL OTP] ✅ Task queued: {task.id}")
+                
                 return {
                     'success': True,
                     'message': 'OTP sent to your email',
@@ -253,10 +273,12 @@ E-KOLEK Team
                 }
             except Exception as celery_error:
                 # Celery failed, fallback to direct sending
-                logger.warning(f"⚠️ Celery task failed: {str(celery_error)}")
-                logger.info("🔄 Falling back to direct email sending...")
+                logger.error(f"❌ Celery task queue failed: {str(celery_error)}")
+                print(f"[EMAIL OTP] ❌ Celery failed: {celery_error}")
+                logger.info("🔄 Falling back to direct email sending (will likely fail on Railway)...")
         else:
-            logger.info("⚠️ Celery worker not running - using direct email sending")
+            logger.warning("⚠️ Celery not configured - using direct email sending (will fail on Railway)")
+            print(f"[EMAIL OTP] ⚠️ Using direct SMTP (will be blocked by Railway)")
         
         # Send email directly (synchronous) - fallback or when Celery unavailable
         try:

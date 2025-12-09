@@ -27,7 +27,13 @@ def send_otp_email_task(self, email, subject, message, html_message):
     try:
         from_email = f"E-KOLEK System <{settings.DEFAULT_FROM_EMAIL}>"
         
-        logger.info(f"📧 Sending OTP email to {email} | Task ID: {self.request.id}")
+        logger.info(f"📧 [CELERY TASK] Sending OTP email to {email} | Task ID: {self.request.id}")
+        print(f"\n{'='*80}")
+        print(f"[CELERY TASK] Task ID: {self.request.id}")
+        print(f"[CELERY TASK] Email: {email}")
+        print(f"[CELERY TASK] Subject: {subject}")
+        print(f"[CELERY TASK] Sending via: {settings.EMAIL_BACKEND}")
+        print(f"{'='*80}\n")
         
         result = send_mail(
             subject=subject,
@@ -38,7 +44,11 @@ def send_otp_email_task(self, email, subject, message, html_message):
             fail_silently=False
         )
         
-        logger.info(f"✅ Email sent successfully to {email} | Task ID: {self.request.id}")
+        logger.info(f"✅ [CELERY TASK] Email sent successfully to {email} | Task ID: {self.request.id}")
+        print(f"\n{'='*80}")
+        print(f"[CELERY TASK] ✅ SUCCESS!")
+        print(f"[CELERY TASK] send_mail returned: {result}")
+        print(f"{'='*80}\n")
         
         return {
             'status': 'success',
@@ -48,8 +58,17 @@ def send_otp_email_task(self, email, subject, message, html_message):
         }
     
     except Exception as exc:
-        logger.error(f"❌ Failed to send email to {email}: {str(exc)} | Task ID: {self.request.id}")
+        logger.error(f"❌ [CELERY TASK] Failed to send email to {email}: {str(exc)} | Task ID: {self.request.id}")
         logger.error(f"   Retry #{self.request.retries + 1}/3")
+        
+        print(f"\n{'='*80}")
+        print(f"[CELERY TASK] ❌ EXCEPTION!")
+        print(f"[CELERY TASK] Error: {type(exc).__name__}: {str(exc)}")
+        print(f"[CELERY TASK] Retry: {self.request.retries + 1}/3")
+        print(f"{'='*80}\n")
+        
+        import traceback
+        print(traceback.format_exc())
         
         # Celery will automatically retry based on configuration above
         raise exc
