@@ -573,7 +573,7 @@ class Reward(models.Model):
     
     @property
     def image_url_for_email(self):
-        """Get the image URL for EMAIL DISPLAY - uses direct view format for better email client compatibility"""
+        """Get the image URL for EMAIL DISPLAY - uses CDN format with better CORS support"""
         if self.image:
             if getattr(settings, 'USE_GOOGLE_DRIVE', False):
                 # Check if this is a Google Drive file ID or a local file path
@@ -589,8 +589,9 @@ class Reward(models.Model):
                     try:
                         # Simple check: if it's a long alphanumeric string, treat as Google Drive ID
                         if len(self.image.name) > 15 and self.image.name.replace('_', '').replace('-', '').isalnum():
-                            # Use direct view URL - recognized by email clients
-                            return f"https://drive.google.com/uc?export=view&id={self.image.name}"
+                            # Use CDN URL - has Access-Control-Allow-Origin: * header
+                            # Testing: CDN might work better than direct view for emails
+                            return f"https://lh3.googleusercontent.com/d/{self.image.name}"
                         else:
                             # Local file path
                             from django.conf import settings as django_settings
