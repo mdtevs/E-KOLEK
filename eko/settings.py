@@ -54,7 +54,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     # E-KOLEK apps
-    'accounts',
+    'accounts.apps.AccountsConfig',
     'cenro',
     'game',
     'learn',

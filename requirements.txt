@@ -76,10 +76,12 @@ tzdata==2025.2
 # JWT
 PyJWT==2.9.0
 
-# Excel/Data Export
+# Excel/Data Export & Document Processing
 openpyxl==3.1.5
 reportlab==4.4.4
 xlrd==2.0.1
+PyPDF2==3.0.1
+python-docx==1.1.2
 
 # Core Python Dependencies
 asgiref==3.9.2
