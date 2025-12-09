@@ -144,8 +144,8 @@ E-KOLEK Team
                                 
                                 <!-- Reward Image Thumbnail (if available) -->
                                 {f'''<div style="text-align: center; margin-bottom: 25px;">
-                                    <img src="cid:reward_image" alt="{reward_data['name']}" style="max-width: 300px; max-height: 300px; width: auto; height: auto; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); display: inline-block;">
-                                </div>''' if image_data else ''}
+                                    <img src="{image_data_url}" alt="{reward_data['name']}" style="max-width: 300px; max-height: 300px; width: auto; height: auto; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); display: inline-block;">
+                                </div>''' if image_data_url else ''}
                                 
                                 <!-- Reward Name -->
                                 <div style="text-align: center; margin-bottom: 30px;">
@@ -259,12 +259,19 @@ E-KOLEK Team
     # Debug: Show image attachment info
     if image_data:
         print(f"\n📧 EMAIL IMAGE INFO:")
-        print(f"  Method: Inline attachment (CID)")
+        print(f"  Method: Base64 Data URL (embedded in HTML)")
         print(f"  Filename: {image_filename}")
         print(f"  Size: {len(image_data)} bytes")
         print(f"  Content-Type: {image_content_type}")
-        print(f"  ✅ This bypasses ad blockers - image is EMBEDDED in email!")
+        print(f"  ✅ Image will be embedded directly - NO attachments!")
         print()
+        
+        # Convert image to base64 for embedding in HTML
+        import base64
+        image_base64 = base64.b64encode(image_data).decode('utf-8')
+        image_data_url = f"data:{image_content_type};base64,{image_base64}"
+    else:
+        image_data_url = None
     
     # Send to all users
     for i, email in enumerate(user_emails, 1):
@@ -283,15 +290,8 @@ E-KOLEK Team
             # Add HTML version
             msg.attach_alternative(html_message, "text/html")
             
-            # Attach image inline if available
-            if image_data:
-                # Create MIMEImage for inline attachment
-                from email.mime.image import MIMEImage
-                img = MIMEImage(image_data, _subtype=image_content_type.split('/')[-1])
-                img.add_header('Content-ID', '<reward_image>')
-                # Set Content-Disposition to inline WITHOUT filename to prevent it showing as downloadable attachment
-                img.add_header('Content-Disposition', 'inline')
-                msg.attach(img)
+            # NOTE: No longer attaching image as file - it's embedded as base64 data URL in HTML
+            # This prevents Gmail from showing downloadable attachment at bottom
             
             # Send email
             msg.send(fail_silently=False)
