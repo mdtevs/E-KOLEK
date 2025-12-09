@@ -142,10 +142,10 @@ E-KOLEK Team
                                     <h2 style="color: #ec4899; margin: 0; font-size: 22px; font-weight: 600;">✨ New Reward Added</h2>
                                 </div>
                                 
-                                <!-- Reward Image (if available) -->
+                                <!-- Reward Image Thumbnail (if available) -->
                                 {f'''<div style="text-align: center; margin-bottom: 25px;">
-                                    <img src="cid:reward_image" alt="{reward_data['name']}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                                </div>''' if image_data else '<!-- No image attached -->'}
+                                    <img src="cid:reward_image" alt="{reward_data['name']}" style="max-width: 300px; max-height: 300px; width: auto; height: auto; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); display: inline-block;">
+                                </div>''' if image_data else ''}
                                 
                                 <!-- Reward Name -->
                                 <div style="text-align: center; margin-bottom: 30px;">
