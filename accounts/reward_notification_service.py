@@ -81,6 +81,21 @@ def send_emails_in_background(user_emails, reward_data, image_file_id=None):
             logger.warning(f"Failed to download image from Google Drive: {str(e)}")
             # Continue without image
     
+    # Convert image to base64 data URL if available
+    image_data_url = None
+    if image_data:
+        print(f"\n📧 EMAIL IMAGE INFO:")
+        print(f"  Method: Base64 Data URL (embedded in HTML)")
+        print(f"  Filename: {image_filename}")
+        print(f"  Size: {len(image_data)} bytes")
+        print(f"  Content-Type: {image_content_type}")
+        print(f"  ✅ Image will be embedded directly - NO attachments!")
+        print()
+        
+        # Convert image to base64 for embedding in HTML
+        image_base64 = base64.b64encode(image_data).decode('utf-8')
+        image_data_url = f"data:{image_content_type};base64,{image_base64}"
+    
     # Generate email content with beautiful HTML design
     subject = f"🎁 E-KOLEK: New Reward Available - {reward_data['name']}"
     
