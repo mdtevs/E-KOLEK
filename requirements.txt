@@ -33,6 +33,9 @@ vine==5.1.0
 billiard==4.2.2
 amqp==5.3.1
 
+# Email Service (Resend API - no SMTP needed)
+resend==2.19.0
+
 # HTTP Requests
 requests==2.32.3
 urllib3==2.2.0
@@ -40,8 +43,7 @@ certifi==2024.2.2
 charset-normalizer==3.3.2
 idna==3.6
 
-# Email Service (Resend API - no SMTP needed)
-resend==2.19.0
+requests==2.32.3
 
 # Image Processing
 Pillow==11.3.0
