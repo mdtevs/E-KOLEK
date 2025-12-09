@@ -386,8 +386,14 @@ class AdminNotification(models.Model):
         Create notification for new user registration
         Sends to all admins who can manage users in this user's barangay
         """
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        logger.info(f"[NOTIFICATION] Creating notifications for user: {user.username}")
+        
         # Get user's barangay
         user_barangay = user.family.barangay
+        logger.info(f"[NOTIFICATION] User barangay: {user_barangay.name}")
         
         # Get all active admins with user management permission
         admins_with_permission = AdminUser.objects.filter(
@@ -396,6 +402,8 @@ class AdminNotification(models.Model):
             can_manage_users=True
         )
         
+        logger.info(f"[NOTIFICATION] Found {admins_with_permission.count()} admins with user management permission")
+        
         message = f"New user registration: {user.full_name} from {user.family.family_name} family in {user.family.barangay.name}"
         link_url = "/adminuser/"  # Link to user management page (correct URL without cenro/ prefix)
         
@@ -403,7 +411,10 @@ class AdminNotification(models.Model):
         for admin in admins_with_permission:
             # Check if admin can manage this barangay
             # Super Admins can see all, Operations Managers only see their assigned barangays
-            if admin.role == 'super_admin' or admin.can_manage_barangay(user_barangay):
+            can_manage = admin.role == 'super_admin' or admin.can_manage_barangay(user_barangay)
+            logger.info(f"[NOTIFICATION] Admin: {admin.username} | Role: {admin.role} | Can manage: {can_manage}")
+            
+            if can_manage:
                 notification = cls(
                     admin_user=admin,
                     notification_type='new_registration',
@@ -412,10 +423,14 @@ class AdminNotification(models.Model):
                     related_user=user
                 )
                 notifications.append(notification)
+                logger.info(f"[NOTIFICATION] ✅ Added notification for admin: {admin.username}")
         
         # Bulk create all notifications (one per admin)
         if notifications:
             cls.objects.bulk_create(notifications)
+            logger.info(f"[NOTIFICATION] ✅ Bulk created {len(notifications)} notifications")
+        else:
+            logger.warning(f"[NOTIFICATION] ⚠️ No notifications created - no matching admins found")
         
         return notifications
     
