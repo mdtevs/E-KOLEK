@@ -184,6 +184,13 @@ class SendGridBackend(BaseEmailBackend):
                     print(f"\n{'='*80}")
                     print(f"[SENDGRID API] ❌ EXCEPTION!")
                     print(f"[SENDGRID API] Error: {type(e).__name__}: {str(e)}")
+                    
+                    # Log detailed error if available
+                    if hasattr(e, 'body'):
+                        print(f"[SENDGRID API] Error Body: {e.body}")
+                    if hasattr(e, 'to_dict'):
+                        print(f"[SENDGRID API] Error Details: {e.to_dict}")
+                    
                     print(f"{'='*80}\n")
                     
                     if not self.fail_silently:
