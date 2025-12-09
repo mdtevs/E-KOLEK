@@ -305,7 +305,7 @@ def send_new_reward_notification(reward):
             'points': reward.points_required,
             'description': reward.description,
             'stock': reward.stock,
-            'image_url': reward.image.url if reward.image else None
+            'image_url': reward.image_url if reward.image else None  # Use the property that returns proper CDN URL
         }
         
         # Send emails in BACKGROUND THREAD so reward save is not blocked
