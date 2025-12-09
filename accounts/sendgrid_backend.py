@@ -136,18 +136,18 @@ class SendGridBackend(BaseEmailBackend):
                                     # Convert to base64 for SendGrid
                                     encoded_file = base64.b64encode(file_data).decode()
                                     
-                                    # Create SendGrid attachment
+                                    # Create SendGrid attachment WITHOUT FileName for inline display
+                                    # FileName causes Gmail to show it as a downloadable attachment
                                     sg_attachment = Attachment(
                                         FileContent(encoded_file),
-                                        FileName(filename),
                                         FileType(content_type),
                                         Disposition('inline'),
                                         ContentId(content_id)
                                     )
                                     mail.add_attachment(sg_attachment)
                                     
-                                    print(f"  ✅ Attached: {filename} (CID: {content_id}, {len(file_data)} bytes)")
-                                    logger.info(f"Inline attachment added: {filename} (CID: {content_id})")
+                                    print(f"  ✅ Attached: inline image (CID: {content_id}, {len(file_data)} bytes)")
+                                    logger.info(f"Inline attachment added: CID: {content_id}")
                                     
                             except Exception as e:
                                 print(f"  ⚠️ Failed to process attachment: {str(e)}")
