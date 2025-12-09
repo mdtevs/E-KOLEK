@@ -260,8 +260,15 @@ E-KOLEK Team
         
         # Send email directly (synchronous) - fallback or when Celery unavailable
         try:
+            print(f"\n{'='*80}")
+            print(f"[EMAIL DEBUG] Attempting to send email to: {email}")
+            print(f"[EMAIL DEBUG] Subject: {subject}")
+            print(f"[EMAIL DEBUG] From: {from_email}")
+            print(f"{'='*80}\n")
+            
             logger.info(f"📧 Sending email directly to: {email}")
-            send_mail(
+            
+            result = send_mail(
                 subject=subject,
                 message=message,
                 from_email=from_email,
@@ -269,12 +276,27 @@ E-KOLEK Team
                 html_message=html_message,
                 fail_silently=False
             )
+            
+            print(f"\n{'='*80}")
+            print(f"[EMAIL DEBUG] ✅ send_mail returned: {result}")
+            print(f"[EMAIL DEBUG] Email should be sent successfully")
+            print(f"{'='*80}\n")
+            
             logger.info(f"✅ Email sent directly to {email}")
             return {'success': True, 'message': 'OTP sent to your email'}
+            
         except Exception as mail_error:
+            print(f"\n{'='*80}")
+            print(f"[EMAIL DEBUG] ❌ EXCEPTION CAUGHT!")
+            print(f"[EMAIL DEBUG] Error type: {type(mail_error).__name__}")
+            print(f"[EMAIL DEBUG] Error message: {str(mail_error)}")
+            print(f"{'='*80}\n")
+            
             logger.error(f"❌ Failed to send email directly: {str(mail_error)}")
             import traceback
             logger.error(traceback.format_exc())
+            print(traceback.format_exc())
+            
             return {'success': False, 'error': f'Failed to send email: {str(mail_error)}'}
     
     except Exception as e:
