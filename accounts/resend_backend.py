@@ -6,6 +6,11 @@ import logging
 from django.conf import settings
 from django.core.mail.backends.base import BaseEmailBackend
 
+try:
+    import resend
+except ImportError:
+    resend = None
+
 logger = logging.getLogger(__name__)
 
 
@@ -26,10 +31,11 @@ class ResendEmailBackend(BaseEmailBackend):
                 raise ValueError("RESEND_API_KEY not configured in settings")
             logger.error("❌ RESEND_API_KEY not configured")
         else:
-            # Import resend here to avoid unused import warning
-            import resend
-            resend.api_key = self.api_key
-            logger.info("✅ Resend API configured successfully")
+            if resend:
+                resend.api_key = self.api_key
+                logger.info("✅ Resend API configured successfully")
+            else:
+                logger.error("❌ Resend package not installed")
     
     def send_messages(self, email_messages):
         """
@@ -102,7 +108,9 @@ class ResendEmailBackend(BaseEmailBackend):
             logger.info(f"📧 Sending email via Resend to: {', '.join(message.to)}")
             logger.info(f"   Subject: {message.subject}")
             
-            import resend
+            if not resend:
+                raise ImportError("Resend package is not installed")
+            
             response = resend.Emails.send(email_data)
             
             logger.info(f"✅ Email sent successfully via Resend | ID: {response.get('id', 'N/A')}")
