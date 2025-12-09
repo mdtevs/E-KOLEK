@@ -109,6 +109,15 @@ class SendGridBackend(BaseEmailBackend):
                     # Add HTML content if available
                     if html_content:
                         mail.add_content(Content("text/html", html_content))
+                        
+                        # DEBUG: Check for image tags in HTML
+                        import re
+                        img_tags = re.findall(r'<img[^>]+src=["\']([^"\']+)["\'][^>]*>', html_content)
+                        if img_tags:
+                            print(f"\n🖼️ IMAGE TAGS FOUND IN EMAIL HTML:")
+                            for i, img_url in enumerate(img_tags, 1):
+                                print(f"  {i}. {img_url}")
+                            print()
                     
                     # Send via HTTP API
                     logger.info(f"📧 Sending email via SendGrid HTTP API to: {to_email}")
