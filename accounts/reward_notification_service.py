@@ -48,53 +48,18 @@ def send_emails_in_background(user_emails, reward_data, image_file_id=None):
     print(f"\n[BACKGROUND] Sending new reward emails to {len(user_emails)} users...")
     logger.info(f"Background reward email sending started for {len(user_emails)} users")
     
-    # Download image from Google Drive if available
-    image_data = None
-    image_filename = None
-    image_content_type = None
-    
+    # Get Google Drive thumbnail URL if image available
+    image_thumbnail_url = None
     if image_file_id:
-        try:
-            print(f"\n[BACKGROUND] Downloading image from Google Drive...")
-            print(f"  File ID: {image_file_id}")
-            
-            # Import Google Drive storage
-            from eko.google_drive_storage import GoogleDriveStorage
-            storage = GoogleDriveStorage()
-            
-            # Download the file
-            file_content = storage.service.files().get_media(fileId=image_file_id).execute()
-            
-            # Get file metadata
-            file_metadata = storage.service.files().get(fileId=image_file_id, fields='name,mimeType').execute()
-            
-            image_data = file_content
-            image_filename = file_metadata.get('name', 'reward.jpg')
-            image_content_type = file_metadata.get('mimeType', 'image/jpeg')
-            
-            print(f"  ✅ Downloaded: {image_filename} ({len(image_data)} bytes)")
-            print(f"  Content-Type: {image_content_type}")
-            logger.info(f"Image downloaded successfully: {image_filename} ({len(image_data)} bytes)")
-            
-        except Exception as e:
-            print(f"  ⚠️ Failed to download image: {str(e)}")
-            logger.warning(f"Failed to download image from Google Drive: {str(e)}")
-            # Continue without image
-    
-    # Convert image to base64 data URL if available
-    image_data_url = None
-    if image_data:
+        # Use Google Drive's thumbnail URL (same as dashboard)
+        image_thumbnail_url = f"https://lh3.googleusercontent.com/d/{image_file_id}"
         print(f"\n📧 EMAIL IMAGE INFO:")
-        print(f"  Method: Base64 Data URL (embedded in HTML)")
-        print(f"  Filename: {image_filename}")
-        print(f"  Size: {len(image_data)} bytes")
-        print(f"  Content-Type: {image_content_type}")
-        print(f"  ✅ Image will be embedded directly - NO attachments!")
+        print(f"  Method: Google Drive Thumbnail URL")
+        print(f"  File ID: {image_file_id}")
+        print(f"  Thumbnail URL: {image_thumbnail_url}")
+        print(f"  ✅ Using direct Google Drive link (same as dashboard)")
         print()
-        
-        # Convert image to base64 for embedding in HTML
-        image_base64 = base64.b64encode(image_data).decode('utf-8')
-        image_data_url = f"data:{image_content_type};base64,{image_base64}"
+        logger.info(f"Using Google Drive thumbnail URL: {image_thumbnail_url}")
     
     # Generate email content with beautiful HTML design
     subject = f"🎁 E-KOLEK: New Reward Available - {reward_data['name']}"
@@ -159,8 +124,8 @@ E-KOLEK Team
                                 
                                 <!-- Reward Image Thumbnail (if available) -->
                                 {f'''<div style="text-align: center; margin-bottom: 25px;">
-                                    <img src="{image_data_url}" alt="{reward_data['name']}" style="max-width: 300px; max-height: 300px; width: auto; height: auto; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); display: inline-block;">
-                                </div>''' if image_data_url else ''}
+                                    <img src="{image_thumbnail_url}" alt="{reward_data['name']}" style="max-width: 300px; max-height: 300px; width: auto; height: auto; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); display: inline-block;">
+                                </div>''' if image_thumbnail_url else ''}
                                 
                                 <!-- Reward Name -->
                                 <div style="text-align: center; margin-bottom: 30px;">
@@ -270,23 +235,6 @@ E-KOLEK Team
     """
     
     from_email = f"E-KOLEK System <{settings.DEFAULT_FROM_EMAIL}>"
-    
-    # Debug: Show image attachment info
-    if image_data:
-        print(f"\n📧 EMAIL IMAGE INFO:")
-        print(f"  Method: Base64 Data URL (embedded in HTML)")
-        print(f"  Filename: {image_filename}")
-        print(f"  Size: {len(image_data)} bytes")
-        print(f"  Content-Type: {image_content_type}")
-        print(f"  ✅ Image will be embedded directly - NO attachments!")
-        print()
-        
-        # Convert image to base64 for embedding in HTML
-        import base64
-        image_base64 = base64.b64encode(image_data).decode('utf-8')
-        image_data_url = f"data:{image_content_type};base64,{image_base64}"
-    else:
-        image_data_url = None
     
     # Send to all users
     for i, email in enumerate(user_emails, 1):
