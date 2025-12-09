@@ -405,6 +405,11 @@ class AdminNotification(models.Model):
             can_manage_users=True
         )
         
+        logger.warning(f"[NOTIFICATION] 🔍 QUERY RESULTS:")
+        logger.warning(f"[NOTIFICATION] Total admins found: {admins_with_permission.count()}")
+        for admin in admins_with_permission:
+            logger.warning(f"[NOTIFICATION] Admin: {admin.username} | Role: {admin.role} | can_manage_users: {admin.can_manage_users} | status: {admin.status} | is_active: {admin.is_active}")
+        
         logger.info(f"[NOTIFICATION] Found {admins_with_permission.count()} admins with user management permission")
         
         message = f"New user registration: {user.full_name} from {user.family.family_name} family in {user.family.barangay.name}"
