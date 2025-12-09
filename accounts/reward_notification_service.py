@@ -30,10 +30,10 @@ def get_all_users_with_email():
 
 def send_emails_in_background(user_emails, reward_data):
     """
-    Send emails in a background thread so it doesn't block the reward creation
-    This allows the reward to be saved immediately while emails send in the background
+    Send emails via Django's email system (now uses Resend API backend).
+    This function is called from a background thread.
     """
-    from django.core.mail import EmailMultiAlternatives
+    from django.core.mail import send_mail
     
     success_count = 0
     failed_emails = []
@@ -222,15 +222,15 @@ E-KOLEK Team
             continue
         
         try:
-            # Create email with both plain text and HTML versions
-            email_message = EmailMultiAlternatives(
+            # Send email using Django's send_mail (will use Resend backend)
+            send_mail(
                 subject=subject,
-                body=message,  # Plain text fallback
+                message=message,
                 from_email=from_email,
-                to=[email]
+                recipient_list=[email],
+                html_message=html_message,
+                fail_silently=False
             )
-            email_message.attach_alternative(html_message, "text/html")  # HTML version
-            email_message.send(fail_silently=False)
             
             success_count += 1
             print(f"  [BACKGROUND] [OK] [{i}/{len(user_emails)}] Sent to {email}")

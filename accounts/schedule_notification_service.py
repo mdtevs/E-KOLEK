@@ -339,17 +339,17 @@ E-KOLEK Team
             continue
         
         try:
-            from django.core.mail import EmailMultiAlternatives
+            from django.core.mail import send_mail
             
-            # Create email with both plain text and HTML versions
-            email_message = EmailMultiAlternatives(
+            # Send email using Django's send_mail (will use Resend backend)
+            send_mail(
                 subject=subject,
-                body=message,  # Plain text fallback
+                message=message,
                 from_email=from_email,
-                to=[email]
+                recipient_list=[email],
+                html_message=html_message,
+                fail_silently=False
             )
-            email_message.attach_alternative(html_message, "text/html")  # HTML version
-            email_message.send(fail_silently=False)
             
             success_count += 1
             logger.info(f"Background email sent to {email}")
