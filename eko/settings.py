@@ -240,19 +240,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # EMAIL CONFIGURATION  
 # ==============================================================================
 
-# SendGrid SMTP Configuration (FREE - 100 emails/day)
-# Works perfectly on Railway - no port blocking!
-EMAIL_BACKEND = config('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
+# SendGrid HTTP API Configuration (Railway Compatible!)
+# Railway blocks SMTP ports, so we use SendGrid's HTTP API instead
+EMAIL_BACKEND = config('EMAIL_BACKEND', default='accounts.sendgrid_backend.SendGridBackend')
 
-# SendGrid SMTP Settings
+# SendGrid API Key (uses HTTP API, not SMTP)
+SENDGRID_API_KEY = config('SENDGRID_API_KEY', default=config('EMAIL_HOST_PASSWORD', default=''))
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='ekolekcenro@gmail.com')
+
+# Legacy SMTP settings (kept for reference, but not used with HTTP API backend)
 EMAIL_HOST = config('EMAIL_HOST', default='smtp.sendgrid.net')
 EMAIL_PORT = config('EMAIL_PORT', default=587, cast=int)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=True, cast=bool)
 EMAIL_USE_SSL = config('EMAIL_USE_SSL', default=False, cast=bool)
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='apikey')  # Literal string "apikey"
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')  # SendGrid API Key
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='apikey')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 EMAIL_TIMEOUT = config('EMAIL_TIMEOUT', default=30, cast=int)
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@sendgrid.net')
 
 
 # ==============================================================================

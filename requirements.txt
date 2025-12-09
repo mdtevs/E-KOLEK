@@ -33,7 +33,8 @@ vine==5.1.0
 billiard==4.2.2
 amqp==5.3.1
 
-# Email Service (Resend API - no SMTP needed)
+# Email Service (SendGrid API - Railway compatible)
+sendgrid==6.11.0
 resend==2.19.0
 
 # HTTP Requests
