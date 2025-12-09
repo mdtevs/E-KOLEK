@@ -32,13 +32,40 @@ class GoogleDriveStorage(Storage):
             try:
                 # Try credentials JSON string first (for Railway env vars)
                 if self.credentials_json:
-                    credentials_dict = json.loads(self.credentials_json)
-                    credentials = Credentials.from_service_account_info(
-                        credentials_dict,
-                        scopes=['https://www.googleapis.com/auth/drive.file']
-                    )
+                    try:
+                        # Parse the JSON string
+                        credentials_dict = json.loads(self.credentials_json)
+                        
+                        # CRITICAL FIX: Ensure private_key has proper newlines
+                        # Railway/environment variables may escape \n differently
+                        if 'private_key' in credentials_dict:
+                            private_key = credentials_dict['private_key']
+                            # Replace literal \n with actual newlines if needed
+                            if '\\n' in private_key:
+                                credentials_dict['private_key'] = private_key.replace('\\n', '\n')
+                            # Ensure the key has proper formatting
+                            elif '\n' not in private_key and 'BEGIN PRIVATE KEY' in private_key:
+                                # Key is on one line without newlines - add them
+                                logger.warning("Private key appears to be on one line - fixing format")
+                                credentials_dict['private_key'] = private_key.replace('-----BEGIN PRIVATE KEY-----', '-----BEGIN PRIVATE KEY-----\n').replace('-----END PRIVATE KEY-----', '\n-----END PRIVATE KEY-----\n')
+                        
+                        logger.info("📝 Parsed credentials JSON successfully")
+                        logger.info(f"🔑 Private key length: {len(credentials_dict.get('private_key', ''))} characters")
+                        
+                        credentials = Credentials.from_service_account_info(
+                            credentials_dict,
+                            scopes=['https://www.googleapis.com/auth/drive.file']
+                        )
+                        logger.info("✅ Credentials object created successfully")
+                    except json.JSONDecodeError as e:
+                        logger.error(f"❌ Failed to parse credentials JSON: {e}")
+                        raise Exception(f"Invalid JSON in GOOGLE_DRIVE_CREDENTIALS_JSON: {e}")
+                    except Exception as e:
+                        logger.error(f"❌ Failed to create credentials from JSON: {e}")
+                        raise
                 # Fall back to file path (for local development)
                 elif self.credentials_file and os.path.exists(self.credentials_file):
+                    logger.info(f"📁 Using credentials file: {self.credentials_file}")
                     credentials = Credentials.from_service_account_file(
                         self.credentials_file,
                         scopes=['https://www.googleapis.com/auth/drive.file']
