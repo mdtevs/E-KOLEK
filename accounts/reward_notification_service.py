@@ -28,19 +28,16 @@ def get_all_users_with_email():
     return users
 
 
-def send_emails_in_background(user_emails, reward_data, image_file_id=None):
+def send_emails_in_background(user_emails, reward_data):
     """
-    Send emails via Django's email system (now uses Resend API backend).
+    Send emails via Django's email system (now uses SendGrid backend).
     This function is called from a background thread.
     
     Args:
         user_emails: List of email addresses
         reward_data: Dictionary with reward information
-        image_file_id: Google Drive file ID for the reward image (optional)
     """
     from django.core.mail import EmailMultiAlternatives
-    import io
-    import base64
     
     success_count = 0
     failed_emails = []
@@ -48,19 +45,8 @@ def send_emails_in_background(user_emails, reward_data, image_file_id=None):
     print(f"\n[BACKGROUND] Sending new reward emails to {len(user_emails)} users...")
     logger.info(f"Background reward email sending started for {len(user_emails)} users")
     
-    # Get Google Drive thumbnail URL if image available
-    image_thumbnail_url = None
-    if image_file_id:
-        # Use Google Drive's direct image URL (better for email clients)
-        # This format works better in emails and bypasses some email client restrictions
-        image_thumbnail_url = f"https://drive.google.com/uc?export=view&id={image_file_id}"
-        print(f"\n📧 EMAIL IMAGE INFO:")
-        print(f"  Method: Google Drive Direct View URL")
-        print(f"  File ID: {image_file_id}")
-        print(f"  Image URL: {image_thumbnail_url}")
-        print(f"  ✅ Using email-optimized Google Drive link")
-        print()
-        logger.info(f"Using Google Drive email URL: {image_thumbnail_url}")
+    # NOTE: Image removed from email - Gmail blocks external images anyway
+    # Users can view the image in the mobile app or web dashboard
     
     # Generate email content with beautiful HTML design
     subject = f"🎁 E-KOLEK: New Reward Available - {reward_data['name']}"
@@ -122,11 +108,6 @@ E-KOLEK Team
                                 <div style="background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%); border-left: 4px solid #ec4899; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: center;">
                                     <h2 style="color: #ec4899; margin: 0; font-size: 22px; font-weight: 600;">✨ New Reward Added</h2>
                                 </div>
-                                
-                                <!-- Reward Image Thumbnail (if available) -->
-                                {f'''<div style="text-align: center; margin-bottom: 25px;">
-                                    <img src="{image_thumbnail_url}" alt="{reward_data['name']}" style="max-width: 300px; max-height: 300px; width: auto; height: auto; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); display: inline-block;">
-                                </div>''' if image_thumbnail_url else ''}
                                 
                                 <!-- Reward Name -->
                                 <div style="text-align: center; margin-bottom: 30px;">
@@ -351,20 +332,16 @@ def send_new_reward_notification(reward):
         # Send emails in BACKGROUND THREAD so reward save is not blocked
         print(f"\nEmail Method:")
         print(f"  - Using: Background Thread (Asynchronous - Non-Blocking)")
-        print(f"  - Image: Inline attachment (bypasses ad blockers!)")
         
         print(f"\nStarting background email thread...")
         print(f"  - Reward will be saved IMMEDIATELY")
         print(f"  - Emails will send in the background")
         logger.info("Starting background email thread")
         
-        # Get image file ID if available
-        image_file_id = reward.image.name if reward.image else None
-        
-        # Start background thread for email sending
+        # Start background thread for email sending (NO image parameter)
         email_thread = threading.Thread(
             target=send_emails_in_background,
-            args=(user_emails, reward_data, image_file_id),
+            args=(user_emails, reward_data),
             daemon=True  # Thread will not prevent program exit
         )
         email_thread.start()
