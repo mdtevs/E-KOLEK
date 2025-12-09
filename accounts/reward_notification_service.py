@@ -51,15 +51,16 @@ def send_emails_in_background(user_emails, reward_data, image_file_id=None):
     # Get Google Drive thumbnail URL if image available
     image_thumbnail_url = None
     if image_file_id:
-        # Use Google Drive's thumbnail URL (same as dashboard)
-        image_thumbnail_url = f"https://lh3.googleusercontent.com/d/{image_file_id}"
+        # Use Google Drive's direct image URL (better for email clients)
+        # This format works better in emails and bypasses some email client restrictions
+        image_thumbnail_url = f"https://drive.google.com/uc?export=view&id={image_file_id}"
         print(f"\n📧 EMAIL IMAGE INFO:")
-        print(f"  Method: Google Drive Thumbnail URL")
+        print(f"  Method: Google Drive Direct View URL")
         print(f"  File ID: {image_file_id}")
-        print(f"  Thumbnail URL: {image_thumbnail_url}")
-        print(f"  ✅ Using direct Google Drive link (same as dashboard)")
+        print(f"  Image URL: {image_thumbnail_url}")
+        print(f"  ✅ Using email-optimized Google Drive link")
         print()
-        logger.info(f"Using Google Drive thumbnail URL: {image_thumbnail_url}")
+        logger.info(f"Using Google Drive email URL: {image_thumbnail_url}")
     
     # Generate email content with beautiful HTML design
     subject = f"🎁 E-KOLEK: New Reward Available - {reward_data['name']}"
