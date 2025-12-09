@@ -34,35 +34,12 @@ def send_emails_in_background(user_emails, reward_data):
     This function is called from a background thread.
     """
     from django.core.mail import send_mail
-    import base64
-    import requests
     
     success_count = 0
     failed_emails = []
     
     print(f"\n[BACKGROUND] Sending new reward emails to {len(user_emails)} users...")
     logger.info(f"Background reward email sending started for {len(user_emails)} users")
-    
-    # If image URL exists, download it and convert to base64 for inline embedding
-    image_data_uri = None
-    if reward_data.get('image_url'):
-        try:
-            print(f"[BACKGROUND] Downloading image from: {reward_data['image_url']}")
-            response = requests.get(reward_data['image_url'], timeout=10)
-            if response.status_code == 200:
-                # Detect content type
-                content_type = response.headers.get('Content-Type', 'image/jpeg')
-                # Convert to base64
-                image_base64 = base64.b64encode(response.content).decode('utf-8')
-                image_data_uri = f"data:{content_type};base64,{image_base64}"
-                print(f"[BACKGROUND] ✅ Image converted to base64 ({len(image_base64)} chars)")
-                logger.info(f"Image converted to base64 for inline embedding")
-            else:
-                print(f"[BACKGROUND] ⚠️ Failed to download image: HTTP {response.status_code}")
-                logger.warning(f"Failed to download image: HTTP {response.status_code}")
-        except Exception as img_error:
-            print(f"[BACKGROUND] ⚠️ Error downloading image: {img_error}")
-            logger.error(f"Error downloading image for email: {img_error}")
     
     # Generate email content with beautiful HTML design
     subject = f"🎁 E-KOLEK: New Reward Available - {reward_data['name']}"
@@ -127,8 +104,8 @@ E-KOLEK Team
                                 
                                 <!-- Reward Image (if available) -->
                                 {f'''<div style="text-align: center; margin-bottom: 25px;">
-                                    <img src="{image_data_uri or reward_data['image_url']}" alt="{reward_data['name']}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                                </div>''' if (image_data_uri or reward_data.get('image_url')) else '<!-- No image URL provided -->'}
+                                    <img src="{reward_data['image_url']}" alt="{reward_data['name']}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                                </div>''' if reward_data.get('image_url') else '<!-- No image URL provided -->'}
                                 
                                 <!-- Reward Name -->
                                 <div style="text-align: center; margin-bottom: 30px;">
@@ -239,26 +216,11 @@ E-KOLEK Team
     
     from_email = f"E-KOLEK System <{settings.DEFAULT_FROM_EMAIL}>"
     
-    # Debug: Show a snippet of the HTML to verify image tag is included
-    if image_data_uri or reward_data.get('image_url'):
-        print(f"\n📧 EMAIL HTML CHECK:")
-        if image_data_uri:
-            print(f"  ✅ Using INLINE base64 image (embedded directly in email)")
-            print(f"  📏 Base64 size: {len(image_data_uri)} characters")
-        else:
-            print(f"  ⚠️ Using external URL (may be blocked by email clients)")
-            print(f"  Image URL: {reward_data.get('image_url')}")
-        # Find the img tag in html_message
-        import re
-        img_match = re.search(r'<img[^>]+src="([^"]+)"', html_message)
-        if img_match:
-            src = img_match.group(1)
-            if src.startswith('data:'):
-                print(f"  ✅ <img> tag has inline base64 data")
-            else:
-                print(f"  ✅ <img> tag found with src: {src[:80]}...")
-        else:
-            print(f"  ❌ NO <img> tag found in HTML!")
+    # Debug: Show image URL being used
+    if reward_data.get('image_url'):
+        print(f"\n📧 EMAIL IMAGE INFO:")
+        print(f"  Image URL: {reward_data['image_url']}")
+        print(f"  This URL format works best for Gmail/email clients")
         print()
     
     # Send to all users

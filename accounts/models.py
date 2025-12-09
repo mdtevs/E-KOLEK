@@ -554,9 +554,9 @@ class Reward(models.Model):
                     try:
                         # Simple check: if it's a long alphanumeric string, treat as Google Drive ID
                         if len(self.image.name) > 15 and self.image.name.replace('_', '').replace('-', '').isalnum():
-                            # Use Google's CDN format - most reliable for embedding images
-                            # This format works with public permissions and doesn't require sign-in
-                            return f"https://lh3.googleusercontent.com/d/{self.image.name}"
+                            # Use Google Drive DIRECT DOWNLOAD link - works better for emails
+                            # This forces the file to be downloaded/displayed rather than opening Drive viewer
+                            return f"https://drive.google.com/uc?export=view&id={self.image.name}"
                         else:
                             # Local file path
                             from django.conf import settings as django_settings
