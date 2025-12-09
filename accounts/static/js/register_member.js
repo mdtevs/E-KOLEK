@@ -12,12 +12,41 @@ if (phoneInput) {
   
   // Clear error message when user starts typing
   phoneInput.addEventListener('input', function() {
+    // Only allow digits and limit to 11 characters
+    let value = this.value.replace(/\D/g, '');
+    if (value.length > 11) {
+      value = value.slice(0, 11);
+    }
+    this.value = value;
+    
     // Remove validation error when user modifies the input
     removeFieldError(this);
-    // Reset border color to neutral while typing
-    this.style.borderColor = '#e5e7eb';
-    this.style.borderWidth = '2px';
-    this.style.borderStyle = 'solid';
+    
+    // Format validation
+    if (value.length > 0) {
+      if (!value.startsWith('09')) {
+        this.style.borderColor = '#dc2626'; // Red
+        this.style.borderWidth = '2px';
+        this.style.borderStyle = 'solid';
+        showFieldError(this, 'Phone number must start with 09');
+        return;
+      } else if (value.length === 11) {
+        // Valid format - will check availability on blur
+        this.style.borderColor = '#e5e7eb';
+        this.style.borderWidth = '2px';
+        this.style.borderStyle = 'solid';
+      } else {
+        // Incomplete but valid so far
+        this.style.borderColor = '#e5e7eb';
+        this.style.borderWidth = '2px';
+        this.style.borderStyle = 'solid';
+      }
+    } else {
+      // Reset border color to neutral while typing
+      this.style.borderColor = '#e5e7eb';
+      this.style.borderWidth = '2px';
+      this.style.borderStyle = 'solid';
+    }
   });
   
   phoneInput.addEventListener('blur', function() {
@@ -25,6 +54,23 @@ if (phoneInput) {
     
     if (!phoneNumber) {
       return; // Don't validate empty input
+    }
+    
+    // Check format before making API call
+    if (phoneNumber.length !== 11) {
+      this.style.borderColor = '#dc2626'; // Red
+      this.style.borderWidth = '2px';
+      this.style.borderStyle = 'solid';
+      showFieldError(this, 'Phone number must be exactly 11 digits');
+      return;
+    }
+    
+    if (!phoneNumber.startsWith('09')) {
+      this.style.borderColor = '#dc2626'; // Red
+      this.style.borderWidth = '2px';
+      this.style.borderStyle = 'solid';
+      showFieldError(this, 'Phone number must start with 09');
+      return;
     }
     
     // Clear previous timeout

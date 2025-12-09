@@ -98,6 +98,15 @@ class FamilyRegistrationForm(forms.ModelForm):
 
     def clean_phone(self):
         phone = self.cleaned_data.get('phone')
+        
+        # Format validation
+        if not phone.isdigit():
+            raise forms.ValidationError("Phone number must contain only digits.")
+        if len(phone) != 11:
+            raise forms.ValidationError("Phone number must be exactly 11 digits.")
+        if not phone.startswith('09'):
+            raise forms.ValidationError("Phone number must start with 09.")
+        
         # Check if phone is already used by any user (exclude rejected)
         if Users.objects.filter(phone=phone).exclude(status='rejected').exists():
             raise forms.ValidationError("This phone number is already registered.")
@@ -271,6 +280,15 @@ class FamilyMemberRegistrationForm(UserCreationForm):
 
     def clean_phone(self):
         phone = self.cleaned_data.get('phone')
+        
+        # Format validation
+        if not phone.isdigit():
+            raise forms.ValidationError("Phone number must contain only digits.")
+        if len(phone) != 11:
+            raise forms.ValidationError("Phone number must be exactly 11 digits.")
+        if not phone.startswith('09'):
+            raise forms.ValidationError("Phone number must start with 09.")
+        
         # Exclude rejected users from phone check
         if Users.objects.filter(phone=phone).exclude(status='rejected').exists():
             raise forms.ValidationError("This phone number is already registered.")

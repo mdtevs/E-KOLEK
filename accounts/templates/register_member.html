@@ -74,7 +74,7 @@
           <label for="id_phone">Your Phone Number</label>
           <div style="display: flex; gap: 10px; align-items: flex-start;">
             <div style="flex: 1;">
-              <input id="id_phone" name="phone" type="text" placeholder="+63 912 345 6789" value="{{ form.phone.value|default:'' }}" required />
+              <input id="id_phone" name="phone" type="text" placeholder="09123456789" maxlength="11" value="{{ form.phone.value|default:'' }}" required />
               {% if form.phone.errors %}
                 <p class="error-text">{{ form.phone.errors|striptags }}</p>
               {% endif %}
