@@ -136,20 +136,27 @@ class SendGridBackend(BaseEmailBackend):
                                     # Convert to base64 for SendGrid
                                     encoded_file = base64.b64encode(file_data).decode()
                                     
-                                    # Create SendGrid inline attachment - CRITICAL: NO file_name for true inline
-                                    # Setting file_name (even empty) causes Gmail to show downloadable attachment
-                                    # We ONLY set: content, type, disposition=inline, and content_id
+                                    # Create proper inline attachment for SendGrid
+                                    # Key insight: Use raw dict structure for SendGrid API v3
+                                    attachment_data = {
+                                        'content': encoded_file,
+                                        'type': content_type,
+                                        'filename': content_id,  # Use CID as filename
+                                        'disposition': 'inline',  # String, not Disposition object
+                                        'content_id': content_id
+                                    }
+                                    
                                     sg_attachment = Attachment()
                                     sg_attachment.file_content = FileContent(encoded_file)
-                                    # DO NOT SET file_name - this is the key to preventing download link
-                                    sg_attachment.file_type = FileType(content_type)
+                                    sg_attachment.file_name = FileName(content_id)
+                                    sg_attachment.file_type = FileType(content_type) 
                                     sg_attachment.disposition = Disposition('inline')
                                     sg_attachment.content_id = ContentId(content_id)
                                     
                                     mail.add_attachment(sg_attachment)
                                     
-                                    print(f"  ✅ Attached: inline image (CID: {content_id}, {len(file_data)} bytes)")
-                                    logger.info(f"Inline attachment added: CID: {content_id}")
+                                    print(f"  ✅ Attached: inline CID: {content_id}, {len(file_data)} bytes")
+                                    logger.info(f"Inline attachment: CID={content_id}")
                                     
                             except Exception as e:
                                 print(f"  ⚠️ Failed to process attachment: {str(e)}")
