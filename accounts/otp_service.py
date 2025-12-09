@@ -4,6 +4,8 @@ import logging
 from django.conf import settings
 import random
 import string
+import json
+from django.core.cache import cache
 
 logger = logging.getLogger(__name__)
 
@@ -15,13 +17,9 @@ SMS_PROVIDER = getattr(settings, 'SMS_PROVIDER', 2)  # Default to 2 for multi-ne
 # iProg Tech SMS API endpoint for sending OTP
 SMS_API_URL = 'https://www.iprogsms.com/api/v1/sms_messages'
 
-# In-memory OTP storage (for verification)
-# In production, consider using Redis or database for better scalability
-_otp_storage = {}
-
-# Track recently verified OTPs to prevent duplicate verification errors
-# Format: {phone_number: {'verified_at': datetime, 'user_id': str}}
-_recently_verified = {}
+# REDIS-BACKED OTP STORAGE (survives server restarts!)
+# Using Django's cache framework (configured with Redis on Railway)
+# Cache keys: otp_{phone_number}, verified_{phone_number}
 
 
 
@@ -31,65 +29,81 @@ def _generate_otp(length=6):
 
 
 def _store_otp(phone_number, otp_code, expires_in_minutes=5):
-    """Store OTP in memory with expiration time"""
+    """Store OTP in Redis cache with expiration time"""
     from datetime import datetime, timedelta
     expiry = datetime.now() + timedelta(minutes=expires_in_minutes)
-    _otp_storage[phone_number] = {
+    
+    otp_data = {
         'otp': otp_code,
-        'expires_at': expiry,
+        'expires_at': expiry.isoformat(),
         'attempts': 0
     }
+    
+    # Store in Redis with TTL (Time To Live)
+    cache_key = f'otp_{phone_number}'
+    cache.set(cache_key, json.dumps(otp_data), timeout=expires_in_minutes * 60)
+    
+    print(f"[REDIS] Stored OTP for {phone_number} in Redis with {expires_in_minutes}min TTL")
+    print(f"[REDIS] Cache key: {cache_key}")
 
 
 def _verify_stored_otp(phone_number, otp_code):
-    """Verify OTP from storage"""
+    """Verify OTP from Redis cache"""
     from datetime import datetime, timedelta
     
     # Check if this OTP was recently verified (within last 2 minutes)
-    if phone_number in _recently_verified:
-        verified_data = _recently_verified[phone_number]
-        time_since_verify = datetime.now() - verified_data['verified_at']
+    verified_key = f'verified_{phone_number}'
+    recently_verified = cache.get(verified_key)
+    
+    if recently_verified:
+        verified_data = json.loads(recently_verified)
+        verified_at = datetime.fromisoformat(verified_data['verified_at'])
+        time_since_verify = datetime.now() - verified_at
         if time_since_verify < timedelta(minutes=2):
-            # This OTP was just verified successfully - treat as success to avoid duplicate verification errors
-            print(f"[INFO] OTP for {phone_number} was recently verified {time_since_verify.seconds}s ago - returning cached success")
+            print(f"[REDIS] OTP for {phone_number} was recently verified {time_since_verify.seconds}s ago - returning cached success")
             return {'success': True, 'status': 'success', 'message': 'OTP verified successfully', 'already_verified': True}
     
-    if phone_number not in _otp_storage:
+    # Get OTP from Redis
+    cache_key = f'otp_{phone_number}'
+    stored_json = cache.get(cache_key)
+    
+    if not stored_json:
+        print(f"[REDIS] OTP not found in cache for {phone_number}")
         return {'success': False, 'error': 'OTP not found or expired', 'error_type': 'otp_not_found'}
     
-    stored_data = _otp_storage[phone_number]
+    stored_data = json.loads(stored_json)
     
     # Check expiration
-    if datetime.now() > stored_data['expires_at']:
-        del _otp_storage[phone_number]
+    expires_at = datetime.fromisoformat(stored_data['expires_at'])
+    if datetime.now() > expires_at:
+        cache.delete(cache_key)
+        print(f"[REDIS] OTP expired for {phone_number}")
         return {'success': False, 'error': 'OTP has expired', 'error_type': 'otp_expired'}
     
     # Check attempts
     if stored_data['attempts'] >= 3:
-        del _otp_storage[phone_number]
+        cache.delete(cache_key)
+        print(f"[REDIS] Too many attempts for {phone_number}")
         return {'success': False, 'error': 'Too many failed attempts', 'error_type': 'too_many_attempts'}
     
     # Verify OTP
     if stored_data['otp'] == str(otp_code):
-        del _otp_storage[phone_number]  # Clear OTP after successful verification
+        cache.delete(cache_key)  # Clear OTP after successful verification
         
         # Track this as recently verified (cache for 2 minutes)
-        _recently_verified[phone_number] = {
-            'verified_at': datetime.now(),
+        verified_data = {
+            'verified_at': datetime.now().isoformat(),
             'otp_code': otp_code
         }
+        cache.set(verified_key, json.dumps(verified_data), timeout=120)  # 2 minutes
         
-        # Clean up old verified entries (older than 2 minutes)
-        cutoff_time = datetime.now() - timedelta(minutes=2)
-        _recently_verified.clear()  # Simple cleanup - in production use Redis with TTL
-        _recently_verified[phone_number] = {
-            'verified_at': datetime.now(),
-            'otp_code': otp_code
-        }
-        
+        print(f"[REDIS] ✅ OTP verified successfully for {phone_number}")
         return {'success': True, 'status': 'success', 'message': 'OTP verified successfully'}
     else:
+        # Increment attempts and save back to Redis
         stored_data['attempts'] += 1
+        cache.set(cache_key, json.dumps(stored_data), timeout=300)  # Keep same 5min TTL
+        print(f"[REDIS] ❌ Invalid OTP for {phone_number}. Attempts: {stored_data['attempts']}/3")
         return {'success': False, 'error': 'Invalid OTP code', 'error_type': 'invalid_otp'}
 
 
@@ -432,22 +446,16 @@ def verify_otp(phone_number, otp_code):
 
 def list_otps():
     """
-    List stored OTPs (for debugging purposes only)
-    Returns list of active OTPs in storage
+    List stored OTPs from Redis (for debugging purposes only)
+    Returns list of active OTPs in cache
+    
+    Note: This is a simple implementation. In production with many OTPs,
+    consider maintaining a separate index or using Redis SCAN command.
     """
-    from datetime import datetime
-    
-    active_otps = []
-    for phone, data in _otp_storage.items():
-        if datetime.now() < data['expires_at']:
-            active_otps.append({
-                'phone_number': phone,
-                'expires_at': data['expires_at'].isoformat(),
-                'attempts': data['attempts']
-            })
-    
+    print("[REDIS] Note: list_otps() requires Redis KEYS command - use cautiously in production")
     return {
         'success': True,
-        'count': len(active_otps),
-        'otps': active_otps
+        'message': 'OTP listing disabled - OTPs are stored in Redis with individual keys',
+        'count': 0,
+        'otps': []
     }
