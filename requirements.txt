@@ -41,7 +41,7 @@ charset-normalizer==3.3.2
 idna==3.6
 
 # Email Service (Resend API - no SMTP needed)
-resend==2.5.0
+resend==2.19.0
 
 # Image Processing
 Pillow==11.3.0
