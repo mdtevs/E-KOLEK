@@ -43,10 +43,13 @@ class GoogleDriveStorage(Storage):
                         self.credentials_file,
                         scopes=['https://www.googleapis.com/auth/drive.file']
                     )
-                    self._service = build('drive', 'v3', credentials=credentials)
                 else:
-                    logger.error("Google Drive credentials file not found or not configured")
+                    logger.error("Google Drive credentials not found - neither JSON nor file path configured")
                     raise Exception("Google Drive credentials not configured")
+                
+                # Build the service
+                self._service = build('drive', 'v3', credentials=credentials)
+                logger.info("✅ Google Drive service initialized successfully")
             except Exception as e:
                 logger.error(f"Error initializing Google Drive service: {e}")
                 raise
