@@ -312,7 +312,7 @@ def send_new_reward_notification(reward):
             'points': reward.points_required,
             'description': reward.description,
             'stock': reward.stock,
-            'image_url': reward.image_url if reward.image else None  # Use the property that returns proper CDN URL
+            'image_url': reward.image_url_for_email if reward.image else None  # Use email-optimized URL
         }
         
         # Debug logging for image URL
@@ -320,8 +320,9 @@ def send_new_reward_notification(reward):
             print(f"\n📸 IMAGE DEBUG:")
             print(f"  - reward.image: {reward.image}")
             print(f"  - reward.image.name: {reward.image.name}")
-            print(f"  - reward.image_url: {reward.image_url}")
-            logger.info(f"Image debug | name: {reward.image.name} | url: {reward.image_url}")
+            print(f"  - reward.image_url (web/dashboard): {reward.image_url}")
+            print(f"  - reward.image_url_for_email (email): {reward.image_url_for_email}")
+            logger.info(f"Image debug | name: {reward.image.name} | web_url: {reward.image_url} | email_url: {reward.image_url_for_email}")
         else:
             print(f"\n⚠️  No image attached to reward")
             logger.warning("No image attached to reward")

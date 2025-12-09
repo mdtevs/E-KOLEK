@@ -538,7 +538,7 @@ class Reward(models.Model):
     
     @property
     def image_url(self):
-        """Get the image URL - works for both local and Google Drive storage"""
+        """Get the image URL for WEB DISPLAY (dashboard) - uses CDN with better CORS"""
         if self.image:
             if getattr(settings, 'USE_GOOGLE_DRIVE', False):
                 # Check if this is a Google Drive file ID or a local file path
@@ -554,8 +554,42 @@ class Reward(models.Model):
                     try:
                         # Simple check: if it's a long alphanumeric string, treat as Google Drive ID
                         if len(self.image.name) > 15 and self.image.name.replace('_', '').replace('-', '').isalnum():
-                            # Use Google Drive DIRECT DOWNLOAD link - works better for emails
-                            # This forces the file to be downloaded/displayed rather than opening Drive viewer
+                            # Use Google CDN URL - has Access-Control-Allow-Origin: * header
+                            # Works best for web embedding in dashboards
+                            return f"https://lh3.googleusercontent.com/d/{self.image.name}"
+                        else:
+                            # Local file path
+                            from django.conf import settings as django_settings
+                            return f"{django_settings.MEDIA_URL}{self.image.name}"
+                    except Exception as e:
+                        return None
+            else:
+                # For local storage, use the normal URL
+                try:
+                    return self.image.url
+                except:
+                    return None
+        return None
+    
+    @property
+    def image_url_for_email(self):
+        """Get the image URL for EMAIL DISPLAY - uses direct view format for better email client compatibility"""
+        if self.image:
+            if getattr(settings, 'USE_GOOGLE_DRIVE', False):
+                # Check if this is a Google Drive file ID or a local file path
+                if self.image.name.startswith('reward_images/'):
+                    # This is a local file path
+                    try:
+                        from django.conf import settings as django_settings
+                        return f"{django_settings.MEDIA_URL}{self.image.name}"
+                    except:
+                        return None
+                else:
+                    # This is a Google Drive file ID
+                    try:
+                        # Simple check: if it's a long alphanumeric string, treat as Google Drive ID
+                        if len(self.image.name) > 15 and self.image.name.replace('_', '').replace('-', '').isalnum():
+                            # Use direct view URL - recognized by email clients
                             return f"https://drive.google.com/uc?export=view&id={self.image.name}"
                         else:
                             # Local file path
