@@ -22,20 +22,26 @@ echo "🔍 Checking Redis connection..."
 if python -c "import redis; r = redis.from_url('$REDIS_URL'); r.ping(); print('✅ Redis connected')" 2>/dev/null; then
     echo "✅ Redis is available - Starting Celery worker..."
     
-    # Start Celery worker in background (logs to stdout AND file)
+    # Start Celery worker in background (NO DETACH - logs visible immediately)
     celery -A eko worker \
         --loglevel=info \
         --concurrency=2 \
         --max-tasks-per-child=50 \
-        --logfile=/tmp/celery-worker.log \
-        --pidfile=/tmp/celery-worker.pid \
-        2>&1 | tee -a /tmp/celery-worker.log &
+        --pidfile=/tmp/celery-worker.pid &
     
-    # Wait a moment for worker to start
-    sleep 3
+    # Save Celery PID
+    CELERY_PID=$!
+    echo "✅ Celery worker started (PID: $CELERY_PID)"
     
-    echo "✅ Celery worker started (PID file: /tmp/celery-worker.pid)"
-    echo "📋 Worker logs: /tmp/celery-worker.log (also visible in Railway logs)"
+    # Wait for worker to be ready
+    sleep 5
+    
+    # Check if worker is still running
+    if kill -0 $CELERY_PID 2>/dev/null; then
+        echo "✅ Celery worker is running and ready"
+    else
+        echo "❌ Celery worker failed to start!"
+    fi
 else
     echo "⚠️  Redis not available - Celery worker disabled"
     echo "📧 Email OTP will use direct SMTP fallback"
