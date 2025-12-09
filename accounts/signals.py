@@ -6,6 +6,9 @@ Handles automatic notification creation for admin users
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from .models import Users
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 @receiver(post_save, sender=Users)
@@ -13,10 +16,10 @@ def create_admin_notification_on_user_registration(sender, instance, created, **
     """
     Create admin notification when a new user registers (status='pending')
     """
-    import logging
-    logger = logging.getLogger(__name__)
-    
-    logger.info(f"[SIGNAL] post_save triggered for User: {instance.username} | Created: {created} | Status: {instance.status}")
+    logger.warning(f"="*80)
+    logger.warning(f"[SIGNAL] ⚡⚡⚡ POST_SAVE TRIGGERED ⚡⚡⚡")
+    logger.warning(f"[SIGNAL] User: {instance.username} | Created: {created} | Status: {instance.status}")
+    logger.warning(f"="*80)
     
     # Only trigger for new users with pending status
     if created and instance.status == 'pending':

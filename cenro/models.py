@@ -389,7 +389,10 @@ class AdminNotification(models.Model):
         import logging
         logger = logging.getLogger(__name__)
         
-        logger.info(f"[NOTIFICATION] Creating notifications for user: {user.username}")
+        logger.warning(f"="*80)
+        logger.warning(f"[NOTIFICATION] 🔔🔔🔔 CREATE_NEW_REGISTRATION_NOTIFICATION CALLED 🔔🔔🔔")
+        logger.warning(f"[NOTIFICATION] User: {user.username}")
+        logger.warning(f"="*80)
         
         # Get user's barangay
         user_barangay = user.family.barangay
