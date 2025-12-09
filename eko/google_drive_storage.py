@@ -22,6 +22,10 @@ class GoogleDriveStorage(Storage):
     """
     
     def __init__(self, credentials_file=None, folder_id=None):
+        print("\n" + "="*70)
+        print("🔧 GOOGLE DRIVE STORAGE INITIALIZING")
+        print("="*70)
+        
         self.credentials_file = credentials_file or getattr(settings, 'GOOGLE_DRIVE_CREDENTIALS_FILE', None)
         self.credentials_json = getattr(settings, 'GOOGLE_DRIVE_CREDENTIALS_JSON', None)
         
@@ -32,6 +36,16 @@ class GoogleDriveStorage(Storage):
         
         self.folder_id = folder_id or getattr(settings, 'GOOGLE_DRIVE_FOLDER_ID', None)
         self._service = None
+        
+        print(f"📋 Configuration Check:")
+        print(f"  - OAuth Refresh Token: {'✅ SET' if self.oauth_refresh_token else '❌ MISSING'}")
+        print(f"  - OAuth Client ID: {'✅ SET' if self.oauth_client_id else '❌ MISSING'}")
+        print(f"  - OAuth Client Secret: {'✅ SET' if self.oauth_client_secret else '❌ MISSING'}")
+        print(f"  - Folder ID: {'✅ SET' if self.folder_id else '❌ MISSING'} ({self.folder_id})")
+        print(f"  - Service Account JSON: {'✅ SET' if self.credentials_json else '❌ MISSING'}")
+        print("="*70 + "\n")
+        
+        logger.info(f"GoogleDriveStorage initialized | OAuth: {bool(self.oauth_refresh_token)} | Folder: {self.folder_id}")
         
     @property
     def service(self):
@@ -97,10 +111,17 @@ class GoogleDriveStorage(Storage):
     
     def _save(self, name, content):
         """Save file to Google Drive"""
+        print(f"\n📤 SAVE METHOD CALLED")
+        print(f"  - File name: {name}")
+        print(f"  - Content type: {type(content)}")
+        logger.info(f"_save called for: {name}")
+        
         try:
             # Ensure we have a folder ID
             if not self.folder_id:
-                raise Exception("Google Drive folder ID not configured")
+                error_msg = "Google Drive folder ID not configured"
+                print(f"  ❌ ERROR: {error_msg}")
+                raise Exception(error_msg)
             
             # Prepare file metadata - make sure the file goes in YOUR folder
             file_metadata = {

@@ -308,6 +308,17 @@ def send_new_reward_notification(reward):
             'image_url': reward.image_url if reward.image else None  # Use the property that returns proper CDN URL
         }
         
+        # Debug logging for image URL
+        if reward.image:
+            print(f"\n📸 IMAGE DEBUG:")
+            print(f"  - reward.image: {reward.image}")
+            print(f"  - reward.image.name: {reward.image.name}")
+            print(f"  - reward.image_url: {reward.image_url}")
+            logger.info(f"Image debug | name: {reward.image.name} | url: {reward.image_url}")
+        else:
+            print(f"\n⚠️  No image attached to reward")
+            logger.warning("No image attached to reward")
+        
         # Send emails in BACKGROUND THREAD so reward save is not blocked
         print(f"\nEmail Method:")
         print(f"  - Using: Background Thread (Asynchronous - Non-Blocking)")
