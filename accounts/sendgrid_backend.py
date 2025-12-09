@@ -136,11 +136,12 @@ class SendGridBackend(BaseEmailBackend):
                                     # Convert to base64 for SendGrid
                                     encoded_file = base64.b64encode(file_data).decode()
                                     
-                                    # Create SendGrid inline attachment properly for Gmail
-                                    # Use empty filename to prevent showing as downloadable attachment
+                                    # Create SendGrid inline attachment - CRITICAL: NO file_name for true inline
+                                    # Setting file_name (even empty) causes Gmail to show downloadable attachment
+                                    # We ONLY set: content, type, disposition=inline, and content_id
                                     sg_attachment = Attachment()
                                     sg_attachment.file_content = FileContent(encoded_file)
-                                    sg_attachment.file_name = FileName('')  # Empty to prevent download link
+                                    # DO NOT SET file_name - this is the key to preventing download link
                                     sg_attachment.file_type = FileType(content_type)
                                     sg_attachment.disposition = Disposition('inline')
                                     sg_attachment.content_id = ContentId(content_id)
