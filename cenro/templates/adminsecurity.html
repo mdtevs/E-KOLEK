@@ -16,8 +16,10 @@
     
   {% if admin_user.role == 'super_admin' %}
   <title>Security Hub - CENRO</title>
+  <link rel="icon" type="image/png" href="{% static 'image/clogo.png' %}">
   {% else %}
   <title>Security Analyst Dashboard - CENRO</title>
+  <link rel="icon" type="image/png" href="{% static 'image/clogo.png' %}">
   {% endif %}
 </head>
 <body>
