@@ -5,34 +5,9 @@ Handles sending email notifications to users when schedules are updated
 import logging
 import threading
 from django.conf import settings
+from django.core.mail import send_mail
 
 logger = logging.getLogger(__name__)
-
-# Check if Celery is available
-try:
-    from accounts.tasks import send_bulk_schedule_notifications
-    CELERY_AVAILABLE = True
-    logger.info("✅ Celery available for schedule notifications")
-except ImportError:
-    CELERY_AVAILABLE = False
-    logger.warning("⚠️ Celery not available - notifications will be sent synchronously")
-
-
-def check_celery_worker_running():
-    """Check if Celery worker is actually running"""
-    if not CELERY_AVAILABLE:
-        return False
-    
-    try:
-        from eko.celery import app
-        inspect = app.control.inspect()
-        stats = inspect.stats()
-        if stats:
-            return True
-    except Exception as e:
-        logger.debug(f"Celery worker check failed: {str(e)}")
-    
-    return False
 
 
 def get_users_with_email_by_barangay(barangay):
@@ -60,12 +35,15 @@ def get_users_with_email_by_barangay(barangay):
 
 def send_emails_in_background(user_emails, schedule_data, action):
     """
-    Send emails in a background thread so it doesn't block the schedule save
-    This allows the schedule to be saved immediately while emails send in the background
+    Send emails in a background thread so it doesn't block the schedule save.
+    Uses Django's SMTP backend (now configured with Gmail on port 465 SSL).
     """
+    from django.core.mail import send_mail
+    
     success_count = 0
     failed_emails = []
     
+    print(f"\n[BACKGROUND] Sending schedule notification emails to {len(user_emails)} users...")
     logger.info(f"Background email sending started for {len(user_emails)} users")
     
     # Generate email content with beautiful HTML design
@@ -352,11 +330,18 @@ E-KOLEK Team
             )
             
             success_count += 1
-            logger.info(f"Background email sent to {email}")
+            print(f"  [BACKGROUND] [OK] [{i}/{len(user_emails)}] Sent to {email}")
+            logger.info(f"Background schedule email sent to {email}")
             
         except Exception as e:
-            logger.error(f"Failed to send background email to {email}: {str(e)}")
+            print(f"  [BACKGROUND] [FAIL] [{i}/{len(user_emails)}] Failed: {email} - {str(e)}")
+            logger.error(f"Failed to send background schedule email to {email}: {str(e)}")
             failed_emails.append(email)
+    
+    print(f"\n[BACKGROUND] COMPLETE:")
+    print(f"   Total: {len(user_emails)}")
+    print(f"   Sent: {success_count}")
+    print(f"   Failed: {len(failed_emails)}")
     
     logger.info(f"Background email sending completed | Success: {success_count}/{len(user_emails)}")
 
