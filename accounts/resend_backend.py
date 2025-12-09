@@ -3,7 +3,6 @@ Resend Email Backend for Django
 Uses Resend API instead of SMTP (works on Railway without port restrictions)
 """
 import logging
-import resend
 from django.conf import settings
 from django.core.mail.backends.base import BaseEmailBackend
 
@@ -27,6 +26,8 @@ class ResendEmailBackend(BaseEmailBackend):
                 raise ValueError("RESEND_API_KEY not configured in settings")
             logger.error("❌ RESEND_API_KEY not configured")
         else:
+            # Import resend here to avoid unused import warning
+            import resend
             resend.api_key = self.api_key
             logger.info("✅ Resend API configured successfully")
     
@@ -101,6 +102,7 @@ class ResendEmailBackend(BaseEmailBackend):
             logger.info(f"📧 Sending email via Resend to: {', '.join(message.to)}")
             logger.info(f"   Subject: {message.subject}")
             
+            import resend
             response = resend.Emails.send(email_data)
             
             logger.info(f"✅ Email sent successfully via Resend | ID: {response.get('id', 'N/A')}")
