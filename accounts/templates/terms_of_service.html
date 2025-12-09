@@ -21,12 +21,28 @@
       <h1 class="logo-title">E-KOLEK</h1>
     </div>
 
-    <!-- Navigation -->
-    <nav style="margin-left:auto;">
+    <!-- Hamburger Menu Button (Mobile) -->
+    <button class="hamburger-menu" onclick="toggleMobileMenu()" aria-label="Toggle menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <!-- Navigation (Desktop) -->
+    <nav class="desktop-nav" style="margin-left:auto;">
       <a href="{% url 'E-KOLEK' %}">Home</a>
       <a href="{% url 'login_page' %}">Log In</a>
       <a href="{% url 'register' %}">Sign Up</a>
     </nav>
+  </div>
+
+  <!-- Mobile Navigation Menu -->
+  <div class="mobile-nav" id="mobileNav">
+    <a href="{% url 'E-KOLEK' %}">Home</a>
+    <a href="{% url 'privacy_policy' %}">Privacy Policy</a>
+    <a href="{% url 'terms_of_service' %}">Terms of Service</a>
+    <a href="{% url 'login_page' %}">Log In</a>
+    <a href="{% url 'register' %}">Sign Up</a>
   </div>
 </header>
 
@@ -413,6 +429,12 @@
   </p>
   <p>Powered By CENRO</p>
 </footer>
+
+<script>
+  window.CSRF_TOKEN = '{{ csrf_token }}';
+</script>
+<script src="{% static 'js/app_common.js' %}"></script>
+<script src="{% static 'js/home.js' %}"></script>
 
 </body>
 </html>
