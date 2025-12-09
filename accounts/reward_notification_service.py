@@ -28,18 +28,58 @@ def get_all_users_with_email():
     return users
 
 
-def send_emails_in_background(user_emails, reward_data):
+def send_emails_in_background(user_emails, reward_data, image_file_id=None):
     """
     Send emails via Django's email system (now uses Resend API backend).
     This function is called from a background thread.
+    
+    Args:
+        user_emails: List of email addresses
+        reward_data: Dictionary with reward information
+        image_file_id: Google Drive file ID for the reward image (optional)
     """
-    from django.core.mail import send_mail
+    from django.core.mail import EmailMultiAlternatives
+    import io
+    import base64
     
     success_count = 0
     failed_emails = []
     
     print(f"\n[BACKGROUND] Sending new reward emails to {len(user_emails)} users...")
     logger.info(f"Background reward email sending started for {len(user_emails)} users")
+    
+    # Download image from Google Drive if available
+    image_data = None
+    image_filename = None
+    image_content_type = None
+    
+    if image_file_id:
+        try:
+            print(f"\n[BACKGROUND] Downloading image from Google Drive...")
+            print(f"  File ID: {image_file_id}")
+            
+            # Import Google Drive storage
+            from eko.google_drive_storage import GoogleDriveStorage
+            storage = GoogleDriveStorage()
+            
+            # Download the file
+            file_content = storage.service.files().get_media(fileId=image_file_id).execute()
+            
+            # Get file metadata
+            file_metadata = storage.service.files().get(fileId=image_file_id, fields='name,mimeType').execute()
+            
+            image_data = file_content
+            image_filename = file_metadata.get('name', 'reward.jpg')
+            image_content_type = file_metadata.get('mimeType', 'image/jpeg')
+            
+            print(f"  ✅ Downloaded: {image_filename} ({len(image_data)} bytes)")
+            print(f"  Content-Type: {image_content_type}")
+            logger.info(f"Image downloaded successfully: {image_filename} ({len(image_data)} bytes)")
+            
+        except Exception as e:
+            print(f"  ⚠️ Failed to download image: {str(e)}")
+            logger.warning(f"Failed to download image from Google Drive: {str(e)}")
+            # Continue without image
     
     # Generate email content with beautiful HTML design
     subject = f"🎁 E-KOLEK: New Reward Available - {reward_data['name']}"
@@ -104,8 +144,8 @@ E-KOLEK Team
                                 
                                 <!-- Reward Image (if available) -->
                                 {f'''<div style="text-align: center; margin-bottom: 25px;">
-                                    <img src="{reward_data['image_url']}" alt="{reward_data['name']}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-                                </div>''' if reward_data.get('image_url') else '<!-- No image URL provided -->'}
+                                    <img src="cid:reward_image" alt="{reward_data['name']}" style="max-width: 100%; height: auto; border-radius: 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                                </div>''' if image_data else '<!-- No image attached -->'}
                                 
                                 <!-- Reward Name -->
                                 <div style="text-align: center; margin-bottom: 30px;">
@@ -216,11 +256,14 @@ E-KOLEK Team
     
     from_email = f"E-KOLEK System <{settings.DEFAULT_FROM_EMAIL}>"
     
-    # Debug: Show image URL being used
-    if reward_data.get('image_url'):
+    # Debug: Show image attachment info
+    if image_data:
         print(f"\n📧 EMAIL IMAGE INFO:")
-        print(f"  Image URL: {reward_data['image_url']}")
-        print(f"  This URL format works best for Gmail/email clients")
+        print(f"  Method: Inline attachment (CID)")
+        print(f"  Filename: {image_filename}")
+        print(f"  Size: {len(image_data)} bytes")
+        print(f"  Content-Type: {image_content_type}")
+        print(f"  ✅ This bypasses ad blockers - image is EMBEDDED in email!")
         print()
     
     # Send to all users
@@ -229,15 +272,28 @@ E-KOLEK Team
             continue
         
         try:
-            # Send email using Django's send_mail (will use Resend backend)
-            send_mail(
+            # Create EmailMultiAlternatives for better control
+            msg = EmailMultiAlternatives(
                 subject=subject,
-                message=message,
+                body=message,
                 from_email=from_email,
-                recipient_list=[email],
-                html_message=html_message,
-                fail_silently=False
+                to=[email]
             )
+            
+            # Add HTML version
+            msg.attach_alternative(html_message, "text/html")
+            
+            # Attach image inline if available
+            if image_data:
+                # Create MIMEImage for inline attachment
+                from email.mime.image import MIMEImage
+                img = MIMEImage(image_data, _subtype=image_content_type.split('/')[-1])
+                img.add_header('Content-ID', '<reward_image>')
+                img.add_header('Content-Disposition', 'inline', filename=image_filename)
+                msg.attach(img)
+            
+            # Send email
+            msg.send(fail_silently=False)
             
             success_count += 1
             print(f"  [BACKGROUND] [OK] [{i}/{len(user_emails)}] Sent to {email}")
@@ -330,16 +386,20 @@ def send_new_reward_notification(reward):
         # Send emails in BACKGROUND THREAD so reward save is not blocked
         print(f"\nEmail Method:")
         print(f"  - Using: Background Thread (Asynchronous - Non-Blocking)")
+        print(f"  - Image: Inline attachment (bypasses ad blockers!)")
         
         print(f"\nStarting background email thread...")
         print(f"  - Reward will be saved IMMEDIATELY")
         print(f"  - Emails will send in the background")
         logger.info("Starting background email thread")
         
+        # Get image file ID if available
+        image_file_id = reward.image.name if reward.image else None
+        
         # Start background thread for email sending
         email_thread = threading.Thread(
             target=send_emails_in_background,
-            args=(user_emails, reward_data),
+            args=(user_emails, reward_data, image_file_id),
             daemon=True  # Thread will not prevent program exit
         )
         email_thread.start()
