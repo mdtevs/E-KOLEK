@@ -4,6 +4,7 @@ User registration views (family and member registration)
 
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from datetime import date
 import logging
 
 from accounts.models import Barangay, Users
@@ -39,7 +40,8 @@ def register_family(request):
             return render(request, 'register.html', {
                 'form': form,
                 'barangays': barangays,
-                'registration_type': 'family'
+                'registration_type': 'family',
+                'today': date.today()
             })
         
         if not email_otp_verified or verified_email != form_email:
@@ -48,7 +50,8 @@ def register_family(request):
             return render(request, 'register.html', {
                 'form': form,
                 'barangays': barangays,
-                'registration_type': 'family'
+                'registration_type': 'family',
+                'today': date.today()
             })
         
         if form.is_valid():
@@ -59,7 +62,8 @@ def register_family(request):
                 return render(request, 'register.html', {
                     'form': form,
                     'barangays': barangays,
-                    'registration_type': 'family'
+                    'registration_type': 'family',
+                    'today': date.today()
                 })
             
             # Both OTP verified, proceed with registration
@@ -106,7 +110,8 @@ def register_family(request):
     return render(request, 'register.html', {
         'form': form,
         'barangays': barangays,
-        'registration_type': 'family'
+        'registration_type': 'family',
+        'today': date.today()
     })
 
 
@@ -128,14 +133,16 @@ def register_member(request):
             messages.error(request, "Please verify your phone number first.")
             return render(request, 'register_member.html', {
                 'form': form,
-                'registration_type': 'member'
+                'registration_type': 'member',
+                'today': date.today()
             })
         
         if not email_otp_verified or verified_email != form_email:
             messages.error(request, "Please verify your email address first.")
             return render(request, 'register_member.html', {
                 'form': form,
-                'registration_type': 'member'
+                'registration_type': 'member',
+                'today': date.today()
             })
         
         if form.is_valid():
@@ -144,7 +151,8 @@ def register_member(request):
                 messages.error(request, "You must accept the Terms and Conditions to register.")
                 return render(request, 'register_member.html', {
                     'form': form,
-                    'registration_type': 'member'
+                    'registration_type': 'member',
+                    'today': date.today()
                 })
             
             # Both OTP verified, proceed with registration
@@ -181,5 +189,6 @@ def register_member(request):
 
     return render(request, 'register_member.html', {
         'form': form,
-        'registration_type': 'member'
+        'registration_type': 'member',
+        'today': date.today()
     })

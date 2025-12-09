@@ -1,5 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+from django.utils import timezone
+from datetime import date
 from .models import Users, Family, Barangay
 
 class FamilyRegistrationForm(forms.ModelForm):
@@ -120,6 +122,22 @@ class FamilyRegistrationForm(forms.ModelForm):
         if Users.objects.filter(email=email).exists():
             raise forms.ValidationError("This email address is already registered.")
         return email
+
+    def clean_date_of_birth(self):
+        dob = self.cleaned_data.get('date_of_birth')
+        if dob:
+            today = date.today()
+            # Check if date is in the future
+            if dob > today:
+                raise forms.ValidationError("Date of birth cannot be in the future.")
+            # Check if date is unrealistically old (before 1900)
+            if dob.year < 1900:
+                raise forms.ValidationError("Please enter a valid date of birth.")
+            # Check if person would be older than 150 years
+            age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+            if age > 150:
+                raise forms.ValidationError("Please enter a valid date of birth.")
+        return dob
 
     def clean_username(self):
         username = self.cleaned_data.get('username')
@@ -300,6 +318,22 @@ class FamilyMemberRegistrationForm(UserCreationForm):
         if Users.objects.filter(email=email).exclude(status='rejected').exists():
             raise forms.ValidationError("This email address is already registered.")
         return email
+
+    def clean_date_of_birth(self):
+        dob = self.cleaned_data.get('date_of_birth')
+        if dob:
+            today = date.today()
+            # Check if date is in the future
+            if dob > today:
+                raise forms.ValidationError("Date of birth cannot be in the future.")
+            # Check if date is unrealistically old (before 1900)
+            if dob.year < 1900:
+                raise forms.ValidationError("Please enter a valid date of birth.")
+            # Check if person would be older than 150 years
+            age = today.year - dob.year - ((today.month, today.day) < (dob.month, dob.day))
+            if age > 150:
+                raise forms.ValidationError("Please enter a valid date of birth.")
+        return dob
 
     def clean_family_code(self):
         family_code = self.cleaned_data.get('family_code')

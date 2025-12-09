@@ -161,7 +161,7 @@
 
         <div class="form-group">
           <label for="id_date_of_birth">Date of Birth (Optional)</label>
-          <input id="id_date_of_birth" name="date_of_birth" type="date" value="{{ form.date_of_birth.value|default:'' }}" />
+          <input id="id_date_of_birth" name="date_of_birth" type="date" min="1900-01-01" max="{{ today|date:'Y-m-d' }}" value="{{ form.date_of_birth.value|default:'' }}" />
           {% if form.date_of_birth.errors %}
             <p class="error-text">{{ form.date_of_birth.errors|striptags }}</p>
           {% endif %}
