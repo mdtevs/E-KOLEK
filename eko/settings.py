@@ -28,10 +28,29 @@ SECRET_KEY = config('DJANGO_SECRET_KEY')
 DEBUG = config('DJANGO_DEBUG', default=False, cast=bool)
 
 # Allowed hosts configuration
+# Support Railway deployment + Flutter mobile app
+RAILWAY_STATIC_URL = config('RAILWAY_STATIC_URL', default='')
+RAILWAY_PUBLIC_DOMAIN = config('RAILWAY_PUBLIC_DOMAIN', default='')
+
 if DEBUG:
     ALLOWED_HOSTS = ['*']  # Allow all hosts in debug mode for development
 else:
-    ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
+    # Production: Railway + custom domains
+    allowed_hosts = config('ALLOWED_HOSTS', default='').split(',')
+    
+    # Add Railway domains if present
+    if RAILWAY_PUBLIC_DOMAIN:
+        allowed_hosts.append(RAILWAY_PUBLIC_DOMAIN)
+    
+    # Add common Railway patterns
+    allowed_hosts.extend([
+        '*.railway.app',
+        '*.railway.internal',
+        'e-kolek-production.up.railway.app',
+    ])
+    
+    # Remove empty strings and deduplicate
+    ALLOWED_HOSTS = list(set(filter(None, allowed_hosts)))
 
 # Site URL configuration
 SITE_URL = config('SITE_URL', default='http://localhost:8000')
@@ -286,13 +305,32 @@ OTP_RESEND_COOLDOWN_SECONDS = config('OTP_RESEND_COOLDOWN_SECONDS', default=60, 
 # CORS CONFIGURATION
 # ==============================================================================
 
+# CORS Configuration for Flutter Mobile App + Web Access
 if DEBUG:
+    # Development: Allow all origins for easier testing
     CORS_ALLOW_ALL_ORIGINS = True
     CORS_ALLOWED_ORIGINS = []
 else:
+    # Production: Restrict to specific origins
     CORS_ALLOW_ALL_ORIGINS = False
-    CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS', default='').split(',')
+    
+    # Get configured origins from environment
+    cors_origins = config('CORS_ALLOWED_ORIGINS', default='').split(',')
+    
+    # Add Railway domain if present
+    if RAILWAY_PUBLIC_DOMAIN:
+        cors_origins.append(f'https://{RAILWAY_PUBLIC_DOMAIN}')
+    
+    # Add common production URLs
+    cors_origins.extend([
+        'https://e-kolek-production.up.railway.app',
+        'https://ekolek.app',  # If you have a custom domain
+    ])
+    
+    # Remove empty strings and deduplicate
+    CORS_ALLOWED_ORIGINS = list(set(filter(None, cors_origins)))
 
+# Essential CORS settings for mobile app
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_HEADERS = [
@@ -305,6 +343,17 @@ CORS_ALLOW_HEADERS = [
     'user-agent',
     'x-csrftoken',
     'x-requested-with',
+    'cache-control',
+    'pragma',
+]
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
 ]
 
 
@@ -369,13 +418,31 @@ if not DEBUG:
 # CSRF CONFIGURATION
 # ==============================================================================
 
-CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_HTTPONLY = False  # Allow JavaScript access for mobile apps
 CSRF_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_NAME = 'ekolek_csrftoken'
+CSRF_USE_SESSIONS = False  # Mobile apps need cookie-based CSRF
+CSRF_HEADER_NAME = 'HTTP_X_CSRFTOKEN'
+CSRF_COOKIE_PATH = '/'
 
 if not DEBUG:
     CSRF_COOKIE_SECURE = True
-    CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='').split(',')
+    
+    # Get configured trusted origins from environment
+    csrf_origins = config('CSRF_TRUSTED_ORIGINS', default='').split(',')
+    
+    # Add Railway domain if present
+    if RAILWAY_PUBLIC_DOMAIN:
+        csrf_origins.append(f'https://{RAILWAY_PUBLIC_DOMAIN}')
+    
+    # Add common production URLs
+    csrf_origins.extend([
+        'https://e-kolek-production.up.railway.app',
+        'https://ekolek.app',  # If you have a custom domain
+    ])
+    
+    # Remove empty strings and deduplicate
+    CSRF_TRUSTED_ORIGINS = list(set(filter(None, csrf_origins)))
 
 
 # ==============================================================================
@@ -391,29 +458,36 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin'
 
 # Production-only security settings
 if not DEBUG:
-    # Railway handles SSL at proxy level, so don't redirect
+    # Railway handles SSL at proxy level
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     # SECURE_SSL_REDIRECT = True  # Disabled for Railway - causes redirect loop
     SECURE_HSTS_SECONDS = 31536000  # 1 year
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
+    
+    # Additional security headers for production
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+else:
+    # Development: Relaxed security for mobile testing
+    SECURE_SSL_REDIRECT = False
+    SECURE_HSTS_SECONDS = 0
 
 # Content Security Policy (CSP)
-# CSP Configuration - Allow unsafe-inline for app functionality
+# Configured for web app + mobile API access
 CSP_DEFAULT_SRC = ("'self'",)
 CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", 'https://cdn.jsdelivr.net', 'https://unpkg.com', 'https://cdn.tailwindcss.com', 'https://cdnjs.cloudflare.com')
 CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", 'https://fonts.googleapis.com', 'https://unpkg.com', 'https://cdn.tailwindcss.com', 'https://cdnjs.cloudflare.com', 'https://cdn.jsdelivr.net')
 CSP_FONT_SRC = ("'self'", 'https://fonts.gstatic.com', 'https://unpkg.com', 'https://cdnjs.cloudflare.com', 'https://cdn.jsdelivr.net')
-
 CSP_IMG_SRC = ("'self'", 'data:', 'https:', 'blob:')
-CSP_CONNECT_SRC = ("'self'", 'https:', 'wss:', 'ws:')
+CSP_CONNECT_SRC = ("'self'", 'https:', 'wss:', 'ws:', '*')  # Allow mobile app API connections
 CSP_FRAME_SRC = ("'self'",)
 CSP_OBJECT_SRC = ("'none'",)
 CSP_BASE_URI = ("'self'",)
 CSP_FORM_ACTION = ("'self'",)
 CSP_INCLUDE_NONCE_IN = ['script-src', 'style-src']
-CSP_REPORT_ONLY = False
-CSP_EXCLUDE_URL_PREFIXES = ('/admin/',)
+CSP_REPORT_ONLY = DEBUG  # Only report in debug mode, enforce in production
+CSP_EXCLUDE_URL_PREFIXES = ('/admin/', '/api/')  # Don't enforce CSP on API endpoints
 
 # Permissions Policy
 PERMISSIONS_POLICY = {
@@ -531,4 +605,95 @@ LOGGING = {
 
 # Create logs directory if it doesn't exist
 os.makedirs(os.path.join(BASE_DIR, 'logs'), exist_ok=True)
+
+
+# ==============================================================================
+# FLUTTER MOBILE APP INTEGRATION
+# ==============================================================================
+"""
+RAILWAY ENVIRONMENT VARIABLES FOR FLUTTER APP CONNECTION:
+
+Required Environment Variables on Railway:
+------------------------------------------
+1. DJANGO_DEBUG=False
+2. RAILWAY_PUBLIC_DOMAIN=your-app.up.railway.app
+3. ALLOWED_HOSTS=your-app.up.railway.app,*.railway.app
+4. CORS_ALLOWED_ORIGINS=https://your-app.up.railway.app
+5. CSRF_TRUSTED_ORIGINS=https://your-app.up.railway.app
+
+Flutter App API Endpoints:
+--------------------------
+Base URL: https://e-kolek-production.up.railway.app
+
+Authentication:
+- POST /api/auth/login/          - Login with JWT
+- POST /api/auth/register/       - Register new user
+- POST /api/auth/refresh/        - Refresh JWT token
+- POST /api/auth/logout/         - Logout
+
+OTP Endpoints:
+- POST /api/otp/send/            - Send OTP via SMS
+- POST /api/otp/verify/          - Verify OTP code
+- POST /api/otp/email/send/      - Send OTP via Email
+- POST /api/otp/email/verify/    - Verify Email OTP
+
+User Endpoints:
+- GET  /api/user/profile/        - Get user profile
+- PUT  /api/user/profile/        - Update user profile
+- GET  /api/user/dashboard/      - Get dashboard data
+
+Rate Limiting (Configured):
+---------------------------
+- OTP Send: 3 requests per hour
+- OTP Verify: 5 attempts per OTP
+- Cooldown: 15 minutes after limit exceeded
+
+Security Headers (Active):
+--------------------------
+✅ CORS enabled for mobile app
+✅ CSRF protection with mobile support
+✅ JWT authentication
+✅ Rate limiting on OTP
+✅ HTTPS enforced in production
+✅ Secure cookies in production
+
+Flutter HTTP Client Setup:
+--------------------------
+import 'package:http/http.dart' as http;
+
+final String baseUrl = 'https://e-kolek-production.up.railway.app';
+
+// Example: Login request
+Future<Map<String, dynamic>> login(String username, String password) async {
+  final response = await http.post(
+    Uri.parse('$baseUrl/api/auth/login/'),
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({
+      'username': username,
+      'password': password,
+    }),
+  );
+  
+  if (response.statusCode == 200) {
+    return jsonDecode(response.body);
+  } else {
+    throw Exception('Login failed');
+  }
+}
+
+Testing the Connection:
+-----------------------
+1. Test in browser: https://e-kolek-production.up.railway.app/api/
+2. Test with Postman/Insomnia
+3. Test with Flutter app (dev mode)
+4. Check Railway logs for errors
+
+Common Issues:
+--------------
+1. CORS errors → Check CORS_ALLOWED_ORIGINS
+2. CSRF errors → Ensure CSRF token is included
+3. 404 errors → Check URL patterns
+4. 500 errors → Check Railway logs
+5. Connection timeout → Check Railway service status
+"""
 
