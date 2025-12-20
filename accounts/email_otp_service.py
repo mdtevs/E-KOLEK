@@ -72,10 +72,157 @@ def send_email_async(subject, message, from_email, recipient_list, html_message=
     thread.start()
     logger.info(f"📧 Email queued for sending to {recipient_list[0]}")
 
-# OTP Configuration
+# OTP Configuration - Industry Standard Rate Limiting
 OTP_LENGTH = 6
 OTP_EXPIRY_MINUTES = 5
-OTP_MAX_ATTEMPTS = 3
+OTP_MAX_ATTEMPTS = 3  # Legacy - now using global rate limit
+OTP_SEND_LIMIT = 3  # Max OTP sends per hour
+OTP_SEND_WINDOW_MINUTES = 60  # Time window for send limit
+OTP_MAX_VERIFY_ATTEMPTS = 5  # Max verification attempts per OTP
+OTP_COOLDOWN_MINUTES = 15  # Lockout period after exceeding limits
+
+
+def _check_send_rate_limit(email):
+    """
+    Check if email address has exceeded OTP send rate limit.
+    
+    Returns:
+        dict: {'allowed': bool, 'error': str, 'retry_after': int}
+    """
+    send_count_key = f'email_otp_send_count_{email.lower()}'
+    cooldown_key = f'email_otp_cooldown_{email.lower()}'
+    
+    # Check if in cooldown period
+    cooldown_until = cache.get(cooldown_key)
+    if cooldown_until:
+        cooldown_time = datetime.fromisoformat(cooldown_until)
+        if datetime.now() < cooldown_time:
+            remaining_seconds = int((cooldown_time - datetime.now()).total_seconds())
+            remaining_minutes = remaining_seconds // 60
+            logger.warning(f"[RATE LIMIT] Email {email} is in cooldown period. {remaining_minutes}min remaining")
+            return {
+                'allowed': False,
+                'error': f'Too many OTP requests. Please wait {remaining_minutes} minutes before trying again.',
+                'retry_after': remaining_seconds
+            }
+        else:
+            cache.delete(cooldown_key)
+    
+    # Get current send count
+    send_data = cache.get(send_count_key)
+    if send_data:
+        count = send_data.get('count', 0)
+        first_send = datetime.fromisoformat(send_data.get('first_send'))
+        
+        # Check if we're still within the time window
+        time_elapsed = datetime.now() - first_send
+        if time_elapsed < timedelta(minutes=OTP_SEND_WINDOW_MINUTES):
+            if count >= OTP_SEND_LIMIT:
+                # Exceeded limit - set cooldown
+                cooldown_until = datetime.now() + timedelta(minutes=OTP_COOLDOWN_MINUTES)
+                cache.set(cooldown_key, cooldown_until.isoformat(), timeout=OTP_COOLDOWN_MINUTES * 60)
+                
+                logger.warning(f"[RATE LIMIT] Email {email} exceeded send limit ({count}/{OTP_SEND_LIMIT}). Cooldown for {OTP_COOLDOWN_MINUTES}min")
+                return {
+                    'allowed': False,
+                    'error': f'Too many OTP requests. You have reached the limit of {OTP_SEND_LIMIT} requests per hour. Please wait {OTP_COOLDOWN_MINUTES} minutes.',
+                    'retry_after': OTP_COOLDOWN_MINUTES * 60
+                }
+            else:
+                # Within limit, increment counter
+                send_data['count'] = count + 1
+                send_data['last_send'] = datetime.now().isoformat()
+                remaining_time = OTP_SEND_WINDOW_MINUTES * 60 - int(time_elapsed.total_seconds())
+                cache.set(send_count_key, send_data, timeout=remaining_time)
+                logger.info(f"[RATE LIMIT] Email {email} OTP send count: {count + 1}/{OTP_SEND_LIMIT}")
+                return {'allowed': True}
+        else:
+            cache.delete(send_count_key)
+    
+    # First send or counter expired, initialize
+    send_data = {
+        'count': 1,
+        'first_send': datetime.now().isoformat(),
+        'last_send': datetime.now().isoformat()
+    }
+    cache.set(send_count_key, send_data, timeout=OTP_SEND_WINDOW_MINUTES * 60)
+    logger.info(f"[RATE LIMIT] Email {email} OTP send count: 1/{OTP_SEND_LIMIT}")
+    return {'allowed': True}
+
+
+def _check_verify_rate_limit(email):
+    """
+    Check if email address has exceeded OTP verification attempt limit.
+    
+    Returns:
+        dict: {'allowed': bool, 'error': str, 'attempts_left': int}
+    """
+    attempts_key = f'email_otp_verify_attempts_{email.lower()}'
+    cooldown_key = f'email_otp_verify_cooldown_{email.lower()}'
+    
+    # Check if in verification cooldown
+    cooldown_until = cache.get(cooldown_key)
+    if cooldown_until:
+        cooldown_time = datetime.fromisoformat(cooldown_until)
+        if datetime.now() < cooldown_time:
+            remaining_seconds = int((cooldown_time - datetime.now()).total_seconds())
+            remaining_minutes = remaining_seconds // 60
+            logger.warning(f"[RATE LIMIT] Email {email} is in verification cooldown. {remaining_minutes}min remaining")
+            return {
+                'allowed': False,
+                'error': f'Too many failed verification attempts. Please wait {remaining_minutes} minutes before trying again.',
+                'retry_after': remaining_seconds
+            }
+        else:
+            cache.delete(cooldown_key)
+    
+    # Get current attempt count
+    attempt_data = cache.get(attempts_key)
+    if attempt_data:
+        count = attempt_data.get('count', 0)
+        
+        if count >= OTP_MAX_VERIFY_ATTEMPTS:
+            # Exceeded limit - set cooldown
+            cooldown_until = datetime.now() + timedelta(minutes=OTP_COOLDOWN_MINUTES)
+            cache.set(cooldown_key, cooldown_until.isoformat(), timeout=OTP_COOLDOWN_MINUTES * 60)
+            cache.delete(attempts_key)
+            
+            logger.warning(f"[RATE LIMIT] Email {email} exceeded verification attempts ({count}/{OTP_MAX_VERIFY_ATTEMPTS}). Cooldown for {OTP_COOLDOWN_MINUTES}min")
+            return {
+                'allowed': False,
+                'error': f'Too many failed attempts. Please wait {OTP_COOLDOWN_MINUTES} minutes before trying again.',
+                'retry_after': OTP_COOLDOWN_MINUTES * 60
+            }
+        
+        return {'allowed': True, 'attempts_left': OTP_MAX_VERIFY_ATTEMPTS - count}
+    
+    return {'allowed': True, 'attempts_left': OTP_MAX_VERIFY_ATTEMPTS}
+
+
+def _increment_verify_attempts(email):
+    """Increment verification attempt counter"""
+    attempts_key = f'email_otp_verify_attempts_{email.lower()}'
+    attempt_data = cache.get(attempts_key)
+    
+    if attempt_data:
+        attempt_data['count'] = attempt_data.get('count', 0) + 1
+        attempt_data['last_attempt'] = datetime.now().isoformat()
+    else:
+        attempt_data = {
+            'count': 1,
+            'first_attempt': datetime.now().isoformat(),
+            'last_attempt': datetime.now().isoformat()
+        }
+    
+    cache.set(attempts_key, attempt_data, timeout=(OTP_EXPIRY_MINUTES + 5) * 60)
+    logger.info(f"[RATE LIMIT] Email {email} verification attempts: {attempt_data['count']}/{OTP_MAX_VERIFY_ATTEMPTS}")
+
+
+def _clear_verify_attempts(email):
+    """Clear verification attempt counter on successful verification"""
+    attempts_key = f'email_otp_verify_attempts_{email.lower()}'
+    cache.delete(attempts_key)
+    logger.info(f"[RATE LIMIT] Email {email} verification attempts cleared after successful verification")
 
 
 def generate_otp():
@@ -95,7 +242,12 @@ def get_attempts_key(email):
 
 def send_otp(email, purpose='verification'):
     """
-    Send OTP to email address.
+    Send OTP to email address with rate limiting.
+    
+    Rate Limiting (Industry Standards):
+    - Maximum 3 OTP sends per hour
+    - 15-minute cooldown after exceeding limit
+    - Prevents spam and abuse
     
     Args:
         email: Email address to send OTP to
@@ -113,6 +265,17 @@ def send_otp(email, purpose='verification'):
     
     # Normalize email
     email = email.strip().lower()
+    
+    # CHECK RATE LIMIT BEFORE SENDING
+    rate_limit_check = _check_send_rate_limit(email)
+    if not rate_limit_check['allowed']:
+        logger.warning(f"[RATE LIMIT BLOCKED] {rate_limit_check['error']}")
+        return {
+            'success': False,
+            'error': rate_limit_check['error'],
+            'error_type': 'rate_limit',
+            'retry_after': rate_limit_check.get('retry_after', OTP_COOLDOWN_MINUTES * 60)
+        }
     
     # Generate OTP
     otp_code = generate_otp()
@@ -330,7 +493,11 @@ E-KOLEK Team
 
 def verify_otp(email, otp_code, purpose='verification'):
     """
-    Verify OTP code for email address.
+    Verify OTP code for email address with rate limiting.
+    
+    Rate Limiting:
+    - Maximum 5 verification attempts per OTP
+    - 15-minute cooldown after exceeding limit
     
     Args:
         email: Email address
@@ -351,18 +518,30 @@ def verify_otp(email, otp_code, purpose='verification'):
     email = email.strip().lower()
     otp_code = str(otp_code).strip()
     
+    # CHECK VERIFICATION RATE LIMIT FIRST
+    rate_limit = _check_verify_rate_limit(email)
+    if not rate_limit['allowed']:
+        logger.warning(f"[RATE LIMIT BLOCKED] {rate_limit['error']}")
+        return {
+            'success': False,
+            'error': rate_limit['error'],
+            'error_type': 'rate_limit',
+            'retry_after': rate_limit.get('retry_after', OTP_COOLDOWN_MINUTES * 60)
+        }
+    
     # Get stored OTP from cache
     cache_key = get_cache_key(email, purpose)
     cache_data = cache.get(cache_key)
     
     if not cache_data:
         logger.error("OTP expired or not found")
+        _increment_verify_attempts(email)
         return {'success': False, 'error': 'OTP expired or not found. Please request a new code.'}
     
-    # Check attempts
+    # Check OTP-specific attempts (legacy support)
     attempts = cache_data.get('attempts', 0)
     if attempts >= OTP_MAX_ATTEMPTS:
-        logger.error("Maximum verification attempts exceeded")
+        logger.error("Maximum OTP-specific attempts exceeded")
         cache.delete(cache_key)
         return {'success': False, 'error': 'Maximum verification attempts exceeded. Please request a new code.'}
     
@@ -372,11 +551,29 @@ def verify_otp(email, otp_code, purpose='verification'):
         logger.info("OTP verified successfully!")
         # Delete OTP from cache after successful verification
         cache.delete(cache_key)
+        # Clear verification attempt counter
+        _clear_verify_attempts(email)
         return {'success': True, 'message': 'Email verified successfully'}
     else:
-        logger.warning(f"Invalid OTP. Attempts: {attempts + 1}/{OTP_MAX_ATTEMPTS}")
-        # Increment attempts
+        # Increment both OTP-specific attempts AND global verification attempts
         cache_data['attempts'] = attempts + 1
+        cache.set(cache_key, cache_data, timeout=OTP_EXPIRY_MINUTES * 60)
+        _increment_verify_attempts(email)
+        
+        attempts_left = rate_limit.get('attempts_left', OTP_MAX_VERIFY_ATTEMPTS) - 1
+        logger.warning(f"Invalid OTP. Attempts remaining: {attempts_left}/{OTP_MAX_VERIFY_ATTEMPTS}")
+        
+        error_msg = f'Invalid OTP code. {attempts_left} attempts remaining.'
+        if attempts_left == 0:
+            error_msg = 'Invalid OTP code. No attempts remaining. Please wait before trying again.'
+        
+        return {
+            'success': False,
+            'error': error_msg,
+            'error_type': 'invalid_otp',
+            'attempts_left': attempts_left
+        }
+
         cache.set(cache_key, cache_data, timeout=OTP_EXPIRY_MINUTES * 60)
         
         remaining_attempts = OTP_MAX_ATTEMPTS - cache_data['attempts']

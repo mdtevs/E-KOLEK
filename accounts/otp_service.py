@@ -6,6 +6,7 @@ import random
 import string
 import json
 from django.core.cache import cache
+from datetime import datetime, timedelta
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +22,170 @@ SMS_API_URL = 'https://www.iprogsms.com/api/v1/sms_messages'
 # Using Django's cache framework (configured with Redis on Railway)
 # Cache keys: otp_{phone_number}, verified_{phone_number}
 
+# ========================================
+# OTP RATE LIMITING CONFIGURATION
+# ========================================
+# Industry standards for OTP rate limiting:
+# - Send limit: 3 requests per hour (prevents spam/abuse)
+# - Verification attempts: 5 attempts per OTP
+# - Cooldown period: 15 minutes after exceeding limits
+# - Max OTP validity: 5 minutes
+
+OTP_SEND_LIMIT = 3  # Max OTP sends per hour
+OTP_SEND_WINDOW_MINUTES = 60  # Time window for send limit
+OTP_MAX_VERIFY_ATTEMPTS = 5  # Max verification attempts per OTP
+OTP_COOLDOWN_MINUTES = 15  # Lockout period after exceeding limits
+OTP_EXPIRY_MINUTES = 5  # OTP validity period
+
+
+def _check_send_rate_limit(phone_number):
+    """
+    Check if phone number has exceeded OTP send rate limit.
+    
+    Returns:
+        dict: {'allowed': bool, 'error': str, 'retry_after': int}
+    """
+    send_count_key = f'otp_send_count_{phone_number}'
+    cooldown_key = f'otp_cooldown_{phone_number}'
+    
+    # Check if in cooldown period
+    cooldown_until = cache.get(cooldown_key)
+    if cooldown_until:
+        cooldown_time = datetime.fromisoformat(cooldown_until)
+        if datetime.now() < cooldown_time:
+            remaining_seconds = int((cooldown_time - datetime.now()).total_seconds())
+            remaining_minutes = remaining_seconds // 60
+            logger.warning(f"[RATE LIMIT] Phone {phone_number} is in cooldown period. {remaining_minutes}min remaining")
+            return {
+                'allowed': False,
+                'error': f'Too many OTP requests. Please wait {remaining_minutes} minutes before trying again.',
+                'retry_after': remaining_seconds
+            }
+        else:
+            # Cooldown expired, remove it
+            cache.delete(cooldown_key)
+    
+    # Get current send count
+    send_data = cache.get(send_count_key)
+    if send_data:
+        send_info = json.loads(send_data)
+        count = send_info.get('count', 0)
+        first_send = datetime.fromisoformat(send_info.get('first_send'))
+        
+        # Check if we're still within the time window
+        time_elapsed = datetime.now() - first_send
+        if time_elapsed < timedelta(minutes=OTP_SEND_WINDOW_MINUTES):
+            if count >= OTP_SEND_LIMIT:
+                # Exceeded limit - set cooldown
+                cooldown_until = datetime.now() + timedelta(minutes=OTP_COOLDOWN_MINUTES)
+                cache.set(cooldown_key, cooldown_until.isoformat(), timeout=OTP_COOLDOWN_MINUTES * 60)
+                
+                logger.warning(f"[RATE LIMIT] Phone {phone_number} exceeded send limit ({count}/{OTP_SEND_LIMIT}). Cooldown for {OTP_COOLDOWN_MINUTES}min")
+                return {
+                    'allowed': False,
+                    'error': f'Too many OTP requests. You have reached the limit of {OTP_SEND_LIMIT} requests per hour. Please wait {OTP_COOLDOWN_MINUTES} minutes.',
+                    'retry_after': OTP_COOLDOWN_MINUTES * 60
+                }
+            else:
+                # Within limit, increment counter
+                send_info['count'] = count + 1
+                send_info['last_send'] = datetime.now().isoformat()
+                remaining_time = OTP_SEND_WINDOW_MINUTES * 60 - int(time_elapsed.total_seconds())
+                cache.set(send_count_key, json.dumps(send_info), timeout=remaining_time)
+                logger.info(f"[RATE LIMIT] Phone {phone_number} OTP send count: {count + 1}/{OTP_SEND_LIMIT}")
+                return {'allowed': True}
+        else:
+            # Time window expired, reset counter
+            cache.delete(send_count_key)
+    
+    # First send or counter expired, initialize
+    send_info = {
+        'count': 1,
+        'first_send': datetime.now().isoformat(),
+        'last_send': datetime.now().isoformat()
+    }
+    cache.set(send_count_key, json.dumps(send_info), timeout=OTP_SEND_WINDOW_MINUTES * 60)
+    logger.info(f"[RATE LIMIT] Phone {phone_number} OTP send count: 1/{OTP_SEND_LIMIT}")
+    return {'allowed': True}
+
+
+def _check_verify_rate_limit(phone_number):
+    """
+    Check if phone number has exceeded OTP verification attempt limit.
+    
+    Returns:
+        dict: {'allowed': bool, 'error': str, 'attempts_left': int}
+    """
+    attempts_key = f'otp_verify_attempts_{phone_number}'
+    cooldown_key = f'otp_verify_cooldown_{phone_number}'
+    
+    # Check if in verification cooldown
+    cooldown_until = cache.get(cooldown_key)
+    if cooldown_until:
+        cooldown_time = datetime.fromisoformat(cooldown_until)
+        if datetime.now() < cooldown_time:
+            remaining_seconds = int((cooldown_time - datetime.now()).total_seconds())
+            remaining_minutes = remaining_seconds // 60
+            logger.warning(f"[RATE LIMIT] Phone {phone_number} is in verification cooldown. {remaining_minutes}min remaining")
+            return {
+                'allowed': False,
+                'error': f'Too many failed verification attempts. Please wait {remaining_minutes} minutes before trying again.',
+                'retry_after': remaining_seconds
+            }
+        else:
+            cache.delete(cooldown_key)
+    
+    # Get current attempt count
+    attempt_data = cache.get(attempts_key)
+    if attempt_data:
+        attempt_info = json.loads(attempt_data)
+        count = attempt_info.get('count', 0)
+        
+        if count >= OTP_MAX_VERIFY_ATTEMPTS:
+            # Exceeded limit - set cooldown
+            cooldown_until = datetime.now() + timedelta(minutes=OTP_COOLDOWN_MINUTES)
+            cache.set(cooldown_key, cooldown_until.isoformat(), timeout=OTP_COOLDOWN_MINUTES * 60)
+            cache.delete(attempts_key)
+            
+            logger.warning(f"[RATE LIMIT] Phone {phone_number} exceeded verification attempts ({count}/{OTP_MAX_VERIFY_ATTEMPTS}). Cooldown for {OTP_COOLDOWN_MINUTES}min")
+            return {
+                'allowed': False,
+                'error': f'Too many failed attempts. Please wait {OTP_COOLDOWN_MINUTES} minutes before trying again.',
+                'retry_after': OTP_COOLDOWN_MINUTES * 60
+            }
+        
+        return {'allowed': True, 'attempts_left': OTP_MAX_VERIFY_ATTEMPTS - count}
+    
+    return {'allowed': True, 'attempts_left': OTP_MAX_VERIFY_ATTEMPTS}
+
+
+def _increment_verify_attempts(phone_number):
+    """Increment verification attempt counter"""
+    attempts_key = f'otp_verify_attempts_{phone_number}'
+    attempt_data = cache.get(attempts_key)
+    
+    if attempt_data:
+        attempt_info = json.loads(attempt_data)
+        attempt_info['count'] = attempt_info.get('count', 0) + 1
+        attempt_info['last_attempt'] = datetime.now().isoformat()
+    else:
+        attempt_info = {
+            'count': 1,
+            'first_attempt': datetime.now().isoformat(),
+            'last_attempt': datetime.now().isoformat()
+        }
+    
+    # Store for OTP expiry time + 5 minutes buffer
+    cache.set(attempts_key, json.dumps(attempt_info), timeout=(OTP_EXPIRY_MINUTES + 5) * 60)
+    logger.info(f"[RATE LIMIT] Phone {phone_number} verification attempts: {attempt_info['count']}/{OTP_MAX_VERIFY_ATTEMPTS}")
+
+
+def _clear_verify_attempts(phone_number):
+    """Clear verification attempt counter on successful verification"""
+    attempts_key = f'otp_verify_attempts_{phone_number}'
+    cache.delete(attempts_key)
+    logger.info(f"[RATE LIMIT] Phone {phone_number} verification attempts cleared after successful verification")
+
 
 
 def _generate_otp(length=6):
@@ -28,15 +193,19 @@ def _generate_otp(length=6):
     return ''.join(random.choices(string.digits, k=length))
 
 
-def _store_otp(phone_number, otp_code, expires_in_minutes=5):
+def _store_otp(phone_number, otp_code, expires_in_minutes=None):
     """Store OTP in Redis cache with expiration time"""
+    if expires_in_minutes is None:
+        expires_in_minutes = OTP_EXPIRY_MINUTES
+        
     from datetime import datetime, timedelta
     expiry = datetime.now() + timedelta(minutes=expires_in_minutes)
     
     otp_data = {
         'otp': otp_code,
         'expires_at': expiry.isoformat(),
-        'attempts': 0
+        'attempts': 0,
+        'created_at': datetime.now().isoformat()
     }
     
     # Store in Redis with TTL (Time To Live)
@@ -48,8 +217,18 @@ def _store_otp(phone_number, otp_code, expires_in_minutes=5):
 
 
 def _verify_stored_otp(phone_number, otp_code):
-    """Verify OTP from Redis cache"""
+    """Verify OTP from Redis cache with rate limiting"""
     from datetime import datetime, timedelta
+    
+    # Check verification rate limit FIRST
+    rate_limit = _check_verify_rate_limit(phone_number)
+    if not rate_limit['allowed']:
+        return {
+            'success': False,
+            'error': rate_limit['error'],
+            'error_type': 'rate_limit',
+            'retry_after': rate_limit.get('retry_after', OTP_COOLDOWN_MINUTES * 60)
+        }
     
     # Check if this OTP was recently verified (within last 2 minutes)
     verified_key = f'verified_{phone_number}'
@@ -69,7 +248,8 @@ def _verify_stored_otp(phone_number, otp_code):
     
     if not stored_json:
         print(f"[REDIS] OTP not found in cache for {phone_number}")
-        return {'success': False, 'error': 'OTP not found or expired', 'error_type': 'otp_not_found'}
+        _increment_verify_attempts(phone_number)
+        return {'success': False, 'error': 'OTP not found or expired. Please request a new OTP.', 'error_type': 'otp_not_found'}
     
     stored_data = json.loads(stored_json)
     
@@ -78,17 +258,21 @@ def _verify_stored_otp(phone_number, otp_code):
     if datetime.now() > expires_at:
         cache.delete(cache_key)
         print(f"[REDIS] OTP expired for {phone_number}")
-        return {'success': False, 'error': 'OTP has expired', 'error_type': 'otp_expired'}
+        _increment_verify_attempts(phone_number)
+        return {'success': False, 'error': 'OTP has expired. Please request a new OTP.', 'error_type': 'otp_expired'}
     
-    # Check attempts
-    if stored_data['attempts'] >= 3:
+    # Check OTP-specific attempts (legacy support - now using global rate limit)
+    if stored_data.get('attempts', 0) >= 3:
         cache.delete(cache_key)
         print(f"[REDIS] Too many attempts for {phone_number}")
-        return {'success': False, 'error': 'Too many failed attempts', 'error_type': 'too_many_attempts'}
+        return {'success': False, 'error': 'Too many failed attempts. Please request a new OTP.', 'error_type': 'too_many_attempts'}
     
     # Verify OTP
     if stored_data['otp'] == str(otp_code):
         cache.delete(cache_key)  # Clear OTP after successful verification
+        
+        # Clear verification attempt counter
+        _clear_verify_attempts(phone_number)
         
         # Track this as recently verified (cache for 2 minutes)
         verified_data = {
@@ -100,11 +284,24 @@ def _verify_stored_otp(phone_number, otp_code):
         print(f"[REDIS] ✅ OTP verified successfully for {phone_number}")
         return {'success': True, 'status': 'success', 'message': 'OTP verified successfully'}
     else:
-        # Increment attempts and save back to Redis
+        # Increment both OTP-specific attempts AND global verification attempts
         stored_data['attempts'] += 1
         cache.set(cache_key, json.dumps(stored_data), timeout=300)  # Keep same 5min TTL
-        print(f"[REDIS] ❌ Invalid OTP for {phone_number}. Attempts: {stored_data['attempts']}/3")
-        return {'success': False, 'error': 'Invalid OTP code', 'error_type': 'invalid_otp'}
+        _increment_verify_attempts(phone_number)
+        
+        attempts_left = rate_limit.get('attempts_left', OTP_MAX_VERIFY_ATTEMPTS) - 1
+        print(f"[REDIS] ❌ Invalid OTP for {phone_number}. Attempts remaining: {attempts_left}/{OTP_MAX_VERIFY_ATTEMPTS}")
+        
+        error_msg = f'Invalid OTP code. {attempts_left} attempts remaining.'
+        if attempts_left == 0:
+            error_msg = 'Invalid OTP code. No attempts remaining. Please wait before trying again.'
+            
+        return {
+            'success': False,
+            'error': error_msg,
+            'error_type': 'invalid_otp',
+            'attempts_left': attempts_left
+        }
 
 
 def _post_json(url, payload, timeout=10):
@@ -245,7 +442,12 @@ def _post_json(url, payload, timeout=10):
 
 def send_otp(phone_number, message=None):
     """
-    Send OTP using iProg Tech SMS API
+    Send OTP using iProg Tech SMS API with rate limiting
+    
+    Rate Limiting (Industry Standards):
+    - Maximum 3 OTP sends per hour
+    - 15-minute cooldown after exceeding limit
+    - Prevents spam and reduces costs
     
     API Documentation: https://www.iprogsms.com/api/v1/sms_messages
     
@@ -313,11 +515,22 @@ def send_otp(phone_number, message=None):
     
     print(f"Phone number (formatted): {phone_formatted}")
 
+    # CHECK RATE LIMIT BEFORE SENDING
+    rate_limit_check = _check_send_rate_limit(phone_formatted)
+    if not rate_limit_check['allowed']:
+        print(f"[RATE LIMIT BLOCKED] {rate_limit_check['error']}")
+        return {
+            'success': False,
+            'error': rate_limit_check['error'],
+            'error_type': 'rate_limit',
+            'retry_after': rate_limit_check.get('retry_after', OTP_COOLDOWN_MINUTES * 60)
+        }
+
     # Generate OTP code
     otp_code = _generate_otp(6)
     
     # Store OTP for later verification
-    _store_otp(phone_formatted, otp_code, expires_in_minutes=5)
+    _store_otp(phone_formatted, otp_code, expires_in_minutes=OTP_EXPIRY_MINUTES)
     
     # Build OTP message
     if message and ':otp' in message:
