@@ -515,11 +515,12 @@
         <label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
           <i class='bx bx-phone' style="color: #667eea; font-size: 1.1rem;"></i> Phone
         </label>
-        <input type="text" id="edit_phone" name="phone" required style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease;">
+        <input type="text" id="edit_phone" name="phone" required pattern="09[0-9]{9}" maxlength="11" placeholder="09xxxxxxxxx" style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease;">
         <div id="edit_phone_error" class="field-error" style="display: none; color: #ef4444; font-size: 0.85rem; margin-top: 6px; display: flex; align-items: center; gap: 6px;">
           <i class='bx bx-error-circle' style="font-size: 1rem;"></i>
           <span></span>
         </div>
+        <small style="color: #6b7280; font-size: 0.85rem; margin-top: 6px; display: block;">Must be 11 digits starting with 09 (e.g., 09123456789)</small>
       </div>
 
       <div style="margin-bottom: 20px;">
@@ -527,6 +528,7 @@
           <i class='bx bx-calendar' style="color: #667eea; font-size: 1.1rem;"></i> Date of Birth
         </label>
         <input type="date" id="edit_date_of_birth" name="date_of_birth" style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease;">
+        <small style="color: #6b7280; font-size: 0.85rem; margin-top: 6px; display: block;">Cannot select a future date</small>
       </div>
 
       <div style="margin-bottom: 20px;">
