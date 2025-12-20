@@ -503,12 +503,12 @@
         <label style="display: block; margin-bottom: 10px; font-weight: 700; color: #1f2937; font-size: 0.9rem; display: flex; align-items: center; gap: 6px;">
           <i class='bx bx-envelope' style="color: #667eea; font-size: 1.1rem;"></i> Email
         </label>
-        <input type="email" id="edit_email" name="email" placeholder="user@example.com" style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease;">
+        <input type="email" id="edit_email" name="email" placeholder="user@gmail.com" pattern="[a-zA-Z0-9._%+\-]+@gmail\.com$" style="width: 100%; padding: 14px 18px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; color: #374151; transition: all 0.3s ease;">
         <div id="edit_email_error" class="field-error" style="display: none; color: #ef4444; font-size: 0.85rem; margin-top: 6px; display: flex; align-items: center; gap: 6px;">
           <i class='bx bx-error-circle' style="font-size: 1rem;"></i>
           <span></span>
         </div>
-        <small style="color: #6b7280; font-size: 0.85rem; margin-top: 6px; display: block;">Optional. Used for notifications and verification.</small>
+        <small style="color: #6b7280; font-size: 0.85rem; margin-top: 6px; display: block;">Optional. Must be a Gmail address (e.g., user@gmail.com)</small>
       </div>
 
       <div style="margin-bottom: 20px;">

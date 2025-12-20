@@ -61,6 +61,52 @@
   }
 
   /**
+   * Validate email must end with @gmail.com
+   */
+  function validateEmail(emailInput) {
+    const email = emailInput.value.trim();
+    const emailError = document.getElementById('edit_email_error');
+    const emailErrorSpan = emailError ? emailError.querySelector('span') : null;
+    
+    // If email is empty (optional field), clear error and return true
+    if (email === '') {
+      if (emailError) {
+        emailError.style.display = 'none';
+      }
+      emailInput.setCustomValidity('');
+      return true;
+    }
+    
+    // Check if email ends with @gmail.com
+    if (!email.toLowerCase().endsWith('@gmail.com')) {
+      if (emailError && emailErrorSpan) {
+        emailErrorSpan.textContent = 'Email must be a Gmail address (e.g., user@gmail.com)';
+        emailError.style.display = 'flex';
+      }
+      emailInput.setCustomValidity('Email must be a Gmail address');
+      return false;
+    }
+    
+    // Basic email format validation
+    const emailRegex = /^[a-zA-Z0-9._%+\-]+@gmail\.com$/;
+    if (!emailRegex.test(email)) {
+      if (emailError && emailErrorSpan) {
+        emailErrorSpan.textContent = 'Please enter a valid Gmail address';
+        emailError.style.display = 'flex';
+      }
+      emailInput.setCustomValidity('Please enter a valid Gmail address');
+      return false;
+    }
+    
+    // Valid email
+    if (emailError) {
+      emailError.style.display = 'none';
+    }
+    emailInput.setCustomValidity('');
+    return true;
+  }
+
+  /**
    * Set max date for date of birth field to today
    */
   function setMaxDateForBirthday() {
@@ -146,6 +192,20 @@ document.addEventListener('DOMContentLoaded', function() {
   // Set max date for birthday field on page load
   setMaxDateForBirthday();
   
+  // Add email validation
+  const emailInput = document.getElementById('edit_email');
+  if (emailInput) {
+    // Validate on input (real-time)
+    emailInput.addEventListener('input', function(e) {
+      validateEmail(e.target);
+    });
+    
+    // Validate on blur (when user leaves the field)
+    emailInput.addEventListener('blur', function(e) {
+      validateEmail(e.target);
+    });
+  }
+  
   // Add phone number validation
   const phoneInput = document.getElementById('edit_phone');
   if (phoneInput) {
@@ -184,10 +244,23 @@ document.addEventListener('DOMContentLoaded', function() {
   const editForm = document.getElementById('editUserForm');
   if (editForm) {
     editForm.addEventListener('submit', function(e) {
+      let isValid = true;
+      
+      // Validate email
+      const emailField = document.getElementById('edit_email');
+      if (emailField && !validateEmail(emailField)) {
+        e.preventDefault();
+        emailField.focus();
+        isValid = false;
+        return false;
+      }
+      
+      // Validate phone
       const phoneField = document.getElementById('edit_phone');
       if (phoneField && !validatePhoneNumber(phoneField)) {
         e.preventDefault();
         phoneField.focus();
+        isValid = false;
         return false;
       }
       
@@ -202,9 +275,12 @@ document.addEventListener('DOMContentLoaded', function() {
           e.preventDefault();
           alert('Date of birth cannot be in the future.');
           dateField.focus();
+          isValid = false;
           return false;
         }
       }
+      
+      return isValid;
     });
   }
   
