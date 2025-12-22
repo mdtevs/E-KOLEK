@@ -76,6 +76,7 @@ from .game_views import (
     delete_item,
     update_game_cooldown,
     get_game_cooldown,
+    test_session_debug,
 )
 
 from .learning_views import (
