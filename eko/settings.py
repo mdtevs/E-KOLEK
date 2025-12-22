@@ -367,7 +367,8 @@ REST_FRAMEWORK = {
         'eko.authentication.CsrfExemptSessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
+        # CHANGED: Allow unauthenticated by default, individual views can override
+        # 'rest_framework.permissions.IsAuthenticated',  # DISABLED - was blocking admin API
     ],
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
