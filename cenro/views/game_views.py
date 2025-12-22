@@ -9,6 +9,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from django.utils import timezone
 from django.db import transaction, IntegrityError
+from rest_framework.decorators import permission_classes, authentication_classes
+from rest_framework.permissions import AllowAny
 import logging
 
 from accounts.models import (
@@ -226,6 +228,8 @@ def test_session_debug(request):
 
 
 # Game Configuration Management
+@permission_classes([AllowAny])  # CRITICAL: Exempt from DRF authentication
+@authentication_classes([])      # CRITICAL: No DRF authentication required
 @csrf_exempt  # TEMPORARY: Test if CSRF is blocking
 @require_http_methods(["POST"])  # Only POST allowed
 def update_game_cooldown(request):
