@@ -36,9 +36,19 @@ def admin_required(view_func):
         
         # Check if admin user still exists and is active
         try:
-            logger.info(f"Looking up AdminUser with ID: {request.session['admin_user_id']}")
+            import uuid as uuid_module
+            
+            admin_user_id_from_session = request.session['admin_user_id']
+            logger.info(f"Looking up AdminUser with ID: {admin_user_id_from_session}")
+            logger.info(f"ID type before conversion: {type(admin_user_id_from_session)}")
+            
+            # Convert to UUID if it's a string
+            if isinstance(admin_user_id_from_session, str):
+                admin_user_id_from_session = uuid_module.UUID(admin_user_id_from_session)
+                logger.info(f"Converted to UUID object: {admin_user_id_from_session}")
+            
             admin_user = AdminUser.objects.get(
-                id=request.session['admin_user_id'],
+                id=admin_user_id_from_session,
                 is_active=True
             )
             logger.info(f"✓ AdminUser found: {admin_user.username}")
