@@ -842,8 +842,15 @@
                 const formData = new FormData(e.target);
                 formData.append('game_type', gameType);
                 
-                // Get CSRF token from cookie or hidden input
-                const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                // Get CSRF token from hidden input or cookies
+                let csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+                if (!csrftoken) {
+                    // Try to get from cookie
+                    csrftoken = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
+                }
+                
+                console.log('CSRF Token:', csrftoken ? 'Found' : 'MISSING!');
+                console.log('Form Data:', Object.fromEntries(formData));
                 
                 // Get the submit button
                 const submitBtn = form.querySelector('button[type="submit"]');
@@ -852,6 +859,9 @@
                 // Show loading state
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="bx bx-loader bx-spin"></i> Updating...';
+                
+                console.log('Sending request to:', '{% url "cenro:update_game_cooldown" %}');
+                console.log('Request headers:', { 'X-CSRFToken': csrftoken });
                 
                 try {
                     const response = await fetch('{% url "cenro:update_game_cooldown" %}', {
@@ -919,7 +929,14 @@
                         submitBtn.innerHTML = originalText;
                     }
                 } catch (error) {
-                    console.error('Error:', error);
+                    console.error('==== ERROR DETAILS ====');
+                    console.error('Error type:', error.name);
+                    console.error('Error message:', error.message);
+                    console.error('Error stack:', error.stack);
+                    console.error('Game type:', gameType);
+                    console.error('Form element:', form);
+                    console.error('=====================');
+                    
                     const errorMsg = document.createElement('div');
                     errorMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #ef4444; color: white; padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 9999; animation: slideIn 0.3s ease-out;';
                     errorMsg.innerHTML = '<i class="bx bx-error-circle"></i> Failed to update cooldown: ' + error.message;

@@ -195,6 +195,11 @@ def delete_item(request, item_id):
 @require_POST
 def update_game_cooldown(request):
     """Update game cooldown configuration"""
+    # Log incoming request for debugging
+    logger.info(f"Cooldown update request received from {request.session.get('admin_username', 'unknown')}")
+    logger.info(f"POST data: {dict(request.POST)}")
+    logger.info(f"Headers: {dict(request.headers)}")
+    
     if request.method == 'POST':
         try:
             game_type = request.POST.get('game_type', 'all')
@@ -202,6 +207,8 @@ def update_game_cooldown(request):
             cooldown_minutes = int(request.POST.get('cooldown_minutes', 0))
             # Checkbox value is 'on' when checked, None when unchecked
             is_active = request.POST.get('is_active') == 'on'
+            
+            logger.info(f"Parsed values - Type: {game_type}, Hours: {cooldown_hours}, Minutes: {cooldown_minutes}, Active: {is_active}")
             
             # Validate input
             if cooldown_hours < 0 or cooldown_hours > 720:  # Max 30 days
@@ -253,10 +260,16 @@ def update_game_cooldown(request):
             })
             
         except ValueError as e:
-            return JsonResponse({'success': False, 'error': 'Invalid numeric value'})
+            logger.error(f"ValueError in cooldown update: {str(e)}")
+            logger.error(f"POST data that caused error: {dict(request.POST)}")
+            return JsonResponse({'success': False, 'error': f'Invalid numeric value: {str(e)}'})
         except Exception as e:
-            logger.error(f"Error updating game cooldown: {str(e)}")
-            return JsonResponse({'success': False, 'error': str(e)})
+            logger.error(f"Exception in cooldown update: {str(e)}")
+            logger.error(f"Exception type: {type(e).__name__}")
+            logger.error(f"POST data: {dict(request.POST)}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
+            return JsonResponse({'success': False, 'error': f'{type(e).__name__}: {str(e)}'})
     
     return JsonResponse({'success': False, 'error': 'Invalid request method'})
 
