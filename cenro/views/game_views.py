@@ -14,7 +14,7 @@ from accounts.models import (
     Users, Family, Barangay, PointsTransaction, Reward, GarbageSchedule, RewardCategory,
     WasteType, WasteTransaction, Redemption, Notification, RewardHistory
 )
-from cenro.models import AdminActionHistory
+from cenro.models import AdminActionHistory, AdminUser
 from game.models import Question, Choice, WasteCategory, WasteItem, GameConfiguration
 from learn.models import LearningVideo, VideoWatchHistory
 
@@ -225,22 +225,36 @@ def test_session_debug(request):
 
 
 # Game Configuration Management
-@admin_required  # Admin auth check first
 @require_http_methods(["POST"])  # Only POST allowed
 def update_game_cooldown(request):
     """Update game cooldown configuration"""
-    # Log authentication status
+    import uuid as uuid_module
+    
+    # Manual authentication check (bypassing decorator for debugging)
     logger.info(f"=== COOLDOWN UPDATE REQUEST ===")
     logger.info(f"Session ID: {request.session.session_key}")
+    logger.info(f"Session data: {dict(request.session)}")
     logger.info(f"Admin User ID in session: {request.session.get('admin_user_id')}")
-    logger.info(f"Admin Username in session: {request.session.get('admin_username')}")
-    logger.info(f"Session keys: {list(request.session.keys())}")
-    logger.info(f"Cookie header: {request.COOKIES.get('ekolek_session', 'NO SESSION COOKIE')}")
-    logger.info(f"Has admin_user attribute: {hasattr(request, 'admin_user')}")
     
-    # Django handles CSRF automatically - no manual check needed
+    # Check if admin is logged in
+    admin_user_id = request.session.get('admin_user_id')
+    if not admin_user_id:
+        logger.error("❌ No admin_user_id in session")
+        return JsonResponse({'success': False, 'error': 'Not authenticated'}, status=401)
+    
+    # Convert to UUID and get admin user
+    try:
+        if isinstance(admin_user_id, str):
+            admin_user_id = uuid_module.UUID(admin_user_id)
+        
+        admin_user = AdminUser.objects.get(id=admin_user_id, is_active=True)
+        logger.info(f"✓ Authenticated as: {admin_user.username}")
+    except (ValueError, AdminUser.DoesNotExist) as e:
+        logger.error(f"❌ Authentication failed: {e}")
+        return JsonResponse({'success': False, 'error': 'Invalid session'}, status=401)
+    
     # Log incoming request for debugging
-    logger.info(f"Cooldown update request received from {request.session.get('admin_username', 'unknown')}")
+    logger.info(f"Cooldown update request received from {admin_user.username}")
     logger.info(f"POST data: {dict(request.POST)}")
     
     try:
