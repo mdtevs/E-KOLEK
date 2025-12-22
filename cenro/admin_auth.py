@@ -36,12 +36,22 @@ def admin_required(view_func):
         
         # Check if admin user still exists and is active
         try:
+            logger.info(f"Looking up AdminUser with ID: {request.session['admin_user_id']}")
             admin_user = AdminUser.objects.get(
                 id=request.session['admin_user_id'],
                 is_active=True
             )
+            logger.info(f"✓ AdminUser found: {admin_user.username}")
             request.admin_user = admin_user
         except AdminUser.DoesNotExist:
+            logger.error(f"❌ AdminUser.DoesNotExist - ID in session: {request.session.get('admin_user_id')}")
+            logger.error(f"Trying to find any AdminUser with this ID...")
+            try:
+                user_any = AdminUser.objects.get(id=request.session['admin_user_id'])
+                logger.error(f"Found user but is_active={user_any.is_active}")
+            except:
+                logger.error(f"No AdminUser exists with ID: {request.session['admin_user_id']}")
+            
             # Clear only admin session data, preserve user authentication
             request.session.pop('admin_user_id', None)
             request.session.pop('admin_username', None)

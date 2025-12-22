@@ -197,6 +197,33 @@ def delete_item(request, item_id):
     return JsonResponse({'success': False})
 
 
+# Session Debug Test Endpoint
+def test_session_debug(request):
+    """Test endpoint to check session data without @admin_required"""
+    import json
+    
+    session_data = {
+        'session_key': request.session.session_key,
+        'session_cookie_from_request': request.COOKIES.get('ekolek_session', 'NOT FOUND'),
+        'session_data': dict(request.session),
+        'admin_user_id': request.session.get('admin_user_id'),
+        'admin_user_id_type': str(type(request.session.get('admin_user_id'))),
+        'admin_username': request.session.get('admin_username'),
+        'session_is_empty': request.session.is_empty(),
+        'session_exists': request.session.exists(request.session.session_key) if request.session.session_key else False,
+        'all_cookies': dict(request.COOKIES),
+    }
+    
+    logger.info(f"=== TEST SESSION DEBUG ===")
+    logger.info(json.dumps(session_data, indent=2, default=str))
+    
+    return JsonResponse({
+        'success': True,
+        'message': 'Session data retrieved successfully',
+        'data': session_data
+    })
+
+
 # Game Configuration Management
 @admin_required  # Admin auth check first
 @require_http_methods(["POST"])  # Only POST allowed

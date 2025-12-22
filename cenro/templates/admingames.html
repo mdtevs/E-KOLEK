@@ -468,6 +468,17 @@
 
                         <!-- Game Cooldown Configuration Tab -->
             <div id="cooldownTab" class="tab-content" style="display: none;">
+                
+                <!-- Debug Test Button -->
+                <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 1rem; margin-bottom: 2rem;">
+                    <h3 style="color: #92400e; margin: 0 0 0.5rem 0;">🔧 Session Debug Test</h3>
+                    <p style="color: #78350f; margin: 0 0 1rem 0; font-size: 14px;">Click this button to test if the backend can read your session:</p>
+                    <button onclick="testSessionDebug()" style="background: #f59e0b; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; cursor: pointer; font-weight: 600;">
+                        Test Backend Session
+                    </button>
+                    <div id="sessionTestResult" style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 6px; display: none; font-family: monospace; font-size: 12px; white-space: pre-wrap;"></div>
+                </div>
+
                 <div class="card mt-4">
                     <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; border-radius: 8px 8px 0 0; margin-bottom: 0;">
                         <h2 style="margin: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">
@@ -828,6 +839,38 @@
     <script src="{% static 'js/games-excel-upload.js' %}?v={{ timestamp }}"></script>
     <script src="{% static 'js/points-input-handler.js' %}?v={{ timestamp }}"></script>
 	<script src="{% static 'js/admin_notifications.js' %}"></script>
+    
+    <!-- Session Debug Test Script -->
+    <script>
+        async function testSessionDebug() {
+            const resultDiv = document.getElementById('sessionTestResult');
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = '⏳ Testing backend session...';
+            
+            try {
+                const response = await fetch('{% url "cenro:test_session_debug" %}', {
+                    method: 'GET',
+                    credentials: 'same-origin'
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    resultDiv.style.background = '#d1fae5';
+                    resultDiv.style.color = '#065f46';
+                    resultDiv.innerHTML = `✅ SUCCESS - Backend Session Data:\n\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    resultDiv.style.background = '#fee2e2';
+                    resultDiv.style.color = '#991b1b';
+                    resultDiv.innerHTML = `❌ ERROR ${response.status}:\n\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                resultDiv.style.background = '#fee2e2';
+                resultDiv.style.color = '#991b1b';
+                resultDiv.innerHTML = `❌ EXCEPTION:\n\n${error.message}`;
+            }
+        }
+    </script>
     
     <!-- Game Cooldown Configuration Script -->
     <script>

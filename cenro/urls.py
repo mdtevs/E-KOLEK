@@ -20,7 +20,7 @@ from .views import (
     # Game views
     admingames, adminquiz, add_question, delete_question,
     add_category, delete_category, add_item, delete_item,
-    update_game_cooldown, get_game_cooldown,
+    update_game_cooldown, get_game_cooldown, test_session_debug,
     # Learning views
     adminlearn, add_video, edit_video, toggle_video, delete_video,
     quiz_management, quiz_questions, quiz_results,
@@ -92,6 +92,7 @@ urlpatterns = [
     path('delete_item/<uuid:item_id>/', delete_item, name='delete_item'),
     
     # Game configuration endpoints
+    path('api/game/test-session/', test_session_debug, name='test_session_debug'),
     path('api/game/cooldown/update/', update_game_cooldown, name='update_game_cooldown'),
     path('api/game/cooldown/<str:game_type>/', get_game_cooldown, name='admin_get_game_cooldown'),
 
