@@ -276,6 +276,10 @@ def quiz_results(request, video_id=None):
 def add_quiz_question(request):
     """Add a new quiz question"""
     from learn.models import LearningVideo, QuizQuestion
+    from decimal import Decimal
+    import logging
+    
+    logger = logging.getLogger(__name__)
     
     try:
         video_id = request.POST.get('video_id')
@@ -294,7 +298,7 @@ def add_quiz_question(request):
             option_c=request.POST.get('option_c'),
             option_d=request.POST.get('option_d'),
             correct_answer=request.POST.get('correct_answer'),
-            points_reward=int(request.POST.get('points_reward', 10)),
+            points_reward=Decimal(request.POST.get('points_reward', '10')),
             explanation=request.POST.get('explanation', ''),
             order=max_order + 1,
             is_active=True
@@ -307,6 +311,7 @@ def add_quiz_question(request):
         })
         
     except Exception as e:
+        logger.error(f"Error adding quiz question: {str(e)}", exc_info=True)
         return JsonResponse({
             'success': False,
             'error': str(e)
@@ -319,6 +324,10 @@ def add_quiz_question(request):
 def edit_quiz_question(request):
     """Edit an existing quiz question"""
     from learn.models import QuizQuestion
+    from decimal import Decimal
+    import logging
+    
+    logger = logging.getLogger(__name__)
     
     try:
         question_id = request.POST.get('question_id')
@@ -330,10 +339,12 @@ def edit_quiz_question(request):
         question.option_c = request.POST.get('option_c')
         question.option_d = request.POST.get('option_d')
         question.correct_answer = request.POST.get('correct_answer')
-        question.points_reward = int(request.POST.get('points_reward', 10))
+        question.points_reward = Decimal(request.POST.get('points_reward', '10'))
         question.explanation = request.POST.get('explanation', '')
         question.order = int(request.POST.get('order', question.order))
-        question.is_active = request.POST.get('is_active') == 'true'
+        # Don't update is_active unless explicitly provided to preserve current state
+        if request.POST.get('is_active') is not None:
+            question.is_active = request.POST.get('is_active') == 'true'
         question.save()
         
         return JsonResponse({
@@ -342,6 +353,7 @@ def edit_quiz_question(request):
         })
         
     except Exception as e:
+        logger.error(f"Error editing quiz question {question_id}: {str(e)}", exc_info=True)
         return JsonResponse({
             'success': False,
             'error': str(e)

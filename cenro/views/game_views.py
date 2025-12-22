@@ -73,8 +73,10 @@ def adminquiz(request):
 
 def add_question(request):
     if request.method == 'POST':
+        from decimal import Decimal
+        
         question_text = request.POST.get('question_text')
-        question_points = int(request.POST.get('question_points', 1))
+        question_points = Decimal(request.POST.get('question_points', '1'))
         choices_json = request.POST.get('choices')
         correct_choice_index = int(request.POST.get('correct_choice'))
         
@@ -148,10 +150,12 @@ def delete_category(request, category_id):
 # Item management views
 def add_item(request):
     if request.method == 'POST':
+        from decimal import Decimal
+        
         name = request.POST.get('name')
         emoji = request.POST.get('emoji', '')
         category_id = request.POST.get('category')
-        points = int(request.POST.get('points', 10))
+        points = Decimal(request.POST.get('points', '10'))
         difficulty_level = request.POST.get('difficulty_level', 'easy')
         is_active = request.POST.get('is_active') == 'true'
         
