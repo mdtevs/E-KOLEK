@@ -228,22 +228,31 @@ def test_session_debug(request):
 @require_http_methods(["POST"])  # Only POST allowed
 def update_game_cooldown(request):
     """Update game cooldown configuration"""
-    import uuid as uuid_module
-    
-    # CRITICAL logging to ensure it appears in Railway logs
-    print("=" * 80)
-    print("🔥 COOLDOWN UPDATE FUNCTION CALLED - VIEW EXECUTING!")
-    print("=" * 80)
-    
-    logger.critical("=" * 80)
-    logger.critical("🔥 COOLDOWN UPDATE REQUEST - VIEW FUNCTION STARTED")
-    logger.critical(f"REQUEST COOKIES: {dict(request.COOKIES)}")
-    logger.critical(f"Session cookie from request: {request.COOKIES.get('ekolek_session', 'NOT FOUND')}")
-    logger.critical(f"Session ID from Django: {request.session.session_key}")
-    logger.critical(f"Session data: {dict(request.session)}")
-    logger.critical(f"Session is empty: {request.session.is_empty()}")
-    logger.critical(f"Admin User ID in session: {request.session.get('admin_user_id')}")
-    logger.critical("=" * 80)
+    try:
+        print("🔥🔥🔥 VIEW FUNCTION STARTED - TOP OF FUNCTION 🔥🔥🔥")
+        
+        import uuid as uuid_module
+        
+        # CRITICAL logging to ensure it appears in Railway logs
+        print("=" * 80)
+        print("🔥 COOLDOWN UPDATE FUNCTION CALLED - VIEW EXECUTING!")
+        print("=" * 80)
+        
+        logger.critical("=" * 80)
+        logger.critical("🔥 COOLDOWN UPDATE REQUEST - VIEW FUNCTION STARTED")
+        logger.critical(f"REQUEST COOKIES: {dict(request.COOKIES)}")
+        logger.critical(f"Session cookie from request: {request.COOKIES.get('ekolek_session', 'NOT FOUND')}")
+        logger.critical(f"Session ID from Django: {request.session.session_key}")
+        logger.critical(f"Session data: {dict(request.session)}")
+        logger.critical(f"Session is empty: {request.session.is_empty()}")
+        logger.critical(f"Admin User ID in session: {request.session.get('admin_user_id')}")
+        logger.critical("=" * 80)
+    except Exception as e:
+        print(f"❌❌❌ EXCEPTION AT TOP OF VIEW: {e}")
+        logger.critical(f"❌ EXCEPTION: {e}")
+        import traceback
+        traceback.print_exc()
+        return JsonResponse({'success': False, 'error': f'Exception: {str(e)}'}, status=500)
     
     # Check if admin is logged in
     admin_user_id = request.session.get('admin_user_id')
