@@ -403,15 +403,16 @@ SESSION_COOKIE_NAME = 'ekolek_session'
 SESSION_COOKIE_AGE = 86400  # 24 hours
 SESSION_EXPIRE_AT_BROWSER_CLOSE = False
 SESSION_SAVE_EVERY_REQUEST = True
-SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_HTTPONLY = False  # TEMPORARY: Allow JS access for debugging (like CSRF cookie)
 SESSION_COOKIE_SAMESITE = 'Lax'
 SESSION_SERIALIZER = 'eko.session_serializer.UUIDJSONSerializer'
 # Note: We use a unified session for both user and admin to support simultaneous logins
 # The logout views are carefully designed to only clear their respective authentication data
 SESSION_COOKIE_PATH = '/'
+SESSION_COOKIE_DOMAIN = None  # Explicitly set to None for current domain
 
 if not DEBUG:
-    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True  # Requires HTTPS in production (Railway has HTTPS)
 
 
 # ==============================================================================

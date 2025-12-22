@@ -138,8 +138,14 @@ def admin_login(request):
                     request.session['admin_role'] = admin_user.role
                     request.session['admin_full_name'] = admin_user.full_name
                     
+                    # Force session to be marked as modified to ensure cookie is set
+                    request.session.modified = True
+                    request.session.save()
+                    
                     # Log successful login
                     logger.info(f"Admin login successful: {username} ({admin_user.role})")
+                    logger.info(f"Session ID after login: {request.session.session_key}")
+                    logger.info(f"Session data: {dict(request.session)}")
                     
                     # Log login action to AdminActionHistory
                     from cenro.admin_utils import log_admin_action
