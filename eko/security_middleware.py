@@ -72,7 +72,7 @@ class AdminAccessControlMiddleware(MiddlewareMixin):
     
     # API endpoints that use custom admin authentication (session-based)
     API_ADMIN_PATHS = [
-        '/cenro/api/',
+        '/api/game/',  # Admin game API endpoints
     ]
     
     def process_request(self, request):

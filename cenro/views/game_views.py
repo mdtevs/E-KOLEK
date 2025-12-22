@@ -232,8 +232,11 @@ def update_game_cooldown(request):
     
     # Manual authentication check (bypassing decorator for debugging)
     logger.info(f"=== COOLDOWN UPDATE REQUEST ===")
-    logger.info(f"Session ID: {request.session.session_key}")
+    logger.info(f"REQUEST COOKIES: {dict(request.COOKIES)}")
+    logger.info(f"Session cookie from request: {request.COOKIES.get('ekolek_session', 'NOT FOUND')}")
+    logger.info(f"Session ID from Django: {request.session.session_key}")
     logger.info(f"Session data: {dict(request.session)}")
+    logger.info(f"Session is empty: {request.session.is_empty()}")
     logger.info(f"Admin User ID in session: {request.session.get('admin_user_id')}")
     
     # Check if admin is logged in
