@@ -232,8 +232,12 @@
                             <input style="margin-top: 0.5rem;" type="text" id="categoryName" class="choice-input" placeholder="e.g., Recyclable, Organic" required>
                         </div>
                         <div style="margin-bottom: 1rem;">
-                            <label>Color (Hex):</label>
-                            <input style="margin-top: 0.5rem;" type="color" id="categoryColor" class="choice-input" value="#4CAF50">
+                            <label>Color:</label>
+                            <div class="color-picker-wrapper">
+                                <div class="color-preview" id="categoryColorPreview"></div>
+                                <input type="color" id="categoryColor" class="color-input-hidden" value="#4CAF50">
+                                <input type="text" id="categoryColorText" class="color-text-input" value="#4CAF50" placeholder="#4CAF50" maxlength="7" pattern="^#[0-9A-Fa-f]{6}$">
+                            </div>
                         </div>
                         <div style="margin-bottom: 1rem;">
                             <label>Icon Name:</label>
@@ -254,8 +258,10 @@
                         {% for category in categories %}
                         <div class="question-item">
                             <h4>{{ category.name }}</h4>
-                            <p><strong>Color:</strong> 
-                                <span class="color-display" data-color="{{ category.color_hex }}">{{ category.color_hex }}</span>
+                            <p style="display: flex; align-items: center; gap: 0.5rem;">
+                                <strong>Color:</strong> 
+                                <span class="color-circle-display" data-color="{{ category.color_hex }}"></span>
+                                <span style="color: #6b7280; font-family: monospace;">{{ category.color_hex }}</span>
                             </p>
                             <p><strong>Icon:</strong> {{ category.icon_name }}</p>
                             <p><strong>Description:</strong> {{ category.description }}</p>
