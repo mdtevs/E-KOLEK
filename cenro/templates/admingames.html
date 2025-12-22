@@ -854,6 +854,44 @@
                     }
                 }
                 
+                // Create visible debug panel
+                const debugInfo = `
+=== COOLDOWN UPDATE DEBUG INFO ===
+
+SESSION INFO:
+• Admin Username: {{ request.session.admin_username }}
+• Admin User ID: {{ request.session.admin_user_id }}
+• Session Key: {{ request.session.session_key }}
+
+COOKIES:
+${document.cookie || 'NO COOKIES FOUND'}
+
+CSRF TOKEN:
+• Status: ${csrftoken ? 'FOUND ✓' : '❌ MISSING'}
+• Value: ${csrftoken ? csrftoken.substring(0, 20) + '...' : 'N/A'}
+
+SESSION COOKIE:
+• ekolek_session: ${document.cookie.includes('ekolek_session') ? 'Present ✓' : '❌ MISSING'}
+
+FORM DATA:
+${JSON.stringify(Object.fromEntries(formData), null, 2)}
+                `.trim();
+                
+                // Show debug panel before making request
+                const debugPanel = document.createElement('div');
+                debugPanel.style.cssText = 'position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 1.5rem; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); z-index: 99999; max-width: 600px; max-height: 70vh; overflow-y: auto; font-family: monospace; font-size: 12px; white-space: pre-wrap; border: 2px solid #3b82f6;';
+                debugPanel.innerHTML = `
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #475569; padding-bottom: 0.5rem;">
+                        <strong style="color: #60a5fa; font-size: 14px;">🔍 DEBUG INFORMATION</strong>
+                        <button onclick="this.parentElement.parentElement.remove()" style="background: #ef4444; border: none; color: white; padding: 0.25rem 0.75rem; border-radius: 6px; cursor: pointer; font-size: 12px;">Close</button>
+                    </div>
+                    <div style="line-height: 1.6;">${debugInfo.replace(/\n/g, '<br>')}</div>
+                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #475569; color: #fbbf24;">
+                        <strong>⏳ Sending request...</strong>
+                    </div>
+                `;
+                document.body.appendChild(debugPanel);
+                
                 console.log('=== COOLDOWN UPDATE ATTEMPT ===');
                 console.log('Admin logged in:', '{{ request.session.admin_username }}');
                 console.log('Admin user ID:', '{{ request.session.admin_user_id }}');
@@ -893,13 +931,40 @@
                     // Handle 401 Unauthorized (not logged in)
                     if (response.status === 401) {
                         console.error('⛔ 401 UNAUTHORIZED - Admin session missing or expired');
+                        
+                        // Update debug panel with error
+                        debugPanel.querySelector('div:last-child').innerHTML = `
+                            <strong style="color: #ef4444;">❌ ERROR 401 - UNAUTHORIZED</strong><br><br>
+                            <span style="color: #fca5a5;">Your admin session has expired or is missing.</span><br><br>
+                            <strong>SOLUTION:</strong><br>
+                            1. Go to: <a href="/cenro/admin/login/" style="color: #60a5fa;">/cenro/admin/login/</a><br>
+                            2. Log in with admin credentials<br>
+                            3. Return to this page and try again<br><br>
+                            <strong>Session Cookie Missing?</strong><br>
+                            Check if "ekolek_session" cookie is present above.
+                        `;
+                        
                         throw new Error('Your admin session has expired. Please log in to the admin panel again.');
                     }
+                    
+                    // Update debug panel with response info
+                    debugPanel.querySelector('div:last-child').innerHTML = `
+                        <strong style="color: #10b981;">✓ Response Received</strong><br>
+                        Status: ${response.status}<br>
+                        Content-Type: ${contentType || 'N/A'}
+                    `;
                     
                     // Check if response is JSON
                     if (!contentType || !contentType.includes('application/json')) {
                         const text = await response.text();
                         console.error('Non-JSON response:', text.substring(0, 500));
+                        
+                        // Update debug panel
+                        debugPanel.querySelector('div:last-child').innerHTML = `
+                            <strong style="color: #ef4444;">❌ Non-JSON Response</strong><br><br>
+                            Response Text (first 500 chars):<br>
+                            <div style="background: #0f172a; padding: 0.5rem; border-radius: 4px; margin-top: 0.5rem; overflow-x: auto;">${text.substring(0, 500).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+                        `;
                         
                         // Check for common error patterns
                         if (text.includes('CSRF') || text.includes('csrf')) {
@@ -917,7 +982,17 @@
                     
                     const data = await response.json();
                     
+                    // Update debug panel with success
+                    debugPanel.querySelector('div:last-child').innerHTML = `
+                        <strong style="color: #10b981;">✅ SUCCESS!</strong><br><br>
+                        Server Response:<br>
+                        <div style="background: #0f172a; padding: 0.5rem; border-radius: 4px; margin-top: 0.5rem;">${JSON.stringify(data, null, 2)}</div>
+                    `;
+                    
                     if (data.success) {
+                        // Close debug panel after 3 seconds
+                        setTimeout(() => debugPanel.remove(), 3000);
+                        
                         // Show success message
                         const successMsg = document.createElement('div');
                         successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 9999; animation: slideIn 0.3s ease-out;';
@@ -953,6 +1028,18 @@
                     console.error('Game type:', gameType);
                     console.error('Form element:', form);
                     console.error('=====================');
+                    
+                    // Update debug panel with error details
+                    if (debugPanel && debugPanel.parentElement) {
+                        debugPanel.querySelector('div:last-child').innerHTML = `
+                            <strong style="color: #ef4444;">❌ ERROR CAUGHT</strong><br><br>
+                            <strong>Error Type:</strong> ${error.name}<br>
+                            <strong>Error Message:</strong><br>
+                            <div style="background: #7f1d1d; padding: 0.5rem; border-radius: 4px; margin: 0.5rem 0; color: #fca5a5;">${error.message}</div>
+                            <strong>Game Type:</strong> ${gameType}<br><br>
+                            <div style="color: #fbbf24;">⚠️ Debug panel will stay open. Click "Close" when done.</div>
+                        `;
+                    }
                     
                     const errorMsg = document.createElement('div');
                     errorMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #ef4444; color: white; padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 9999; animation: slideIn 0.3s ease-out;';
