@@ -191,10 +191,24 @@ def delete_item(request, item_id):
 
 
 # Game Configuration Management
+@csrf_exempt  # Exempt from default CSRF, we'll check manually
 @admin_required
-@require_POST
 def update_game_cooldown(request):
     """Update game cooldown configuration"""
+    # Manual CSRF token verification for AJAX requests
+    if request.method == 'POST':
+        csrf_token = request.headers.get('X-CSRFToken') or request.POST.get('csrfmiddlewaretoken')
+        if not csrf_token:
+            logger.error("CSRF token missing in request")
+            return JsonResponse({'success': False, 'error': 'CSRF token missing'}, status=403)
+        
+        # Verify the CSRF token matches
+        from django.middleware.csrf import get_token
+        expected_token = get_token(request)
+        if csrf_token != expected_token:
+            logger.error(f"CSRF token mismatch. Got: {csrf_token[:10]}..., Expected: {expected_token[:10]}...")
+            return JsonResponse({'success': False, 'error': 'CSRF verification failed'}, status=403)
+    
     # Log incoming request for debugging
     logger.info(f"Cooldown update request received from {request.session.get('admin_username', 'unknown')}")
     logger.info(f"POST data: {dict(request.POST)}")

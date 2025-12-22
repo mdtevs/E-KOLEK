@@ -534,8 +534,8 @@
                                                        style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; font-weight: 600; color: #1f2937;">
                                                 <small style="display: block; margin-top: 0.25rem; color: #6b7280; font-size: 0.8rem;">Days (0-30)</small>
                                             </div>
-                                            <input type="hidden" name="cooldown_hours" id="quiz-cooldown_hours" value="{{ game_configs.quiz.cooldown_hours }}">
-                                            <input type="hidden" name="cooldown_minutes" id="quiz-cooldown_minutes" value="{{ game_configs.quiz.cooldown_minutes }}">
+                                            <input type="hidden" name="cooldown_hours" id="quiz-cooldown_hours" value="{{ game_configs.quiz.cooldown_hours|default:0 }}">
+                                            <input type="hidden" name="cooldown_minutes" id="quiz-cooldown_minutes" value="{{ game_configs.quiz.cooldown_minutes|default:0 }}">
                                         </div>
                                     </div>
                                     
@@ -635,8 +635,8 @@
                                                        style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; font-weight: 600; color: #1f2937;">
                                                 <small style="display: block; margin-top: 0.25rem; color: #6b7280; font-size: 0.8rem;">Days (0-30)</small>
                                             </div>
-                                            <input type="hidden" name="cooldown_hours" id="dragdrop-cooldown_hours" value="{{ game_configs.drag_drop.cooldown_hours }}">
-                                            <input type="hidden" name="cooldown_minutes" id="dragdrop-cooldown_minutes" value="{{ game_configs.drag_drop.cooldown_minutes }}">
+                                            <input type="hidden" name="cooldown_hours" id="dragdrop-cooldown_hours" value="{{ game_configs.drag_drop.cooldown_hours|default:0 }}">
+                                            <input type="hidden" name="cooldown_minutes" id="dragdrop-cooldown_minutes" value="{{ game_configs.drag_drop.cooldown_minutes|default:0 }}">
                                         </div>
                                     </div>
                                     
@@ -736,8 +736,8 @@
                                                        style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; font-weight: 600; color: #1f2937;">
                                                 <small style="display: block; margin-top: 0.25rem; color: #6b7280; font-size: 0.8rem;">Days (0-30)</small>
                                             </div>
-                                            <input type="hidden" name="cooldown_hours" id="default-cooldown_hours" value="{{ game_configs.all.cooldown_hours }}">
-                                            <input type="hidden" name="cooldown_minutes" id="default-cooldown_minutes" value="{{ game_configs.all.cooldown_minutes }}">
+                                            <input type="hidden" name="cooldown_hours" id="default-cooldown_hours" value="{{ game_configs.all.cooldown_hours|default:0 }}">
+                                            <input type="hidden" name="cooldown_minutes" id="default-cooldown_minutes" value="{{ game_configs.all.cooldown_minutes|default:0 }}">
                                         </div>
                                     </div>
                                     
