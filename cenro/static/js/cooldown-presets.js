@@ -49,19 +49,26 @@ function setCooldown(gameType, days) {
     updateDurationDisplay(gameType, days, converted.hours);
     
     // Visual feedback for selected preset
-    const form = document.getElementById(`${gameType}-cooldown-form`) || document.getElementById(`${gameType.replace('dragdrop', 'dragdrop')}-cooldown-form`);
+    const actualGameType = gameType === 'default' ? 'default' : gameType.replace('dragdrop', 'dragdrop');
+    const form = document.getElementById(`${actualGameType}-cooldown-form`);
     if (form) {
         const buttons = form.querySelectorAll('.preset-btn');
         buttons.forEach(btn => {
             btn.style.borderColor = '#e5e7eb';
             btn.style.background = 'white';
             btn.style.color = '#374151';
+            btn.style.fontWeight = '600';
         });
         
-        // Highlight selected button
-        event.target.style.borderColor = '#667eea';
-        event.target.style.background = '#eff6ff';
-        event.target.style.color = '#667eea';
+        // Highlight selected button with smooth transition
+        if (event && event.target) {
+            event.target.style.borderColor = '#667eea';
+            event.target.style.background = 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)';
+            event.target.style.color = '#667eea';
+            event.target.style.fontWeight = '700';
+            event.target.style.transform = 'scale(1.05)';
+            event.target.style.boxShadow = '0 2px 8px rgba(102, 126, 234, 0.2)';
+        }
     }
 }
 
@@ -85,13 +92,17 @@ function updateCooldownFromDays(gameType) {
     updateDurationDisplay(gameType, days, converted.hours);
     
     // Reset preset button highlights
-    const form = document.getElementById(`${gameType}-cooldown-form`) || document.getElementById(`${gameType.replace('dragdrop', 'dragdrop')}-cooldown-form`);
+    const actualGameType = gameType === 'default' ? 'default' : gameType.replace('dragdrop', 'dragdrop');
+    const form = document.getElementById(`${actualGameType}-cooldown-form`);
     if (form) {
         const buttons = form.querySelectorAll('.preset-btn');
         buttons.forEach(btn => {
             btn.style.borderColor = '#e5e7eb';
             btn.style.background = 'white';
             btn.style.color = '#374151';
+            btn.style.fontWeight = '600';
+            btn.style.transform = 'scale(1)';
+            btn.style.boxShadow = 'none';
         });
     }
 }

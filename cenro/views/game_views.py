@@ -204,10 +204,10 @@ def update_game_cooldown(request):
             is_active = request.POST.get('is_active') == 'on'
             
             # Validate input
-            if cooldown_hours < 0 or cooldown_hours > 168:  # Max 1 week
+            if cooldown_hours < 0 or cooldown_hours > 720:  # Max 30 days
                 return JsonResponse({
                     'success': False, 
-                    'error': 'Hours must be between 0 and 168 (1 week)'
+                    'error': 'Hours must be between 0 and 720 (30 days)'
                 })
             
             if cooldown_minutes < 0 or cooldown_minutes > 59:

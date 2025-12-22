@@ -478,7 +478,7 @@
                     </div>
                     <div class="card-body" style="padding: 2rem; background: #f9fafb;">
                         <!-- Cooldown Configurations Grid -->
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 2rem; max-width: 1400px; margin: 0 auto;">
                             
                             <!-- Quiz Game Cooldown -->
                             <div class="cooldown-config-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 2px solid #e5e7eb;">
@@ -841,7 +841,9 @@
                 
                 const formData = new FormData(e.target);
                 formData.append('game_type', gameType);
-                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+                
+                // Get CSRF token from cookie or hidden input
+                const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
                 
                 // Get the submit button
                 const submitBtn = form.querySelector('button[type="submit"]');
@@ -855,9 +857,10 @@
                     const response = await fetch('{% url "cenro:update_game_cooldown" %}', {
                         method: 'POST',
                         headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRFToken': csrftoken
                         },
-                        credentials: 'same-origin',  // Include cookies in the request
+                        credentials: 'same-origin',
                         body: formData
                     });
                     
@@ -869,8 +872,20 @@
                     // Check if response is JSON
                     if (!contentType || !contentType.includes('application/json')) {
                         const text = await response.text();
-                        console.error('Non-JSON response:', text.substring(0, 200));
-                        throw new Error('Server returned HTML instead of JSON. Please ensure you are logged in as admin.');
+                        console.error('Non-JSON response:', text.substring(0, 500));
+                        
+                        // Check for common error patterns
+                        if (text.includes('CSRF') || text.includes('csrf')) {
+                            throw new Error('CSRF verification failed. Please refresh the page and try again.');
+                        } else if (text.includes('login') || text.includes('authentication')) {
+                            throw new Error('Session expired. Please login again.');
+                        } else if (response.status === 403) {
+                            throw new Error('Permission denied. Please ensure you have admin access.');
+                        } else if (response.status === 404) {
+                            throw new Error('API endpoint not found. Please contact support.');
+                        } else {
+                            throw new Error(`Server error (${response.status}). Please check the console for details.`);
+                        }
                     }
                     
                     const data = await response.json();
@@ -984,6 +999,23 @@
                 color: #991b1b;
                 font-size: 0.85rem;
                 font-weight: 600;
+            }
+            .preset-btn {
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .preset-btn:hover {
+                border-color: #cbd5e1 !important;
+                background: #f8fafc !important;
+                transform: translateY(-1px);
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            }
+            .preset-btn:active {
+                transform: translateY(0);
+            }
+            @media (max-width: 768px) {
+                .cooldown-config-card {
+                    padding: 1rem !important;
+                }
             }
         `;
         document.head.appendChild(style);
