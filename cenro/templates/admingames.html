@@ -975,19 +975,30 @@ ${JSON.stringify(Object.fromEntries(formData), null, 2)}
                     if (response.status === 401) {
                         console.error('⛔ 401 UNAUTHORIZED - Admin session missing or expired');
                         
-                        // Update debug panel with error
+                        // Try to get the backend error message
+                        let backendError = 'Unknown error';
+                        try {
+                            const errorData = await response.json();
+                            backendError = JSON.stringify(errorData, null, 2);
+                        } catch (e) {
+                            backendError = 'Could not parse backend response';
+                        }
+                        
+                        // Update debug panel with error AND backend response
                         debugPanel.querySelector('div:last-child').innerHTML = `
                             <strong style="color: #ef4444;">❌ ERROR 401 - UNAUTHORIZED</strong><br><br>
-                            <span style="color: #fca5a5;">Your admin session has expired or is missing.</span><br><br>
+                            <strong>Backend Response:</strong><br>
+                            <div style="background: #7f1d1d; padding: 0.5rem; border-radius: 4px; margin: 0.5rem 0; color: #fca5a5;">${backendError}</div>
+                            <br>
                             <strong>SOLUTION:</strong><br>
                             1. Go to: <a href="/cenro/admin/login/" style="color: #60a5fa;">/cenro/admin/login/</a><br>
                             2. Log in with admin credentials<br>
                             3. Return to this page and try again<br><br>
-                            <strong>Session Cookie Missing?</strong><br>
-                            Check if "ekolek_session" cookie is present above.
+                            <strong>Session Cookie Present?</strong><br>
+                            ${document.cookie.includes('ekolek_session') ? '✓ Yes' : '❌ No - This is the problem!'}
                         `;
                         
-                        throw new Error('Your admin session has expired. Please log in to the admin panel again.');
+                        throw new Error('Backend returned 401. See debug panel for details.');
                     }
                     
                     // Update debug panel with response info
