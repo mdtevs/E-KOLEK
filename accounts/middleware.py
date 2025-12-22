@@ -10,10 +10,6 @@ class AdminContextMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        # DEBUG: Log for API endpoints
-        if request.path.startswith('/api/game/'):
-            print(f"🟡 AdminContextMiddleware: Processing {request.path}")
-        
         # Check for session-based admin authentication
         admin_user_id = request.session.get('admin_user_id')
         if admin_user_id:
@@ -56,9 +52,4 @@ class AdminContextMiddleware:
             request.admin_context = {}
         
         response = self.get_response(request)
-        
-        # DEBUG: Log response for API endpoints
-        if request.path.startswith('/api/game/'):
-            print(f"🟡 AdminContextMiddleware: Response status={response.status_code}")
-        
         return response

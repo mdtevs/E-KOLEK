@@ -91,8 +91,7 @@ urlpatterns = [
     path('add_item/', add_item, name='add_item'),
     path('delete_item/<uuid:item_id>/', delete_item, name='delete_item'),
     
-    # Game configuration endpoints - MOVED OUT OF /api/ to avoid DRF interception
-    path('game/test-session/', test_session_debug, name='test_session_debug'),
+    # Game configuration endpoints
     path('game/cooldown/update/', update_game_cooldown, name='update_game_cooldown'),
     path('game/cooldown/<str:game_type>/', get_game_cooldown, name='admin_get_game_cooldown'),
 

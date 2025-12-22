@@ -200,67 +200,16 @@ def delete_item(request, item_id):
     return JsonResponse({'success': False})
 
 
-# Session Debug Test Endpoint
-def test_session_debug(request):
-    """Test endpoint to check session data without @admin_required"""
-    import json
-    
-    session_data = {
-        'session_key': request.session.session_key,
-        'session_cookie_from_request': request.COOKIES.get('ekolek_session', 'NOT FOUND'),
-        'session_data': dict(request.session),
-        'admin_user_id': request.session.get('admin_user_id'),
-        'admin_user_id_type': str(type(request.session.get('admin_user_id'))),
-        'admin_username': request.session.get('admin_username'),
-        'session_is_empty': request.session.is_empty(),
-        'session_exists': request.session.exists(request.session.session_key) if request.session.session_key else False,
-        'all_cookies': dict(request.COOKIES),
-    }
-    
-    logger.info(f"=== TEST SESSION DEBUG ===")
-    logger.info(json.dumps(session_data, indent=2, default=str))
-    
-    return JsonResponse({
-        'success': True,
-        'message': 'Session data retrieved successfully',
-        'data': session_data
-    })
-
-
 # Game Configuration Management
-@require_http_methods(["POST"])  # Plain Django decorator - DRF won't touch this
+@require_http_methods(["POST"])
 def update_game_cooldown(request):
-    """Update game cooldown configuration - BYPASSING DRF COMPLETELY"""
-    try:
-        print("🔥🔥🔥 VIEW FUNCTION STARTED - TOP OF FUNCTION 🔥🔥🔥")
-        
-        import uuid as uuid_module
-        
-        # CRITICAL logging to ensure it appears in Railway logs
-        print("=" * 80)
-        print("🔥 COOLDOWN UPDATE FUNCTION CALLED - VIEW EXECUTING!")
-        print("=" * 80)
-        
-        logger.critical("=" * 80)
-        logger.critical("🔥 COOLDOWN UPDATE REQUEST - VIEW FUNCTION STARTED")
-        logger.critical(f"REQUEST COOKIES: {dict(request.COOKIES)}")
-        logger.critical(f"Session cookie from request: {request.COOKIES.get('ekolek_session', 'NOT FOUND')}")
-        logger.critical(f"Session ID from Django: {request.session.session_key}")
-        logger.critical(f"Session data: {dict(request.session)}")
-        logger.critical(f"Session is empty: {request.session.is_empty()}")
-        logger.critical(f"Admin User ID in session: {request.session.get('admin_user_id')}")
-        logger.critical("=" * 80)
-    except Exception as e:
-        print(f"❌❌❌ EXCEPTION AT TOP OF VIEW: {e}")
-        logger.critical(f"❌ EXCEPTION: {e}")
-        import traceback
-        traceback.print_exc()
-        return JsonResponse({'success': False, 'error': f'Exception: {str(e)}'}, status=500)
+    """Update game cooldown configuration"""
+    import uuid as uuid_module
     
     # Check if admin is logged in
     admin_user_id = request.session.get('admin_user_id')
     if not admin_user_id:
-        logger.error("❌ No admin_user_id in session")
+        logger.warning("Cooldown update attempted without admin session")
         return JsonResponse({'success': False, 'error': 'Not authenticated'}, status=401)
     
     # Convert to UUID and get admin user
@@ -269,14 +218,9 @@ def update_game_cooldown(request):
             admin_user_id = uuid_module.UUID(admin_user_id)
         
         admin_user = AdminUser.objects.get(id=admin_user_id, is_active=True)
-        logger.info(f"✓ Authenticated as: {admin_user.username}")
     except (ValueError, AdminUser.DoesNotExist) as e:
-        logger.error(f"❌ Authentication failed: {e}")
+        logger.warning(f"Invalid admin session during cooldown update: {e}")
         return JsonResponse({'success': False, 'error': 'Invalid session'}, status=401)
-    
-    # Log incoming request for debugging
-    logger.info(f"Cooldown update request received from {admin_user.username}")
-    logger.info(f"POST data: {dict(request.POST)}")
     
     try:
         game_type = request.POST.get('game_type', 'all')

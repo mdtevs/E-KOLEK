@@ -469,16 +469,6 @@
                         <!-- Game Cooldown Configuration Tab -->
             <div id="cooldownTab" class="tab-content" style="display: none;">
                 
-                <!-- Debug Test Button -->
-                <div style="background: #fef3c7; border: 2px solid #f59e0b; border-radius: 8px; padding: 1rem; margin-bottom: 2rem;">
-                    <h3 style="color: #92400e; margin: 0 0 0.5rem 0;">🔧 Session Debug Test</h3>
-                    <p style="color: #78350f; margin: 0 0 1rem 0; font-size: 14px;">Click this button to test if the backend can read your session:</p>
-                    <button onclick="testSessionDebug()" style="background: #f59e0b; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; cursor: pointer; font-weight: 600;">
-                        Test Backend Session
-                    </button>
-                    <div id="sessionTestResult" style="margin-top: 1rem; padding: 1rem; background: white; border-radius: 6px; display: none; font-family: monospace; font-size: 12px; white-space: pre-wrap;"></div>
-                </div>
-
                 <div class="card mt-4">
                     <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; border-radius: 8px 8px 0 0; margin-bottom: 0;">
                         <h2 style="margin: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">
@@ -840,38 +830,6 @@
     <script src="{% static 'js/points-input-handler.js' %}?v={{ timestamp }}"></script>
 	<script src="{% static 'js/admin_notifications.js' %}"></script>
     
-    <!-- Session Debug Test Script -->
-    <script>
-        async function testSessionDebug() {
-            const resultDiv = document.getElementById('sessionTestResult');
-            resultDiv.style.display = 'block';
-            resultDiv.innerHTML = '⏳ Testing backend session...';
-            
-            try {
-                const response = await fetch('{% url "cenro:test_session_debug" %}', {
-                    method: 'GET',
-                    credentials: 'same-origin'
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    resultDiv.style.background = '#d1fae5';
-                    resultDiv.style.color = '#065f46';
-                    resultDiv.innerHTML = `✅ SUCCESS - Backend Session Data:\n\n${JSON.stringify(data, null, 2)}`;
-                } else {
-                    resultDiv.style.background = '#fee2e2';
-                    resultDiv.style.color = '#991b1b';
-                    resultDiv.innerHTML = `❌ ERROR ${response.status}:\n\n${JSON.stringify(data, null, 2)}`;
-                }
-            } catch (error) {
-                resultDiv.style.background = '#fee2e2';
-                resultDiv.style.color = '#991b1b';
-                resultDiv.innerHTML = `❌ EXCEPTION:\n\n${error.message}`;
-            }
-        }
-    </script>
-    
     <!-- Game Cooldown Configuration Script -->
     <script>
         // Handle cooldown form submissions
@@ -897,53 +855,6 @@
                     }
                 }
                 
-                // Create visible debug panel
-                const debugInfo = `
-=== COOLDOWN UPDATE DEBUG INFO ===
-
-SESSION INFO:
-• Admin Username: {{ request.session.admin_username }}
-• Admin User ID: {{ request.session.admin_user_id }}
-• Session Key: {{ request.session.session_key }}
-
-COOKIES:
-${document.cookie || 'NO COOKIES FOUND'}
-
-CSRF TOKEN:
-• Status: ${csrftoken ? 'FOUND ✓' : '❌ MISSING'}
-• Value: ${csrftoken ? csrftoken.substring(0, 20) + '...' : 'N/A'}
-
-SESSION COOKIE:
-• ekolek_session: ${document.cookie.includes('ekolek_session') ? 'Present ✓' : '❌ MISSING'}
-
-FORM DATA:
-${JSON.stringify(Object.fromEntries(formData), null, 2)}
-                `.trim();
-                
-                // Show debug panel before making request
-                const debugPanel = document.createElement('div');
-                debugPanel.style.cssText = 'position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: #1e293b; color: #fff; padding: 1.5rem; border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); z-index: 99999; max-width: 600px; max-height: 70vh; overflow-y: auto; font-family: monospace; font-size: 12px; white-space: pre-wrap; border: 2px solid #3b82f6;';
-                debugPanel.innerHTML = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #475569; padding-bottom: 0.5rem;">
-                        <strong style="color: #60a5fa; font-size: 14px;">🔍 DEBUG INFORMATION</strong>
-                        <button onclick="this.parentElement.parentElement.remove()" style="background: #ef4444; border: none; color: white; padding: 0.25rem 0.75rem; border-radius: 6px; cursor: pointer; font-size: 12px;">Close</button>
-                    </div>
-                    <div style="line-height: 1.6;">${debugInfo.replace(/\n/g, '<br>')}</div>
-                    <div style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #475569; color: #fbbf24;">
-                        <strong>⏳ Sending request...</strong>
-                    </div>
-                `;
-                document.body.appendChild(debugPanel);
-                
-                console.log('=== COOLDOWN UPDATE ATTEMPT ===');
-                console.log('Admin logged in:', '{{ request.session.admin_username }}');
-                console.log('Admin user ID:', '{{ request.session.admin_user_id }}');
-                console.log('Session Key:', '{{ request.session.session_key }}');
-                console.log('All Cookies:', document.cookie);
-                console.log('CSRF Token:', csrftoken ? 'Found (' + csrftoken.substring(0, 10) + '...)' : 'MISSING!');
-                console.log('Session Cookie (ekolek_session):', document.cookie.includes('ekolek_session') ? 'Present' : 'MISSING!');
-                console.log('Form Data:', Object.fromEntries(formData));
-                
                 // Get the submit button
                 const submitBtn = form.querySelector('button[type="submit"]');
                 const originalText = submitBtn.innerHTML;
@@ -951,9 +862,6 @@ ${JSON.stringify(Object.fromEntries(formData), null, 2)}
                 // Show loading state
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<i class="bx bx-loader bx-spin"></i> Updating...';
-                
-                console.log('Sending request to:', '{% url "cenro:update_game_cooldown" %}');
-                console.log('Request headers:', { 'X-CSRFToken': csrftoken });
                 
                 try {
                     const response = await fetch('{% url "cenro:update_game_cooldown" %}', {
@@ -966,59 +874,15 @@ ${JSON.stringify(Object.fromEntries(formData), null, 2)}
                         body: formData
                     });
                     
-                    // Log response for debugging
-                    const contentType = response.headers.get('content-type');
-                    console.log('Response status:', response.status);
-                    console.log('Content-Type:', contentType);
-                    
-                    // Handle 401 Unauthorized (not logged in)
+                    // Handle 401 Unauthorized
                     if (response.status === 401) {
-                        console.error('⛔ 401 UNAUTHORIZED - Admin session missing or expired');
-                        
-                        // Try to get the backend error message
-                        let backendError = 'Unknown error';
-                        try {
-                            const errorData = await response.json();
-                            backendError = JSON.stringify(errorData, null, 2);
-                        } catch (e) {
-                            backendError = 'Could not parse backend response';
-                        }
-                        
-                        // Update debug panel with error AND backend response
-                        debugPanel.querySelector('div:last-child').innerHTML = `
-                            <strong style="color: #ef4444;">❌ ERROR 401 - UNAUTHORIZED</strong><br><br>
-                            <strong>Backend Response:</strong><br>
-                            <div style="background: #7f1d1d; padding: 0.5rem; border-radius: 4px; margin: 0.5rem 0; color: #fca5a5;">${backendError}</div>
-                            <br>
-                            <strong>SOLUTION:</strong><br>
-                            1. Go to: <a href="/cenro/admin/login/" style="color: #60a5fa;">/cenro/admin/login/</a><br>
-                            2. Log in with admin credentials<br>
-                            3. Return to this page and try again<br><br>
-                            <strong>Session Cookie Present?</strong><br>
-                            ${document.cookie.includes('ekolek_session') ? '✓ Yes' : '❌ No - This is the problem!'}
-                        `;
-                        
-                        throw new Error('Backend returned 401. See debug panel for details.');
+                        throw new Error('Session expired. Please login again at /cenro/admin/login/');
                     }
                     
-                    // Update debug panel with response info
-                    debugPanel.querySelector('div:last-child').innerHTML = `
-                        <strong style="color: #10b981;">✓ Response Received</strong><br>
-                        Status: ${response.status}<br>
-                        Content-Type: ${contentType || 'N/A'}
-                    `;
-                    
                     // Check if response is JSON
+                    const contentType = response.headers.get('content-type');
                     if (!contentType || !contentType.includes('application/json')) {
                         const text = await response.text();
-                        console.error('Non-JSON response:', text.substring(0, 500));
-                        
-                        // Update debug panel
-                        debugPanel.querySelector('div:last-child').innerHTML = `
-                            <strong style="color: #ef4444;">❌ Non-JSON Response</strong><br><br>
-                            Response Text (first 500 chars):<br>
-                            <div style="background: #0f172a; padding: 0.5rem; border-radius: 4px; margin-top: 0.5rem; overflow-x: auto;">${text.substring(0, 500).replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
-                        `;
                         
                         // Check for common error patterns
                         if (text.includes('CSRF') || text.includes('csrf')) {
@@ -1036,18 +900,7 @@ ${JSON.stringify(Object.fromEntries(formData), null, 2)}
                     
                     const data = await response.json();
                     
-                    // Update debug panel with success
-                    debugPanel.querySelector('div:last-child').innerHTML = `
-                        <strong style="color: #10b981;">✅ SUCCESS!</strong><br><br>
-                        Server Response:<br>
-                        <div style="background: #0f172a; padding: 0.5rem; border-radius: 4px; margin-top: 0.5rem;">${JSON.stringify(data, null, 2)}</div>
-                    `;
-                    
                     if (data.success) {
-                        // Close debug panel after 3 seconds
-                        setTimeout(() => debugPanel.remove(), 3000);
-                        
-                        // Show success message
                         const successMsg = document.createElement('div');
                         successMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #10b981; color: white; padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 9999; animation: slideIn 0.3s ease-out;';
                         successMsg.innerHTML = '<i class="bx bx-check-circle"></i> Game cooldown updated successfully!';
@@ -1075,26 +928,6 @@ ${JSON.stringify(Object.fromEntries(formData), null, 2)}
                         submitBtn.innerHTML = originalText;
                     }
                 } catch (error) {
-                    console.error('==== ERROR DETAILS ====');
-                    console.error('Error type:', error.name);
-                    console.error('Error message:', error.message);
-                    console.error('Error stack:', error.stack);
-                    console.error('Game type:', gameType);
-                    console.error('Form element:', form);
-                    console.error('=====================');
-                    
-                    // Update debug panel with error details
-                    if (debugPanel && debugPanel.parentElement) {
-                        debugPanel.querySelector('div:last-child').innerHTML = `
-                            <strong style="color: #ef4444;">❌ ERROR CAUGHT</strong><br><br>
-                            <strong>Error Type:</strong> ${error.name}<br>
-                            <strong>Error Message:</strong><br>
-                            <div style="background: #7f1d1d; padding: 0.5rem; border-radius: 4px; margin: 0.5rem 0; color: #fca5a5;">${error.message}</div>
-                            <strong>Game Type:</strong> ${gameType}<br><br>
-                            <div style="color: #fbbf24;">⚠️ Debug panel will stay open. Click "Close" when done.</div>
-                        `;
-                    }
-                    
                     const errorMsg = document.createElement('div');
                     errorMsg.style.cssText = 'position: fixed; top: 20px; right: 20px; background: #ef4444; color: white; padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 9999; animation: slideIn 0.3s ease-out;';
                     errorMsg.innerHTML = '<i class="bx bx-error-circle"></i> Failed to update cooldown: ' + error.message;
