@@ -55,63 +55,66 @@ function showErrorNotification(message) {
         document.getElementById('questionForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const questionText = document.getElementById('questionText').value;
-            const questionPoints = document.getElementById('questionPoints').value;
-            const choiceTexts = Array.from(document.querySelectorAll('.choice-text')).map(input => input.value);
-            const correctChoiceIndex = document.querySelector('input[name="correctChoice"]:checked').value;
-            
-            try {
-                // Use AdminUtils if available, fallback to manual method
-                let formData;
-                if (window.AdminUtils) {
-                    formData = AdminUtils.createFormDataWithCSRF({
-                        question_text: questionText,
-                        question_points: questionPoints,
-                        choices: choiceTexts,
-                        correct_choice: correctChoiceIndex
-                    });
-                } else {
-                    // Fallback method
-                    if (!window.CSRF_TOKEN) {
-                        showErrorNotification('CSRF token not found. Please refresh the page.');
-                        return;
+            // Show confirmation modal before submitting
+            showConfirmation(e, 'add', 'Question', async function() {
+                const questionText = document.getElementById('questionText').value;
+                const questionPoints = document.getElementById('questionPoints').value;
+                const choiceTexts = Array.from(document.querySelectorAll('.choice-text')).map(input => input.value);
+                const correctChoiceIndex = document.querySelector('input[name="correctChoice"]:checked').value;
+                
+                try {
+                    // Use AdminUtils if available, fallback to manual method
+                    let formData;
+                    if (window.AdminUtils) {
+                        formData = AdminUtils.createFormDataWithCSRF({
+                            question_text: questionText,
+                            question_points: questionPoints,
+                            choices: choiceTexts,
+                            correct_choice: correctChoiceIndex
+                        });
+                    } else {
+                        // Fallback method
+                        if (!window.CSRF_TOKEN) {
+                            showErrorNotification('CSRF token not found. Please refresh the page.');
+                            return;
+                        }
+                        
+                        formData = new FormData();
+                        formData.append('csrfmiddlewaretoken', window.CSRF_TOKEN);
+                        formData.append('question_text', questionText);
+                        formData.append('question_points', questionPoints);
+                        formData.append('choices', JSON.stringify(choiceTexts));
+                        formData.append('correct_choice', correctChoiceIndex);
                     }
                     
-                    formData = new FormData();
-                    formData.append('csrfmiddlewaretoken', window.CSRF_TOKEN);
-                    formData.append('question_text', questionText);
-                    formData.append('question_points', questionPoints);
-                    formData.append('choices', JSON.stringify(choiceTexts));
-                    formData.append('correct_choice', correctChoiceIndex);
-                }
-                
-                const response = await fetch(window.DJANGO_URLS.addQuestion, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': window.AdminUtils ? AdminUtils.getCSRFToken() : window.CSRF_TOKEN,
-                    },
-                    body: formData
-                });
-                
-                if (window.AdminUtils) {
-                    await AdminUtils.handleResponse(response, 'Question added successfully!');
-                    location.reload();
-                } else {
-                    // Fallback error handling
-                    if (response.ok) {
-                        const result = await response.json();
-                        showSuccessNotification('Question added successfully! Question ID: ' + result.question_id);
-                        setTimeout(() => location.reload(), 1500);
+                    const response = await fetch(window.DJANGO_URLS.addQuestion, {
+                        method: 'POST',
+                        headers: {
+                            'X-CSRFToken': window.AdminUtils ? AdminUtils.getCSRFToken() : window.CSRF_TOKEN,
+                        },
+                        body: formData
+                    });
+                    
+                    if (window.AdminUtils) {
+                        await AdminUtils.handleResponse(response, 'Question added successfully!');
+                        location.reload();
                     } else {
-                        const errorData = await response.json();
-                        showErrorNotification('Error adding question: ' + (errorData.error || 'Unknown error'));
-                        console.error('Server response:', errorData);
+                        // Fallback error handling
+                        if (response.ok) {
+                            const result = await response.json();
+                            showSuccessNotification('Question added successfully! Question ID: ' + result.question_id);
+                            setTimeout(() => location.reload(), 1500);
+                        } else {
+                            const errorData = await response.json();
+                            showErrorNotification('Error adding question: ' + (errorData.error || 'Unknown error'));
+                            console.error('Server response:', errorData);
+                        }
                     }
+                } catch (error) {
+                    showErrorNotification('Error: ' + error.message);
+                    console.error('Fetch error:', error);
                 }
-            } catch (error) {
-                showErrorNotification('Error: ' + error.message);
-                console.error('Fetch error:', error);
-            }
+            });
         });
 
         async function deleteQuestion(questionId) {

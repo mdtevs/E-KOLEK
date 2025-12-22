@@ -201,42 +201,46 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const questionId = document.getElementById('questionId').value;
             const isEdit = questionId !== '';
+            const actionType = isEdit ? 'update' : 'add';
             
-            const formData = new FormData();
-            formData.append('csrfmiddlewaretoken', QUIZ_CONFIG.csrfToken);
-            formData.append('video_id', QUIZ_CONFIG.videoId);
-            formData.append('question_text', document.getElementById('questionText').value);
-            formData.append('option_a', document.getElementById('optionA').value);
-            formData.append('option_b', document.getElementById('optionB').value);
-            formData.append('option_c', document.getElementById('optionC').value);
-            formData.append('option_d', document.getElementById('optionD').value);
-            formData.append('correct_answer', document.getElementById('correctAnswer').value);
-            formData.append('points_reward', document.getElementById('pointsReward').value);
-            formData.append('order', document.getElementById('order').value);
-            formData.append('explanation', document.getElementById('explanation').value);
-            
-            if (isEdit) {
-                formData.append('question_id', questionId);
-            }
-            
-            const url = isEdit ? QUIZ_CONFIG.urls.editQuestion : QUIZ_CONFIG.urls.addQuestion;
-            
-            fetch(url, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showSuccessNotification(data.message);
-                    setTimeout(() => location.reload(), 1500);
-                } else {
-                    showErrorNotification('Error: ' + data.error);
+            // Show confirmation modal
+            showConfirmation(e, actionType, 'Question', function() {
+                const formData = new FormData();
+                formData.append('csrfmiddlewaretoken', QUIZ_CONFIG.csrfToken);
+                formData.append('video_id', QUIZ_CONFIG.videoId);
+                formData.append('question_text', document.getElementById('questionText').value);
+                formData.append('option_a', document.getElementById('optionA').value);
+                formData.append('option_b', document.getElementById('optionB').value);
+                formData.append('option_c', document.getElementById('optionC').value);
+                formData.append('option_d', document.getElementById('optionD').value);
+                formData.append('correct_answer', document.getElementById('correctAnswer').value);
+                formData.append('points_reward', document.getElementById('pointsReward').value);
+                formData.append('order', document.getElementById('order').value);
+                formData.append('explanation', document.getElementById('explanation').value);
+                
+                if (isEdit) {
+                    formData.append('question_id', questionId);
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showErrorNotification('An error occurred while saving the question.');
+                
+                const url = isEdit ? QUIZ_CONFIG.urls.editQuestion : QUIZ_CONFIG.urls.addQuestion;
+                
+                fetch(url, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showSuccessNotification(data.message);
+                        setTimeout(() => location.reload(), 1500);
+                    } else {
+                        showErrorNotification('Error: ' + data.error);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showErrorNotification('An error occurred while saving the question.');
+                });
             });
         });
     }
