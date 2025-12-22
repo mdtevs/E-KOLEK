@@ -466,172 +466,323 @@
                 </div>
             </div>
 
-            <!-- Game Cooldown Configuration Tab -->
+                        <!-- Game Cooldown Configuration Tab -->
             <div id="cooldownTab" class="tab-content" style="display: none;">
                 <div class="card mt-4">
-                    <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; border-radius: 8px 8px 0 0; margin-bottom: 2rem;">
-                        <h3 style="margin: 0; color: white;">
-                            <i class='bx bx-time-five'></i> Game Cooldown Configuration
-                        </h3>
-                        <p style="margin: 0.5rem 0 0 0; opacity: 0.9; color: white;">Set how long users must wait between game sessions</p>
+                    <div class="card-header" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; border-radius: 8px 8px 0 0; margin-bottom: 0;">
+                        <h2 style="margin: 0; font-size: 1.5rem; display: flex; align-items: center; gap: 10px;">
+                            <i class='bx bx-time-five'></i>
+                            Game Cooldown Settings
+                        </h2>
+                        <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 0.9rem;">Control how often users can play games to earn points</p>
                     </div>
-                    <div class="card-body" style="padding: 2rem;">
-                        <div class="row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                    <div class="card-body" style="padding: 2rem; background: #f9fafb;">
+                        <!-- Cooldown Configurations Grid -->
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 1.5rem;">
+                            
                             <!-- Quiz Game Cooldown -->
-                            <div class="cooldown-config-card" style="background: white; border: 2px solid #e5e7eb; border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                                <h4 style="color: #667eea; margin-bottom: 1rem;">
-                                    <i class='bx bx-question-mark'></i> Quiz Game
-                                </h4>
+                            <div class="cooldown-config-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 2px solid #e5e7eb;">
+                                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #f3f4f6;">
+                                    <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                        <i class='bx bx-brain' style="font-size: 24px; color: white;"></i>
+                                    </div>
+                                    <div>
+                                        <h3 style="margin: 0; font-size: 1.1rem; color: #1f2937;">Quiz Game</h3>
+                                        <p style="margin: 0; font-size: 0.85rem; color: #6b7280;">Question & Answer challenges</p>
+                                    </div>
+                                </div>
+                                
                                 <form id="quiz-cooldown-form">
                                     {% csrf_token %}
-                                    <div style="margin-bottom: 1rem;">
-                                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">Hours (0-168)</label>
-                                        <input type="number" class="form-control choice-input" 
-                                               name="cooldown_hours" 
-                                               value="{{ game_configs.quiz.cooldown_hours }}"
-                                               placeholder="Enter hours (e.g., 72)"
-                                               min="0" max="168" required
-                                               style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem;">
-                                    </div>
-                                    <div style="margin-bottom: 1rem;">
-                                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">Minutes (0-59)</label>
-                                        <input type="number" class="form-control choice-input" 
-                                               name="cooldown_minutes" 
-                                               value="{{ game_configs.quiz.cooldown_minutes }}"
-                                               placeholder="Enter minutes (e.g., 30)"
-                                               min="0" max="59" required
-                                               style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem;">
-                                    </div>
+                                    
+                                    <!-- Preset Buttons -->
                                     <div style="margin-bottom: 1.5rem;">
-                                        <label style="display: flex; align-items: center; cursor: pointer;">
-                                            <input type="checkbox" name="is_active" 
-                                                   {% if game_configs.quiz.is_active %}checked{% endif %}
-                                                   style="width: 18px; height: 18px; margin-right: 0.5rem; cursor: pointer;">
-                                            <span style="font-weight: 600; color: #374151;">Active</span>
+                                        <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.75rem; font-size: 0.9rem;">
+                                            <i class='bx bx-calendar-check'></i> Quick Presets
+                                        </label>
+                                        <div class="preset-buttons" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
+                                            <button type="button" onclick="setCooldown('quiz', 1)" class="preset-btn" style="padding: 0.6rem; border: 2px solid #e5e7eb; background: white; border-radius: 8px; font-weight: 600; color: #374151; cursor: pointer; transition: all 0.2s; font-size: 0.85rem;">
+                                                1 Day
+                                            </button>
+                                            <button type="button" onclick="setCooldown('quiz', 3)" class="preset-btn" style="padding: 0.6rem; border: 2px solid #e5e7eb; background: white; border-radius: 8px; font-weight: 600; color: #374151; cursor: pointer; transition: all 0.2s; font-size: 0.85rem;">
+                                                3 Days
+                                            </button>
+                                            <button type="button" onclick="setCooldown('quiz', 7)" class="preset-btn" style="padding: 0.6rem; border: 2px solid #e5e7eb; background: white; border-radius: 8px; font-weight: 600; color: #374151; cursor: pointer; transition: all 0.2s; font-size: 0.85rem;">
+                                                1 Week
+                                            </button>
+                                            <button type="button" onclick="setCooldown('quiz', 14)" class="preset-btn" style="padding: 0.6rem; border: 2px solid #e5e7eb; background: white; border-radius: 8px; font-weight: 600; color: #374151; cursor: pointer; transition: all 0.2s; font-size: 0.85rem;">
+                                                2 Weeks
+                                            </button>
+                                            <button type="button" onclick="setCooldown('quiz', 30)" class="preset-btn" style="padding: 0.6rem; border: 2px solid #e5e7eb; background: white; border-radius: 8px; font-weight: 600; color: #374151; cursor: pointer; transition: all 0.2s; font-size: 0.85rem;">
+                                                1 Month
+                                            </button>
+                                            <button type="button" onclick="setCooldown('quiz', 0)" class="preset-btn" style="padding: 0.6rem; border: 2px solid #e5e7eb; background: white; border-radius: 8px; font-weight: 600; color: #374151; cursor: pointer; transition: all 0.2s; font-size: 0.85rem;">
+                                                None
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Custom Days Input -->
+                                    <div style="margin-bottom: 1.5rem;">
+                                        <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.75rem; font-size: 0.9rem;">
+                                            <i class='bx bx-customize'></i> Custom Duration
+                                        </label>
+                                        <div style="display: flex; gap: 0.75rem; align-items: center;">
+                                            <div style="flex: 1;">
+                                                <input type="number" id="quiz-days" min="0" max="30" value="{{ game_configs.quiz.cooldown_hours|floatformat:0|add:'0'|divisibleby:24|yesno:'3,3' }}" 
+                                                       onchange="updateCooldownFromDays('quiz')"
+                                                       style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; font-weight: 600; color: #1f2937;">
+                                                <small style="display: block; margin-top: 0.25rem; color: #6b7280; font-size: 0.8rem;">Days (0-30)</small>
+                                            </div>
+                                            <input type="hidden" name="cooldown_hours" id="quiz-cooldown_hours" value="{{ game_configs.quiz.cooldown_hours }}">
+                                            <input type="hidden" name="cooldown_minutes" id="quiz-cooldown_minutes" value="{{ game_configs.quiz.cooldown_minutes }}">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Display Calculated Time -->
+                                    <div style="background: #f0f9ff; border: 2px solid #bae6fd; border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem;">
+                                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem;">
+                                            <i class='bx bx-time' style="font-size: 1.2rem; color: #0284c7;"></i>
+                                            <span style="font-weight: 600; color: #0c4a6e; font-size: 0.9rem;">Cooldown Duration</span>
+                                        </div>
+                                        <p id="quiz-duration-display" style="margin: 0; color: #075985; font-size: 1.1rem; font-weight: 700;">
+                                            {{ game_configs.quiz.get_formatted_duration|default:"Not configured" }}
+                                        </p>
+                                    </div>
+                                    
+                                    <!-- Active Toggle -->
+                                    <div style="background: #fef3c7; border: 2px solid #fcd34d; border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem;">
+                                        <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                                            <input type="checkbox" name="is_active" id="quiz-is_active" {% if game_configs.quiz.is_active %}checked{% endif %}
+                                                   style="width: 20px; height: 20px; cursor: pointer; accent-color: #f59e0b;">
+                                            <div>
+                                                <span style="font-weight: 600; color: #92400e; display: block; font-size: 0.9rem;">
+                                                    <i class='bx bx-shield-quarter'></i> Enable Cooldown Restriction
+                                                </span>
+                                                <small style="color: #78350f; font-size: 0.8rem;">Uncheck to allow unlimited plays</small>
+                                            </div>
                                         </label>
                                     </div>
-                                    <button type="submit" class="btn-save" style="width: 100%; padding: 0.75rem; background: #667eea; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                                    
+                                    <!-- Status Badge -->
+                                    <div class="status-badge {% if game_configs.quiz.is_active %}status-active{% else %}status-inactive{% endif %}">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <i class='bx bx-info-circle status-icon'></i>
+                                            <span class="status-text">
+                                                Status: <span id="quiz-status">{% if game_configs.quiz.is_active %}Active - {{ game_configs.quiz.get_formatted_duration }}{% else %}Not configured - Games unrestricted{% endif %}</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Submit Button -->
+                                    <button type="submit" class="btn-save" style="width: 100%; padding: 0.9rem; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1rem; box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3); transition: all 0.2s;">
                                         <i class='bx bx-save'></i> Update Quiz Cooldown
                                     </button>
-                                    {% if game_configs.quiz.cooldown_hours == 0 and game_configs.quiz.cooldown_minutes == 0 and not game_configs.quiz.is_active %}
-                                    <div style="margin-top: 1rem; padding: 0.75rem; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px;">
-                                        <small style="color: #92400e; display: block;">
-                                            <strong><i class='bx bx-info-circle'></i> Status:</strong> Not configured - Games unrestricted
-                                        </small>
-                                    </div>
-                                    {% else %}
-                                    <div style="margin-top: 1rem; padding: 0.75rem; background: #f3f4f6; border-radius: 6px;">
-                                        <small style="color: #6b7280; display: block;">
-                                            <strong>Current:</strong> {{ game_configs.quiz.get_formatted_duration }}
-                                        </small>
-                                    </div>
-                                    {% endif %}
                                 </form>
                             </div>
                             
                             <!-- Drag & Drop Game Cooldown -->
-                            <div class="cooldown-config-card" style="background: white; border: 2px solid #e5e7eb; border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                                <h4 style="color: #10b981; margin-bottom: 1rem;">
-                                    <i class='bx bx-move'></i> Drag & Drop Game
-                                </h4>
+                            <div class="cooldown-config-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 2px solid #e5e7eb;">
+                                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #f3f4f6;">
+                                    <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                        <i class='bx bx-move' style="font-size: 24px; color: white;"></i>
+                                    </div>
+                                    <div>
+                                        <h3 style="margin: 0; font-size: 1.1rem; color: #1f2937;">Drag & Drop Game</h3>
+                                        <p style="margin: 0; font-size: 0.85rem; color: #6b7280;">Waste sorting challenges</p>
+                                    </div>
+                                </div>
+                                
                                 <form id="dragdrop-cooldown-form">
                                     {% csrf_token %}
-                                    <div style="margin-bottom: 1rem;">
-                                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">Hours (0-168)</label>
-                                        <input type="number" class="form-control choice-input" 
-                                               name="cooldown_hours" 
-                                               value="{{ game_configs.drag_drop.cooldown_hours }}"
-                                               placeholder="Enter hours (e.g., 48)"
-                                               min="0" max="168" required
-                                               style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem;">
-                                    </div>
-                                    <div style="margin-bottom: 1rem;">
-                                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">Minutes (0-59)</label>
-                                        <input type="number" class="form-control choice-input" 
-                                               name="cooldown_minutes" 
-                                               value="{{ game_configs.drag_drop.cooldown_minutes }}"
-                                               placeholder="Enter minutes (e.g., 0)"
-                                               min="0" max="59" required
-                                               style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem;">
-                                    </div>
+                                    
+                                    <!-- Preset Buttons -->
                                     <div style="margin-bottom: 1.5rem;">
-                                        <label style="display: flex; align-items: center; cursor: pointer;">
-                                            <input type="checkbox" name="is_active" 
-                                                   {% if game_configs.drag_drop.is_active %}checked{% endif %}
-                                                   style="width: 18px; height: 18px; margin-right: 0.5rem; cursor: pointer;">
-                                            <span style="font-weight: 600; color: #374151;">Active</span>
+                                        <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.75rem; font-size: 0.9rem;">
+                                            <i class='bx bx-calendar-check'></i> Quick Presets
+                                        </label>
+                                        <div class="preset-buttons" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
+                                            <button type="button" onclick="setCooldown('dragdrop', 1)" class="preset-btn" style="padding: 0.6rem; border: 2px solid #e5e7eb; background: white; border-radius: 8px; font-weight: 600; color: #374151; cursor: pointer; transition: all 0.2s; font-size: 0.85rem;">
+                                                1 Day
+                                            </button>
+                                            <button type="button" onclick="setCooldown('dragdrop', 3)" class="preset-btn" style="padding: 0.6rem; border: 2px solid #e5e7eb; background: white; border-radius: 8px; font-weight: 600; color: #374151; cursor: pointer; transition: all 0.2s; font-size: 0.85rem;">
+                                                3 Days
+                                            </button>
+                                            <button type="button" onclick="setCooldown('dragdrop', 7)" class="preset-btn" style="padding: 0.6rem; border: 2px solid #e5e7eb; background: white; border-radius: 8px; font-weight: 600; color: #374151; cursor: pointer; transition: all 0.2s; font-size: 0.85rem;">
+                                                1 Week
+                                            </button>
+                                            <button type="button" onclick="setCooldown('dragdrop', 14)" class="preset-btn" style="padding: 0.6rem; border: 2px solid #e5e7eb; background: white; border-radius: 8px; font-weight: 600; color: #374151; cursor: pointer; transition: all 0.2s; font-size: 0.85rem;">
+                                                2 Weeks
+                                            </button>
+                                            <button type="button" onclick="setCooldown('dragdrop', 30)" class="preset-btn" style="padding: 0.6rem; border: 2px solid #e5e7eb; background: white; border-radius: 8px; font-weight: 600; color: #374151; cursor: pointer; transition: all 0.2s; font-size: 0.85rem;">
+                                                1 Month
+                                            </button>
+                                            <button type="button" onclick="setCooldown('dragdrop', 0)" class="preset-btn" style="padding: 0.6rem; border: 2px solid #e5e7eb; background: white; border-radius: 8px; font-weight: 600; color: #374151; cursor: pointer; transition: all 0.2s; font-size: 0.85rem;">
+                                                None
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Custom Days Input -->
+                                    <div style="margin-bottom: 1.5rem;">
+                                        <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.75rem; font-size: 0.9rem;">
+                                            <i class='bx bx-customize'></i> Custom Duration
+                                        </label>
+                                        <div style="display: flex; gap: 0.75rem; align-items: center;">
+                                            <div style="flex: 1;">
+                                                <input type="number" id="dragdrop-days" min="0" max="30" value="0" 
+                                                       onchange="updateCooldownFromDays('dragdrop')"
+                                                       style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; font-weight: 600; color: #1f2937;">
+                                                <small style="display: block; margin-top: 0.25rem; color: #6b7280; font-size: 0.8rem;">Days (0-30)</small>
+                                            </div>
+                                            <input type="hidden" name="cooldown_hours" id="dragdrop-cooldown_hours" value="{{ game_configs.drag_drop.cooldown_hours }}">
+                                            <input type="hidden" name="cooldown_minutes" id="dragdrop-cooldown_minutes" value="{{ game_configs.drag_drop.cooldown_minutes }}">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Display Calculated Time -->
+                                    <div style="background: #f0f9ff; border: 2px solid #bae6fd; border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem;">
+                                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem;">
+                                            <i class='bx bx-time' style="font-size: 1.2rem; color: #0284c7;"></i>
+                                            <span style="font-weight: 600; color: #0c4a6e; font-size: 0.9rem;">Cooldown Duration</span>
+                                        </div>
+                                        <p id="dragdrop-duration-display" style="margin: 0; color: #075985; font-size: 1.1rem; font-weight: 700;">
+                                            {{ game_configs.drag_drop.get_formatted_duration|default:"Not configured" }}
+                                        </p>
+                                    </div>
+                                    
+                                    <!-- Active Toggle -->
+                                    <div style="background: #fef3c7; border: 2px solid #fcd34d; border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem;">
+                                        <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                                            <input type="checkbox" name="is_active" id="dragdrop-is_active" {% if game_configs.drag_drop.is_active %}checked{% endif %}
+                                                   style="width: 20px; height: 20px; cursor: pointer; accent-color: #f59e0b;">
+                                            <div>
+                                                <span style="font-weight: 600; color: #92400e; display: block; font-size: 0.9rem;">
+                                                    <i class='bx bx-shield-quarter'></i> Enable Cooldown Restriction
+                                                </span>
+                                                <small style="color: #78350f; font-size: 0.8rem;">Uncheck to allow unlimited plays</small>
+                                            </div>
                                         </label>
                                     </div>
-                                    <button type="submit" class="btn-save" style="width: 100%; padding: 0.75rem; background: #10b981; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                                    
+                                    <!-- Status Badge -->
+                                    <div class="status-badge {% if game_configs.drag_drop.is_active %}status-active{% else %}status-inactive{% endif %}">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <i class='bx bx-info-circle status-icon'></i>
+                                            <span class="status-text">
+                                                Status: <span id="dragdrop-status">{% if game_configs.drag_drop.is_active %}Active - {{ game_configs.drag_drop.get_formatted_duration }}{% else %}Not configured - Games unrestricted{% endif %}</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Submit Button -->
+                                    <button type="submit" class="btn-save" style="width: 100%; padding: 0.9rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1rem; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transition: all 0.2s;">
                                         <i class='bx bx-save'></i> Update Drag & Drop Cooldown
                                     </button>
-                                    {% if game_configs.drag_drop.cooldown_hours == 0 and game_configs.drag_drop.cooldown_minutes == 0 and not game_configs.drag_drop.is_active %}
-                                    <div style="margin-top: 1rem; padding: 0.75rem; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px;">
-                                        <small style="color: #92400e; display: block;">
-                                            <strong><i class='bx bx-info-circle'></i> Status:</strong> Not configured - Games unrestricted
-                                        </small>
-                                    </div>
-                                    {% else %}
-                                    <div style="margin-top: 1rem; padding: 0.75rem; background: #f3f4f6; border-radius: 6px;">
-                                        <small style="color: #6b7280; display: block;">
-                                            <strong>Current:</strong> {{ game_configs.drag_drop.get_formatted_duration }}
-                                        </small>
-                                    </div>
-                                    {% endif %}
                                 </form>
                             </div>
                             
-                            <!-- Default Cooldown -->
-                            <div class="cooldown-config-card" style="background: white; border: 2px solid #e5e7eb; border-radius: 8px; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                                <h4 style="color: #f59e0b; margin-bottom: 1rem;">
-                                    <i class='bx bx-game'></i> Default (All Games)
-                                </h4>
+                            <!-- Default (All Games) Cooldown -->
+                            <div class="cooldown-config-card" style="background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 2px solid #e5e7eb;">
+                                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid #f3f4f6;">
+                                    <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center;">
+                                        <i class='bx bx-game' style="font-size: 24px; color: white;"></i>
+                                    </div>
+                                    <div>
+                                        <h3 style="margin: 0; font-size: 1.1rem; color: #1f2937;">Default (All Games)</h3>
+                                        <p style="margin: 0; font-size: 0.85rem; color: #6b7280;">Fallback for all game types</p>
+                                    </div>
+                                </div>
+                                
                                 <form id="default-cooldown-form">
                                     {% csrf_token %}
-                                    <div style="margin-bottom: 1rem;">
-                                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">Hours (0-168)</label>
-                                        <input type="number" class="form-control choice-input" 
-                                               name="cooldown_hours" 
-                                               value="{{ game_configs.all.cooldown_hours }}"
-                                               placeholder="Enter hours (e.g., 24)"
-                                               min="0" max="168" required
-                                               style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem;">
-                                    </div>
-                                    <div style="margin-bottom: 1rem;">
-                                        <label style="display: block; font-weight: 600; margin-bottom: 0.5rem; color: #374151;">Minutes (0-59)</label>
-                                        <input type="number" class="form-control choice-input" 
-                                               name="cooldown_minutes" 
-                                               value="{{ game_configs.all.cooldown_minutes }}"
-                                               placeholder="Enter minutes (e.g., 0)"
-                                               min="0" max="59" required
-                                               style="width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 6px; font-size: 1rem;">
-                                    </div>
+                                    
+                                    <!-- Preset Buttons -->
                                     <div style="margin-bottom: 1.5rem;">
-                                        <label style="display: flex; align-items: center; cursor: pointer;">
-                                            <input type="checkbox" name="is_active" 
-                                                   {% if game_configs.all.is_active %}checked{% endif %}
-                                                   style="width: 18px; height: 18px; margin-right: 0.5rem; cursor: pointer;">
-                                            <span style="font-weight: 600; color: #374151;">Active</span>
+                                        <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.75rem; font-size: 0.9rem;">
+                                            <i class='bx bx-calendar-check'></i> Quick Presets
+                                        </label>
+                                        <div class="preset-buttons" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem;">
+                                            <button type="button" onclick="setCooldown('default', 1)" class="preset-btn" style="padding: 0.6rem; border: 2px solid #e5e7eb; background: white; border-radius: 8px; font-weight: 600; color: #374151; cursor: pointer; transition: all 0.2s; font-size: 0.85rem;">
+                                                1 Day
+                                            </button>
+                                            <button type="button" onclick="setCooldown('default', 3)" class="preset-btn" style="padding: 0.6rem; border: 2px solid #e5e7eb; background: white; border-radius: 8px; font-weight: 600; color: #374151; cursor: pointer; transition: all 0.2s; font-size: 0.85rem;">
+                                                3 Days
+                                            </button>
+                                            <button type="button" onclick="setCooldown('default', 7)" class="preset-btn" style="padding: 0.6rem; border: 2px solid #e5e7eb; background: white; border-radius: 8px; font-weight: 600; color: #374151; cursor: pointer; transition: all 0.2s; font-size: 0.85rem;">
+                                                1 Week
+                                            </button>
+                                            <button type="button" onclick="setCooldown('default', 14)" class="preset-btn" style="padding: 0.6rem; border: 2px solid #e5e7eb; background: white; border-radius: 8px; font-weight: 600; color: #374151; cursor: pointer; transition: all 0.2s; font-size: 0.85rem;">
+                                                2 Weeks
+                                            </button>
+                                            <button type="button" onclick="setCooldown('default', 30)" class="preset-btn" style="padding: 0.6rem; border: 2px solid #e5e7eb; background: white; border-radius: 8px; font-weight: 600; color: #374151; cursor: pointer; transition: all 0.2s; font-size: 0.85rem;">
+                                                1 Month
+                                            </button>
+                                            <button type="button" onclick="setCooldown('default', 0)" class="preset-btn" style="padding: 0.6rem; border: 2px solid #e5e7eb; background: white; border-radius: 8px; font-weight: 600; color: #374151; cursor: pointer; transition: all 0.2s; font-size: 0.85rem;">
+                                                None
+                                            </button>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Custom Days Input -->
+                                    <div style="margin-bottom: 1.5rem;">
+                                        <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 0.75rem; font-size: 0.9rem;">
+                                            <i class='bx bx-customize'></i> Custom Duration
+                                        </label>
+                                        <div style="display: flex; gap: 0.75rem; align-items: center;">
+                                            <div style="flex: 1;">
+                                                <input type="number" id="default-days" min="0" max="30" value="0" 
+                                                       onchange="updateCooldownFromDays('default')"
+                                                       style="width: 100%; padding: 0.75rem; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 1rem; font-weight: 600; color: #1f2937;">
+                                                <small style="display: block; margin-top: 0.25rem; color: #6b7280; font-size: 0.8rem;">Days (0-30)</small>
+                                            </div>
+                                            <input type="hidden" name="cooldown_hours" id="default-cooldown_hours" value="{{ game_configs.all.cooldown_hours }}">
+                                            <input type="hidden" name="cooldown_minutes" id="default-cooldown_minutes" value="{{ game_configs.all.cooldown_minutes }}">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Display Calculated Time -->
+                                    <div style="background: #f0f9ff; border: 2px solid #bae6fd; border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem;">
+                                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 0.5rem;">
+                                            <i class='bx bx-time' style="font-size: 1.2rem; color: #0284c7;"></i>
+                                            <span style="font-weight: 600; color: #0c4a6e; font-size: 0.9rem;">Cooldown Duration</span>
+                                        </div>
+                                        <p id="default-duration-display" style="margin: 0; color: #075985; font-size: 1.1rem; font-weight: 700;">
+                                            {{ game_configs.all.get_formatted_duration|default:"Not configured" }}
+                                        </p>
+                                    </div>
+                                    
+                                    <!-- Active Toggle -->
+                                    <div style="background: #fef3c7; border: 2px solid #fcd34d; border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem;">
+                                        <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                                            <input type="checkbox" name="is_active" id="default-is_active" {% if game_configs.all.is_active %}checked{% endif %}
+                                                   style="width: 20px; height: 20px; cursor: pointer; accent-color: #f59e0b;">
+                                            <div>
+                                                <span style="font-weight: 600; color: #92400e; display: block; font-size: 0.9rem;">
+                                                    <i class='bx bx-shield-quarter'></i> Enable Cooldown Restriction
+                                                </span>
+                                                <small style="color: #78350f; font-size: 0.8rem;">Uncheck to allow unlimited plays</small>
+                                            </div>
                                         </label>
                                     </div>
-                                    <button type="submit" class="btn-save" style="width: 100%; padding: 0.75rem; background: #f59e0b; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; transition: background 0.2s;">
+                                    
+                                    <!-- Status Badge -->
+                                    <div class="status-badge {% if game_configs.all.is_active %}status-active{% else %}status-inactive{% endif %}">
+                                        <div style="display: flex; align-items: center; gap: 8px;">
+                                            <i class='bx bx-info-circle status-icon'></i>
+                                            <span class="status-text">
+                                                Status: <span id="default-status">{% if game_configs.all.is_active %}Active - {{ game_configs.all.get_formatted_duration }}{% else %}Not configured - Games unrestricted{% endif %}</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Submit Button -->
+                                    <button type="submit" class="btn-save" style="width: 100%; padding: 0.9rem; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 1rem; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); transition: all 0.2s;">
                                         <i class='bx bx-save'></i> Update Default Cooldown
                                     </button>
-                                    {% if game_configs.all.cooldown_hours == 0 and game_configs.all.cooldown_minutes == 0 and not game_configs.all.is_active %}
-                                    <div style="margin-top: 1rem; padding: 0.75rem; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 6px;">
-                                        <small style="color: #92400e; display: block;">
-                                            <strong><i class='bx bx-info-circle'></i> Status:</strong> Not configured - Games unrestricted
-                                        </small>
-                                    </div>
-                                    {% else %}
-                                    <div style="margin-top: 1rem; padding: 0.75rem; background: #f3f4f6; border-radius: 6px;">
-                                        <small style="color: #6b7280; display: block;">
-                                            <strong>Current:</strong> {{ game_configs.all.get_formatted_duration }}
-                                        </small>
-                                    </div>
-                                    {% endif %}
                                 </form>
                             </div>
+                            
                         </div>
                         
                         <!-- Info Section -->
@@ -640,17 +791,19 @@
                                 <i class='bx bx-info-circle'></i> How It Works
                             </h5>
                             <ul style="color: #1e40af; margin: 0; padding-left: 1.5rem; line-height: 1.6;">
-                                <li>Set individual cooldown periods for Quiz and Drag & Drop games</li>
-                                <li>The Default cooldown applies to all games that don't have a specific configuration</li>
-                                <li>Maximum cooldown is 168 hours (1 week)</li>
+                                <li>Click preset buttons for quick setup (1 day, 3 days, 1 week, etc.)</li>
+                                <li>Or enter a custom duration in the days field (0-30 days)</li>
+                                <li>Days are automatically converted to hours for backend storage</li>
+                                <li>The Default cooldown applies to all games without specific configuration</li>
+                                <li>Enable the checkbox to activate cooldown restrictions</li>
                                 <li>Changes take effect immediately for new game sessions</li>
-                                <li>Users in the mobile app will see the updated cooldown times</li>
                             </ul>
                         </div>
                     </div>
                 </div>
             </div>
-        </main>
+
+
     </section>
 
     <script src="{% static 'script.js' %}"></script>
@@ -661,15 +814,16 @@
             addCategory: '{% url "cenro:add_category" %}',
             addItem: '{% url "cenro:add_item" %}',
             addQuestion: '{% url "cenro:add_question" %}',
-            deleteCategory: '/delete_category/0/', // Will replace 0 with actual ID in JS
-            deleteItem: '/delete_item/0/', // Will replace 0 with actual ID in JS
-            deleteQuestion: '/delete_question/0/' // Will replace 0 with actual ID in JS
+            deleteCategory: '/delete_category/0/', 
+            deleteItem: '/delete_item/0/', 
+            deleteQuestion: '/delete_question/0/' 
         };
         window.CSRF_TOKEN = '{{ csrf_token }}';
     </script>
     
         
     <script src="{% static 'js/tab-persistence.js' %}?v={{ timestamp }}"></script>
+    <script src="{% static 'js/cooldown-presets.js' %}?v={{ timestamp }}"></script>
     <script src="{% static 'js/admingames.js' %}?v={{ timestamp }}"></script>
     <script src="{% static 'js/games-excel-upload.js' %}?v={{ timestamp }}"></script>
     <script src="{% static 'js/points-input-handler.js' %}?v={{ timestamp }}"></script>
@@ -765,7 +919,7 @@
             });
         }
         
-        // Add CSS animations
+        // Add CSS animations and status badge styles
         const style = document.createElement('style');
         style.textContent = `
             @keyframes slideIn {
@@ -799,6 +953,37 @@
             .cooldown-config-card:hover {
                 transform: translateY(-2px);
                 box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+            }
+            .status-badge {
+                border-radius: 10px;
+                padding: 0.75rem 1rem;
+                margin-bottom: 1.5rem;
+            }
+            .status-badge.status-active {
+                background: #dcfce7;
+                border: 2px solid #86efac;
+            }
+            .status-badge.status-inactive {
+                background: #fee2e2;
+                border: 2px solid #fca5a5;
+            }
+            .status-badge.status-active .status-icon {
+                color: #16a34a;
+                font-size: 1.1rem;
+            }
+            .status-badge.status-inactive .status-icon {
+                color: #dc2626;
+                font-size: 1.1rem;
+            }
+            .status-badge.status-active .status-text {
+                color: #166534;
+                font-size: 0.85rem;
+                font-weight: 600;
+            }
+            .status-badge.status-inactive .status-text {
+                color: #991b1b;
+                font-size: 0.85rem;
+                font-weight: 600;
             }
         `;
         document.head.appendChild(style);
