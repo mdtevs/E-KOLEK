@@ -113,6 +113,8 @@ function closeDeleteScheduleModal() {
   document.getElementById("deleteScheduleModal").style.display = "none";
 }
 
+// Wait for DOM to be ready before attaching event listeners
+window.addEventListener('DOMContentLoaded', function() {
 // Add Schedule
 document.getElementById("addScheduleForm").addEventListener("submit", function (e) {
   e.preventDefault();
@@ -137,6 +139,35 @@ document.getElementById("addScheduleForm").addEventListener("submit", function (
     });
   });
 });
+
+document.getElementById("editScheduleForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+  
+  // Show confirmation modal first
+  showConfirmation(null, 'update', 'Schedule', function() {
+    const form = document.getElementById("editScheduleForm");
+    const data = new FormData(form);
+    data.append('id', document.getElementById("editScheduleId").value);
+    
+    AdminUtils.fetchWithCSRF(window.DJANGO_URLS.editSchedule, {
+      method: "POST",
+      body: data
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        showSuccessNotification('Schedule updated successfully!');
+        setTimeout(() => location.reload(), 1500);
+      } else {
+        showErrorNotification('Failed to update schedule');
+      }
+    });
+  });
+});
+}); // End DOMContentLoaded
+
+// Global helper functions - must be outside DOMContentLoaded to be called from HTML
+let scheduleToDelete = null;
 
 function openEditScheduleModal(id) {
   // Get the row data from the table
@@ -184,45 +215,16 @@ function openEditScheduleModal(id) {
   document.getElementById("editScheduleModal").style.display = "flex";
 }
 
-document.getElementById("editScheduleForm").addEventListener("submit", function (e) {
-  e.preventDefault();
-  
-  // Show confirmation modal first
-  showConfirmation(null, 'update', 'Schedule', function() {
-    const form = document.getElementById("editScheduleForm");
-    const data = new FormData(form);
-    data.append('id', document.getElementById("editScheduleId").value);
-    
-    AdminUtils.fetchWithCSRF(window.DJANGO_URLS.editSchedule, {
-      method: "POST",
-      body: data
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        showSuccessNotification('Schedule updated successfully!');
-        setTimeout(() => location.reload(), 1500);
-      } else {
-        showErrorNotification('Failed to update schedule');
-      }
-    });
-  });
-});
-
-// Delete Schedule
-let scheduleToDelete = null;
 function openDeleteScheduleModal(id) {
   scheduleToDelete = id;
   document.getElementById("deleteScheduleModal").style.display = "flex";
 }
+
 function closeDeleteScheduleModal() {
   document.getElementById("deleteScheduleModal").style.display = "none";
 }
+
 function confirmDeleteSchedule() {
-  
-  AdminUtils.fetchWithCSRF(window.DJANGO_URLS.deleteSchedule, {
-    method: "POST",
-    body: new URLSearchParams({id: scheduleToDelete})
   })
   .then(res => res.json())
   .then(data => {

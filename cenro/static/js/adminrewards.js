@@ -43,6 +43,8 @@ function showErrorNotification(message) {
 		document.getElementById("addRewardModal").style.display = "none";
 	}
 
+// Wait for DOM to be ready before attaching event listeners
+window.addEventListener('DOMContentLoaded', function() {
 	// Handle add reward form submission
 	document.getElementById("addRewardForm").addEventListener("submit", function(e) {
   e.preventDefault();
@@ -132,59 +134,6 @@ function showErrorNotification(message) {
   });
 });
 
-	function openEditRewardModal(id, name, category, points, description, image_url) {
-  document.getElementById('editRewardId').value = id;
-  document.getElementById('editRewardName').value = name;
-  document.getElementById('editRewardCategory').value = category;
-  
-  // Format points to remove unnecessary decimals (e.g., 3.00 → 3, 3.50 → 3.5)
-  const formattedPoints = window.formatPointsDisplay ? window.formatPointsDisplay(points) : points;
-  document.getElementById('editRewardPoints').value = formattedPoints;
-  
-  document.getElementById('editRewardDescription').value = description;
-  
-  // Show current image preview if image exists
-  const imagePreview = document.getElementById('editCurrentImagePreview');
-  const currentImage = document.getElementById('editCurrentImage');
-  
-  if (image_url && image_url !== 'None' && image_url !== '') {
-    currentImage.src = image_url;
-    imagePreview.style.display = 'block';
-  } else {
-    imagePreview.style.display = 'none';
-  }
-  
-  // Reset the file input and progress indicators
-  document.getElementById('editRewardImage').value = '';
-  const progressText = document.getElementById('editRewardProgressText');
-  const progress = document.getElementById('editRewardProgress');
-  if (progressText) progressText.style.display = 'none';
-  if (progress) progress.classList.remove('active');
-  
-  document.getElementById('editRewardModal').style.display = 'flex';
-}
-
-function closeEditRewardModal() {
-  document.getElementById('editRewardModal').style.display = 'none';
-}
-
-// Stock Management Functions
-function openAddStockModal() {
-  document.getElementById('addStockModal').style.display = 'flex';
-}
-
-function closeAddStockModal() {
-  document.getElementById('addStockModal').style.display = 'none';
-}
-
-function openRemoveStockModal() {
-  document.getElementById('removeStockModal').style.display = 'flex';
-}
-
-function closeRemoveStockModal() {
-  document.getElementById('removeStockModal').style.display = 'none';
-}
-
 // Add Stock Form Handler
 document.getElementById("addStockForm").addEventListener("submit", function(e) {
   e.preventDefault();
@@ -233,6 +182,7 @@ document.getElementById("removeStockForm").addEventListener("submit", function(e
       } else {
         showErrorNotification(data.error || 'Failed to remove stock');
       }
+    });
     });
   });
 });
@@ -321,44 +271,7 @@ document.getElementById("removeStockForm").addEventListener("submit", function(e
   });
 });
 
-  let rewardToDelete = null;
-
-function openDeleteRewardModal(id) {
-  rewardToDelete = id;
-  document.getElementById("deleteRewardModal").style.display = "flex";
-}
-
-function closeDeleteRewardModal() {
-  document.getElementById("deleteRewardModal").style.display = "none";
-}
-
-function confirmDeleteReward() {
-  AdminUtils.fetchWithCSRF(window.DJANGO_URLS.deleteReward, {
-    method: "POST",
-    body: new URLSearchParams({id: rewardToDelete})
-  })
-  .then(res => res.json())
-  .then(data => {
-    if (data.success) {
-      closeDeleteRewardModal();
-      showSuccessNotification('Product deleted successfully!');
-      setTimeout(() => location.reload(), 1500);
-    } else {
-      showErrorNotification(data.error || 'Failed to delete reward');
-    }
-  });
-}
-
-  function showSuccessMessage(msg) {
-  const box = document.getElementById('successMessage');
-  box.textContent = msg;
-  box.style.display = 'block';
-  setTimeout(() => {
-    box.style.display = 'none';
-  }, 1000);
-}
-
-window.addEventListener('DOMContentLoaded', function() {
+  // Check for success message from localStorage
   const msg = localStorage.getItem('successMessage');
   if (msg) {
     showSuccessMessage(msg);
@@ -389,5 +302,95 @@ window.addEventListener('DOMContentLoaded', function() {
       progressText.style.display = 'none';
     }
   });
-});
+}); // End DOMContentLoaded
+
+// Global helper functions - must be outside DOMContentLoaded to be called from HTML
+let rewardToDelete = null;
+
+function openEditRewardModal(id, name, category, points, description, image_url) {
+  document.getElementById('editRewardId').value = id;
+  document.getElementById('editRewardName').value = name;
+  document.getElementById('editRewardCategory').value = category;
+  
+  // Format points to remove unnecessary decimals (e.g., 3.00 → 3, 3.50 → 3.5)
+  const formattedPoints = window.formatPointsDisplay ? window.formatPointsDisplay(points) : points;
+  document.getElementById('editRewardPoints').value = formattedPoints;
+  
+  document.getElementById('editRewardDescription').value = description;
+  
+  // Show current image preview if image exists
+  const imagePreview = document.getElementById('editCurrentImagePreview');
+  const currentImage = document.getElementById('editCurrentImage');
+  
+  if (image_url && image_url !== 'None' && image_url !== '') {
+    currentImage.src = image_url;
+    imagePreview.style.display = 'block';
+  } else {
+    imagePreview.style.display = 'none';
+  }
+  
+  // Reset the file input and progress indicators
+  document.getElementById('editRewardImage').value = '';
+  const progressText = document.getElementById('editRewardProgressText');
+  const progress = document.getElementById('editRewardProgress');
+  if (progressText) progressText.style.display = 'none';
+  if (progress) progress.classList.remove('active');
+  
+  document.getElementById('editRewardModal').style.display = 'flex';
+}
+
+function closeEditRewardModal() {
+  document.getElementById('editRewardModal').style.display = 'none';
+}
+
+function openAddStockModal() {
+  document.getElementById('addStockModal').style.display = 'flex';
+}
+
+function closeAddStockModal() {
+  document.getElementById('addStockModal').style.display = 'none';
+}
+
+function openRemoveStockModal() {
+  document.getElementById('removeStockModal').style.display = 'flex';
+}
+
+function closeRemoveStockModal() {
+  document.getElementById('removeStockModal').style.display = 'none';
+}
+
+function openDeleteRewardModal(id) {
+  rewardToDelete = id;
+  document.getElementById("deleteRewardModal").style.display = "flex";
+}
+
+function closeDeleteRewardModal() {
+  document.getElementById("deleteRewardModal").style.display = "none";
+}
+
+function confirmDeleteReward() {
+  AdminUtils.fetchWithCSRF(window.DJANGO_URLS.deleteReward, {
+    method: "POST",
+    body: new URLSearchParams({id: rewardToDelete})
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      closeDeleteRewardModal();
+      showSuccessNotification('Product deleted successfully!');
+      setTimeout(() => location.reload(), 1500);
+    } else {
+      showErrorNotification(data.error || 'Failed to delete reward');
+    }
+  });
+}
+
+function showSuccessMessage(msg) {
+  const box = document.getElementById('successMessage');
+  box.textContent = msg;
+  box.style.display = 'block';
+  setTimeout(() => {
+    box.style.display = 'none';
+  }, 1000);
+}
 	
