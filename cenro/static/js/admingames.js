@@ -78,13 +78,30 @@ function initializeColorPicker(previewId, inputId, textInputId) {
     // Set initial color
     preview.style.backgroundColor = colorInput.value;
     
-    // When clicking the preview circle, open the color picker
-    preview.addEventListener('click', () => {
-        colorInput.click();
-    });
+    // Position the hidden color input inside the preview circle
+    preview.style.position = 'relative';
+    colorInput.style.position = 'absolute';
+    colorInput.style.top = '0';
+    colorInput.style.left = '0';
+    colorInput.style.width = '100%';
+    colorInput.style.height = '100%';
+    colorInput.style.opacity = '0';
+    colorInput.style.cursor = 'pointer';
+    
+    // Move the color input inside the preview circle for better positioning
+    if (colorInput.parentElement !== preview) {
+        preview.appendChild(colorInput);
+    }
     
     // Update preview and text when color picker changes
     colorInput.addEventListener('input', (e) => {
+        const color = e.target.value.toUpperCase();
+        preview.style.backgroundColor = color;
+        textInput.value = color;
+    });
+    
+    // Also handle change event for better compatibility
+    colorInput.addEventListener('change', (e) => {
         const color = e.target.value.toUpperCase();
         preview.style.backgroundColor = color;
         textInput.value = color;
