@@ -225,6 +225,9 @@ function closeDeleteScheduleModal() {
 }
 
 function confirmDeleteSchedule() {
+  AdminUtils.fetchWithCSRF(window.DJANGO_URLS.deleteSchedule, {
+    method: "POST",
+    body: new URLSearchParams({id: scheduleToDelete})
   })
   .then(res => res.json())
   .then(data => {

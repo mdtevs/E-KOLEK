@@ -183,7 +183,6 @@ document.getElementById("removeStockForm").addEventListener("submit", function(e
         showErrorNotification(data.error || 'Failed to remove stock');
       }
     });
-    });
   });
 });
 
@@ -267,7 +266,7 @@ document.getElementById("removeStockForm").addEventListener("submit", function(e
         progressBar.style.width = '0%';
       }, 1000);
     }
-    });
+  });
   });
 });
 
