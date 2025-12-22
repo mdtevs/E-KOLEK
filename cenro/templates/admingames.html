@@ -845,14 +845,22 @@
                 // Get CSRF token from hidden input or cookies
                 let csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
                 if (!csrftoken) {
-                    // Try to get from cookie
-                    csrftoken = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
+                    // Try to get from cookie (ekolek_csrftoken is the actual cookie name)
+                    const cookies = document.cookie.split('; ');
+                    csrftoken = cookies.find(row => row.startsWith('ekolek_csrftoken='))?.split('=')[1];
+                    if (!csrftoken) {
+                        // Fallback to standard csrftoken name
+                        csrftoken = cookies.find(row => row.startsWith('csrftoken='))?.split('=')[1];
+                    }
                 }
                 
                 console.log('=== COOLDOWN UPDATE ATTEMPT ===');
                 console.log('Admin logged in:', '{{ request.session.admin_username }}');
                 console.log('Admin user ID:', '{{ request.session.admin_user_id }}');
-                console.log('CSRF Token:', csrftoken ? 'Found' : 'MISSING!');
+                console.log('Session Key:', '{{ request.session.session_key }}');
+                console.log('All Cookies:', document.cookie);
+                console.log('CSRF Token:', csrftoken ? 'Found (' + csrftoken.substring(0, 10) + '...)' : 'MISSING!');
+                console.log('Session Cookie (ekolek_session):', document.cookie.includes('ekolek_session') ? 'Present' : 'MISSING!');
                 console.log('Form Data:', Object.fromEntries(formData));
                 
                 // Get the submit button

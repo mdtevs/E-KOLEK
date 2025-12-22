@@ -31,13 +31,21 @@ import time
 @permission_required('can_manage_games')
 def admingames(request):
     """View for admin games management"""
+    # Debug session on page load
+    logger.info(f"=== ADMINGAMES PAGE LOAD ===")
+    logger.info(f"Session ID: {request.session.session_key}")
+    logger.info(f"Admin user ID: {request.session.get('admin_user_id')}")
+    logger.info(f"Admin username: {request.session.get('admin_username')}")
+    logger.info(f"All session keys: {list(request.session.keys())}")
+    logger.info(f"Cookie header: {request.COOKIES.get('sessionid', 'NO SESSIONID COOKIE')}")
+    
     categories = WasteCategory.objects.all().prefetch_related('items')
     items = WasteItem.objects.all().select_related('category')
     questions = Question.objects.all().prefetch_related('choices')
     
     # Get or create game configurations
     game_configs = {}
-    admin_username = request.session.get('admin_user', {}).get('username', 'system')
+    admin_username = request.session.get('admin_username', 'system')
     
     for game_type, _ in GameConfiguration.GAME_TYPE_CHOICES:
         try:
@@ -197,9 +205,12 @@ def update_game_cooldown(request):
     """Update game cooldown configuration"""
     # Log authentication status
     logger.info(f"=== COOLDOWN UPDATE REQUEST ===")
+    logger.info(f"Session ID: {request.session.session_key}")
     logger.info(f"Admin User ID in session: {request.session.get('admin_user_id')}")
     logger.info(f"Admin Username in session: {request.session.get('admin_username')}")
     logger.info(f"Session keys: {list(request.session.keys())}")
+    logger.info(f"Cookie header: {request.COOKIES.get('sessionid', 'NO SESSIONID COOKIE')}")
+    logger.info(f"Has admin_user attribute: {hasattr(request, 'admin_user')}")
     
     # Manual CSRF token verification for AJAX requests
     if request.method == 'POST':
