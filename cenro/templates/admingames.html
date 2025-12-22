@@ -849,6 +849,9 @@
                     csrftoken = document.cookie.split('; ').find(row => row.startsWith('csrftoken='))?.split('=')[1];
                 }
                 
+                console.log('=== COOLDOWN UPDATE ATTEMPT ===');
+                console.log('Admin logged in:', '{{ request.session.admin_username }}');
+                console.log('Admin user ID:', '{{ request.session.admin_user_id }}');
                 console.log('CSRF Token:', csrftoken ? 'Found' : 'MISSING!');
                 console.log('Form Data:', Object.fromEntries(formData));
                 
@@ -878,6 +881,12 @@
                     const contentType = response.headers.get('content-type');
                     console.log('Response status:', response.status);
                     console.log('Content-Type:', contentType);
+                    
+                    // Handle 401 Unauthorized (not logged in)
+                    if (response.status === 401) {
+                        console.error('⛔ 401 UNAUTHORIZED - Admin session missing or expired');
+                        throw new Error('Your admin session has expired. Please log in to the admin panel again.');
+                    }
                     
                     // Check if response is JSON
                     if (!contentType || !contentType.includes('application/json')) {

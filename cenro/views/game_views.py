@@ -195,6 +195,12 @@ def delete_item(request, item_id):
 @admin_required
 def update_game_cooldown(request):
     """Update game cooldown configuration"""
+    # Log authentication status
+    logger.info(f"=== COOLDOWN UPDATE REQUEST ===")
+    logger.info(f"Admin User ID in session: {request.session.get('admin_user_id')}")
+    logger.info(f"Admin Username in session: {request.session.get('admin_username')}")
+    logger.info(f"Session keys: {list(request.session.keys())}")
+    
     # Manual CSRF token verification for AJAX requests
     if request.method == 'POST':
         csrf_token = request.headers.get('X-CSRFToken') or request.POST.get('csrfmiddlewaretoken')
