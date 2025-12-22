@@ -99,6 +99,7 @@ class AdminAccessControlMiddleware(MiddlewareMixin):
                     return JsonResponse({'error': 'Admin authentication required'}, status=401)
                 
                 print("✅ MIDDLEWARE ALLOWING REQUEST - admin_user_id found")
+                print("🔹 MIDDLEWARE: Returning None - request will proceed to next middleware/view")
                 
                 # Log admin API access
                 if request.method == 'POST':
@@ -133,6 +134,14 @@ class AdminAccessControlMiddleware(MiddlewareMixin):
                     )
         
         return None
+    
+    def process_response(self, request, response):
+        """Log response for API endpoints"""
+        if request.path.startswith('/api/game/'):
+            print(f"🔷 AdminAccessControlMiddleware: Response status={response.status_code} for {request.path}")
+            if response.status_code == 401:
+                print(f"⚠️ WARNING: 401 response! Response content: {response.content}")
+        return response
 
 
 class SQLInjectionDetectionMiddleware(MiddlewareMixin):
