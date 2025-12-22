@@ -79,14 +79,26 @@ class AdminAccessControlMiddleware(MiddlewareMixin):
         # Check if accessing API endpoint - use custom admin session auth
         for api_path in self.API_ADMIN_PATHS:
             if request.path.startswith(api_path):
+                # CRITICAL DEBUGGING - Log everything the middleware sees
+                print("🔥" * 40)
+                print(f"🔥 MIDDLEWARE: Checking {request.path}")
+                print(f"🔥 Request Cookies: {dict(request.COOKIES)}")
+                print(f"🔥 Session Key: {request.session.session_key}")
+                print(f"🔥 Session Data: {dict(request.session)}")
+                print(f"🔥 Admin User ID: {request.session.get('admin_user_id')}")
+                print("🔥" * 40)
+                
                 # Check custom admin session authentication
                 if not request.session.get('admin_user_id'):
+                    print("❌ MIDDLEWARE BLOCKING: No admin_user_id in session")
                     log_security_event(
                         'UNAUTHORIZED_API_ACCESS',
                         ip_address=get_client_ip(request),
                         details=f'Path: {request.path} - No admin_user_id in session'
                     )
                     return JsonResponse({'error': 'Admin authentication required'}, status=401)
+                
+                print("✅ MIDDLEWARE ALLOWING REQUEST - admin_user_id found")
                 
                 # Log admin API access
                 if request.method == 'POST':
