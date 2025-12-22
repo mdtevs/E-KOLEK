@@ -70,27 +70,54 @@ class AdminAccessControlMiddleware(MiddlewareMixin):
         '/cenro/adminlearn/',
     ]
     
+    # API endpoints that use custom admin authentication (session-based)
+    API_ADMIN_PATHS = [
+        '/cenro/api/',
+    ]
+    
     def process_request(self, request):
-        # Check if accessing admin page
+        # Check if accessing API endpoint - use custom admin session auth
+        for api_path in self.API_ADMIN_PATHS:
+            if request.path.startswith(api_path):
+                # Check custom admin session authentication
+                if not request.session.get('admin_user_id'):
+                    log_security_event(
+                        'UNAUTHORIZED_API_ACCESS',
+                        ip_address=get_client_ip(request),
+                        details=f'Path: {request.path} - No admin_user_id in session'
+                    )
+                    return JsonResponse({'error': 'Admin authentication required'}, status=401)
+                
+                # Log admin API access
+                if request.method == 'POST':
+                    log_security_event(
+                        'ADMIN_API_ACTION',
+                        ip_address=get_client_ip(request),
+                        details=f'Admin: {request.session.get("admin_username")} - Path: {request.path}'
+                    )
+                
+                return None  # Allow request to proceed
+        
+        # Check if accessing admin page (HTML pages)
         for admin_path in self.ADMIN_PATHS:
             if request.path.startswith(admin_path):
-                # For now, we'll rely on Django's session authentication
-                # In production, you might want to add additional checks
-                if not request.user.is_authenticated:
+                # For HTML pages, check custom admin session
+                # (The @admin_required decorator will handle detailed validation)
+                if not request.session.get('admin_user_id'):
                     log_security_event(
                         'UNAUTHORIZED_ADMIN_ACCESS',
                         ip_address=get_client_ip(request),
-                        details=f'Path: {request.path}'
+                        details=f'Path: {request.path} - No admin session'
                     )
-                    return JsonResponse({'error': 'Authentication required'}, status=401)
+                    # Don't block here - let the decorator handle it with proper redirect
+                    pass
                 
                 # Log admin access
                 if request.method == 'POST':
                     log_security_event(
                         'ADMIN_ACTION',
-                        user=request.user,
                         ip_address=get_client_ip(request),
-                        details=f'Path: {request.path}'
+                        details=f'Admin: {request.session.get("admin_username")} - Path: {request.path}'
                     )
         
         return None
