@@ -554,7 +554,7 @@ def send_otp(phone_number, message=None):
         'phone_number': phone_formatted,
         'message': otp_message,
         'sms_provider': SMS_PROVIDER,  # Multi-network provider
-        'sender_name': 'kaprets'  # Required for all-network delivery
+        'sender_name': 'Ka Prets'  # Temporary sender name for all networks (Dec 23, 2025)
     }
 
     print(f"\n[REQUEST] Endpoint: {SMS_API_URL}")

@@ -106,7 +106,7 @@ class SMSService:
                 'phone_number': formatted_phone,
                 'message': message,
                 'sms_provider': self.sms_provider,  # Multi-network provider for all networks
-                'sender_name': 'kaprets'  # Required for all-network delivery
+                'sender_name': 'Ka Prets'  # Temporary sender name for all networks (Dec 23, 2025)
             }
             
             # Log the request (without exposing full token)
