@@ -16,7 +16,18 @@ logger = logging.getLogger(__name__)
 def admin_required(view_func):
     """Decorator to require admin authentication - Production Ready"""
     def wrapper(request, *args, **kwargs):
+        # EXTENSIVE DEBUGGING
+        logger.info(f"=== @admin_required CHECK ===")
+        logger.info(f"Session key from request: {request.session.session_key}")
+        logger.info(f"Session cookie in request: {request.COOKIES.get('ekolek_session', 'NOT FOUND')}")
+        logger.info(f"All session data: {dict(request.session)}")
+        logger.info(f"admin_user_id from session: {request.session.get('admin_user_id')}")
+        logger.info(f"admin_user_id type: {type(request.session.get('admin_user_id'))}")
+        logger.info(f"Session is empty: {request.session.is_empty()}")
+        logger.info(f"Session exists: {request.session.exists(request.session.session_key)}")
+        
         if not request.session.get('admin_user_id'):
+            logger.error(f"❌ ADMIN_USER_ID NOT FOUND IN SESSION")
             # Check if this is an AJAX request
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest' or request.content_type == 'application/json':
                 return JsonResponse({'success': False, 'error': 'Please log in to access the admin panel.'}, status=401)

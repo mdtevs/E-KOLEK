@@ -4,8 +4,7 @@ Game and quiz management views
 
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
-from django.views.decorators.http import require_POST
-from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST, require_http_methods
 from django.contrib import messages
 from django.utils import timezone
 from django.db import transaction, IntegrityError
@@ -199,8 +198,8 @@ def delete_item(request, item_id):
 
 
 # Game Configuration Management
-@csrf_exempt  # Exempt from default CSRF, we'll check manually
-@admin_required
+@admin_required  # Admin auth check first
+@require_http_methods(["POST"])  # Only POST allowed
 def update_game_cooldown(request):
     """Update game cooldown configuration"""
     # Log authentication status
@@ -209,100 +208,84 @@ def update_game_cooldown(request):
     logger.info(f"Admin User ID in session: {request.session.get('admin_user_id')}")
     logger.info(f"Admin Username in session: {request.session.get('admin_username')}")
     logger.info(f"Session keys: {list(request.session.keys())}")
-    logger.info(f"Cookie header: {request.COOKIES.get('sessionid', 'NO SESSIONID COOKIE')}")
+    logger.info(f"Cookie header: {request.COOKIES.get('ekolek_session', 'NO SESSION COOKIE')}")
     logger.info(f"Has admin_user attribute: {hasattr(request, 'admin_user')}")
     
-    # Manual CSRF token verification for AJAX requests
-    if request.method == 'POST':
-        csrf_token = request.headers.get('X-CSRFToken') or request.POST.get('csrfmiddlewaretoken')
-        if not csrf_token:
-            logger.error("CSRF token missing in request")
-            return JsonResponse({'success': False, 'error': 'CSRF token missing'}, status=403)
-        
-        # Verify the CSRF token matches
-        from django.middleware.csrf import get_token
-        expected_token = get_token(request)
-        if csrf_token != expected_token:
-            logger.error(f"CSRF token mismatch. Got: {csrf_token[:10]}..., Expected: {expected_token[:10]}...")
-            return JsonResponse({'success': False, 'error': 'CSRF verification failed'}, status=403)
-    
+    # Django handles CSRF automatically - no manual check needed
     # Log incoming request for debugging
     logger.info(f"Cooldown update request received from {request.session.get('admin_username', 'unknown')}")
     logger.info(f"POST data: {dict(request.POST)}")
-    logger.info(f"Headers: {dict(request.headers)}")
     
-    if request.method == 'POST':
-        try:
-            game_type = request.POST.get('game_type', 'all')
-            cooldown_hours = int(request.POST.get('cooldown_hours', 0))
-            cooldown_minutes = int(request.POST.get('cooldown_minutes', 0))
-            # Checkbox value is 'on' when checked, None when unchecked
-            is_active = request.POST.get('is_active') == 'on'
-            
-            logger.info(f"Parsed values - Type: {game_type}, Hours: {cooldown_hours}, Minutes: {cooldown_minutes}, Active: {is_active}")
-            
-            # Validate input
-            if cooldown_hours < 0 or cooldown_hours > 720:  # Max 30 days
-                return JsonResponse({
-                    'success': False, 
-                    'error': 'Hours must be between 0 and 720 (30 days)'
-                })
-            
-            if cooldown_minutes < 0 or cooldown_minutes > 59:
-                return JsonResponse({
-                    'success': False, 
-                    'error': 'Minutes must be between 0 and 59'
-                })
-            
-            # Get admin information from session (set during login)
-            admin_username = request.session.get('admin_username', 'unknown')
-            admin_full_name = request.session.get('admin_full_name', admin_username)
-            
-            # Update or create configuration
-            config, created = GameConfiguration.objects.update_or_create(
-                game_type=game_type,
-                defaults={
-                    'cooldown_hours': cooldown_hours,
-                    'cooldown_minutes': cooldown_minutes,
-                    'is_active': is_active,
-                    'updated_by': admin_full_name  # Use full name for better tracking
-                }
-            )
-            
-            # Log action with detailed information
-            action_status = 'created' if created else 'updated'
-            status_text = 'ACTIVE' if is_active else 'INACTIVE'
-            logger.info(
-                f"Game cooldown {action_status} by {admin_full_name} ({admin_username}): "
-                f"{game_type} - {cooldown_hours}h {cooldown_minutes}m ({status_text})"
-            )
-            
+    try:
+        game_type = request.POST.get('game_type', 'all')
+        cooldown_hours = int(request.POST.get('cooldown_hours', 0))
+        cooldown_minutes = int(request.POST.get('cooldown_minutes', 0))
+        # Checkbox value is 'on' when checked, None when unchecked
+        is_active = request.POST.get('is_active') == 'on'
+        
+        logger.info(f"Parsed values - Type: {game_type}, Hours: {cooldown_hours}, Minutes: {cooldown_minutes}, Active: {is_active}")
+        
+        # Validate input
+        if cooldown_hours < 0 or cooldown_hours > 720:  # Max 30 days
             return JsonResponse({
-                'success': True,
-                'message': 'Game cooldown configuration updated successfully',
-                'config': {
-                    'game_type': config.game_type,
-                    'cooldown_hours': config.cooldown_hours,
-                    'cooldown_minutes': config.cooldown_minutes,
-                    'is_active': config.is_active,
-                    'formatted_duration': config.get_formatted_duration(),
-                    'total_milliseconds': config.total_cooldown_milliseconds
-                }
+                'success': False, 
+                'error': 'Hours must be between 0 and 720 (30 days)'
             })
-            
-        except ValueError as e:
-            logger.error(f"ValueError in cooldown update: {str(e)}")
-            logger.error(f"POST data that caused error: {dict(request.POST)}")
-            return JsonResponse({'success': False, 'error': f'Invalid numeric value: {str(e)}'})
-        except Exception as e:
-            logger.error(f"Exception in cooldown update: {str(e)}")
-            logger.error(f"Exception type: {type(e).__name__}")
-            logger.error(f"POST data: {dict(request.POST)}")
-            import traceback
-            logger.error(f"Traceback: {traceback.format_exc()}")
-            return JsonResponse({'success': False, 'error': f'{type(e).__name__}: {str(e)}'})
-    
-    return JsonResponse({'success': False, 'error': 'Invalid request method'})
+        
+        if cooldown_minutes < 0 or cooldown_minutes > 59:
+            return JsonResponse({
+                'success': False, 
+                'error': 'Minutes must be between 0 and 59'
+            })
+        
+        # Get admin information from session (set during login)
+        admin_username = request.session.get('admin_username', 'unknown')
+        admin_full_name = request.session.get('admin_full_name', admin_username)
+        
+        # Update or create configuration
+        config, created = GameConfiguration.objects.update_or_create(
+            game_type=game_type,
+            defaults={
+                'cooldown_hours': cooldown_hours,
+                'cooldown_minutes': cooldown_minutes,
+                'is_active': is_active,
+                'updated_by': admin_full_name  # Use full name for better tracking
+            }
+        )
+        
+        # Log action with detailed information
+        action_status = 'created' if created else 'updated'
+        status_text = 'ACTIVE' if is_active else 'INACTIVE'
+        logger.info(
+            f"Game cooldown {action_status} by {admin_full_name} ({admin_username}): "
+            f"{game_type} - {cooldown_hours}h {cooldown_minutes}m ({status_text})"
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Game cooldown configuration updated successfully',
+            'config': {
+                'game_type': config.game_type,
+                'cooldown_hours': config.cooldown_hours,
+                'cooldown_minutes': config.cooldown_minutes,
+                'is_active': config.is_active,
+                'formatted_duration': config.get_formatted_duration(),
+                'total_milliseconds': config.total_cooldown_milliseconds
+            }
+        })
+        
+    except ValueError as e:
+        logger.error(f"ValueError in cooldown update: {str(e)}")
+        logger.error(f"POST data that caused error: {dict(request.POST)}")
+        return JsonResponse({'success': False, 'error': f'Invalid numeric value: {str(e)}'})
+    except Exception as e:
+        logger.error(f"Exception in cooldown update: {str(e)}")
+        logger.error(f"Exception type: {type(e).__name__}")
+        logger.error(f"POST data: {dict(request.POST)}")
+        import traceback
+        logger.error(f"Traceback: {traceback.format_exc()}")
+        return JsonResponse({'success': False, 'error': f'{type(e).__name__}: {str(e)}'})
+
 
 
 @admin_required
