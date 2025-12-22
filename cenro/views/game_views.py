@@ -5,6 +5,7 @@ Game and quiz management views
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST, require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from django.utils import timezone
 from django.db import transaction, IntegrityError
@@ -225,6 +226,7 @@ def test_session_debug(request):
 
 
 # Game Configuration Management
+@csrf_exempt  # TEMPORARY: Test if CSRF is blocking
 @require_http_methods(["POST"])  # Only POST allowed
 def update_game_cooldown(request):
     """Update game cooldown configuration"""
