@@ -20,7 +20,7 @@ from .views import (
     # Game views
     admingames, adminquiz, add_question, delete_question,
     add_category, delete_category, add_item, delete_item,
-    update_game_cooldown, get_game_cooldown, test_session_debug,
+    update_game_cooldown, get_game_cooldown,
     # Learning views
     adminlearn, add_video, edit_video, toggle_video, delete_video,
     quiz_management, quiz_questions, quiz_results,
