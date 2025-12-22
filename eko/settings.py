@@ -367,8 +367,9 @@ REST_FRAMEWORK = {
         'eko.authentication.CsrfExemptSessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        # CHANGED: Allow unauthenticated by default, individual views can override
-        # 'rest_framework.permissions.IsAuthenticated',  # DISABLED - was blocking admin API
+        # Mobile API endpoints under /api/ require JWT authentication
+        # Admin endpoints under /game/ and /cenro/ use custom session auth (bypass DRF)
+        'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
