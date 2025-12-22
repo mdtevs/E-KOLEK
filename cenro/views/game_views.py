@@ -228,11 +228,9 @@ def test_session_debug(request):
 
 
 # Game Configuration Management
-@api_view(['POST'])              # CRITICAL: Make this a DRF view so decorators work
-@permission_classes([AllowAny])  # CRITICAL: Exempt from DRF authentication
-@authentication_classes([])      # CRITICAL: No DRF authentication required
+@require_http_methods(["POST"])  # Plain Django decorator - DRF won't touch this
 def update_game_cooldown(request):
-    """Update game cooldown configuration"""
+    """Update game cooldown configuration - BYPASSING DRF COMPLETELY"""
     try:
         print("🔥🔥🔥 VIEW FUNCTION STARTED - TOP OF FUNCTION 🔥🔥🔥")
         
